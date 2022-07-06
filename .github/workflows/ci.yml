@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - "*"
+  push:
+    branches:
+      - "main"
+      - "develop"
+
+jobs:
+  test:
+    name: Test (Elixir ${{matrix.elixir}} | Erlang/OTP ${{matrix.otp}})
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    strategy:
+      matrix:
+        include:
+          - otp: 24.x
+            elixir: 1.13.x
+            coverage: false
+            lint: true
+
+    env:
+      GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install OTP and Elixir
+        uses: erlef/setup-elixir@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+
+      - name: Cache deps and build
+        uses: actions/cache@v2
+        id: mix-cache
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+
+      - name: Install dependencies
+        run: mix deps.get --only test
+
+      - name: Run "mix format"
+        run: mix format --check-formatted
+        if: ${{matrix.lint}}
+
+      - name: Check no unused dependencies
+        run: mix deps.get && mix deps.unlock --check-unused
+        if: ${{matrix.lint}}
+
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Compile with --warnings-as-errors
+        run: mix compile --warnings-as-errors
+        if: ${{matrix.lint}}
+
+      - name: Run tests
+        run: mix test --trace
+        if: ${{!matrix.coverage}}
+
+      - name: Run tests with coverage
+        run: mix coveralls
+        if: ${{matrix.coverage}}
