@@ -32,3 +32,5 @@ readmark-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Elixir Language Server
+.elixir_ls
