@@ -17,7 +17,9 @@ defmodule ReadmarkWeb.Router do
   scope "/", ReadmarkWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    live_session :default, on_mount: [ReadmarkWeb.Sidebar] do
+      live "/", HomeLive, :index
+    end
   end
 
   # Other scopes may use custom stacks.

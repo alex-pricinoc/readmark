@@ -1,11 +1,39 @@
-<main class="container">
-  <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info">
-    <%= live_flash(@flash, :info) %>
-  </p>
+<.flash flash={@flash} kind={:info} />
+<.flash flash={@flash} kind={:error} />
 
-  <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error">
-    <%= live_flash(@flash, :error) %>
-  </p>
+<nav
+  id="sidebar"
+  class="absolute bg-white dark:bg-gray-900 lg:relative transform-gpu -translate-x-full duration-200 overflow-y-auto lg:translate-x-0 flex flex-col h-full border-r dark:border-gray-700 w-3/4 sm:w-1/2 md:w-1/3 lg:w-56 2xl:w-72 3xl:w-80"
+  phx-click-away={hide_sidebar()}
+>
+  <div class="sticky top-0 z-10 flex items-center px-3 py-6 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
+    <button
+      class="p-2 rounded-md transition hover:bg-gray-200 lg:hidden"
+      type="button"
+      phx-click={hide_sidebar()}
+    >
+      <.icon name={:x} class="w-4 h-4" />
+      <span class="sr-only">Close sidebar</span>
+    </button>
+    <h2 class="ml-3 text-md font-bold line-clamp-1">Alex Pricinoc</h2>
+  </div>
+  <ul class="flex-1 px-3 py-3 space-y-1">
+    <%= for link <- links() do %>
+      <li>
+        <.link
+          to={link.to}
+          class={
+            "flex-1 flex items-center space-x-3 px-2 py-1.5 font-medium text-sm text-gray-700 rounded-md transition #{if @active_tab == link.name, do: "bg-gray-900 dark:bg-white text-white dark:text-gray-900", else: "dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"}"
+          }
+        >
+          <.icon name={link.icon} class="w-6 h-6 inline-block" outlined />
+          <span><%= link.label %></span>
+        </.link>
+      </li>
+    <% end %>
+  </ul>
+</nav>
 
+<main class="flex flex-1 bg-white dark:bg-gray-800 bg-graph-paper">
   <%= @inner_content %>
 </main>

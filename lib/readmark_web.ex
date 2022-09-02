@@ -42,10 +42,16 @@ defmodule ReadmarkWeb do
     end
   end
 
-  def live_view do
+  def live_view(opts \\ []) do
     quote do
-      use Phoenix.LiveView,
-        layout: {ReadmarkWeb.LayoutView, "live.html"}
+      @opts Keyword.merge(
+              [
+                layout: {ReadmarkWeb.LayoutView, "live.html"},
+                container: {:div, class: "relative h-screen flex overflow-hidden bg-gray-50"}
+              ],
+              unquote(opts)
+            )
+      use Phoenix.LiveView, @opts
 
       unquote(view_helpers())
     end
@@ -91,6 +97,7 @@ defmodule ReadmarkWeb do
 
       # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
       import Phoenix.LiveView.Helpers
+      import ReadmarkWeb.LiveHelpers
 
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
@@ -98,6 +105,7 @@ defmodule ReadmarkWeb do
       import ReadmarkWeb.ErrorHelpers
       import ReadmarkWeb.Gettext
       alias ReadmarkWeb.Router.Helpers, as: Routes
+      alias Phoenix.LiveView.JS
     end
   end
 
