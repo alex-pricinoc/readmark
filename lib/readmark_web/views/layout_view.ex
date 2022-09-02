@@ -9,6 +9,7 @@ defmodule ReadmarkWeb.LayoutView do
 
   def links,
     do: [
-      %{icon: :home, name: :home, label: "Home", to: Routes.home_path(@endpoint, :index)}
+      %{icon: :home, name: :home, label: "Home", to: Routes.home_path(@endpoint, :index)},
+      %{icon: :pencil_alt, name: :notes, label: "Notes", to: Routes.notes_path(@endpoint, :index)}
     ]
 end

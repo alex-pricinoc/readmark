@@ -57,7 +57,8 @@ defmodule Readmark.MixProject do
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
-      {:heroicons, "~> 0.3.2"}
+      {:heroicons, "~> 0.3.2"},
+      {:earmark, "~> 1.4"}
     ]
   end
 

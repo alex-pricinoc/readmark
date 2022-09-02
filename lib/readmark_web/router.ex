@@ -19,6 +19,8 @@ defmodule ReadmarkWeb.Router do
 
     live_session :default, on_mount: [ReadmarkWeb.Sidebar] do
       live "/", HomeLive, :index
+      live "/notes", NotesLive, :index
+      live "/notes/:id", NotesLive, :show
     end
   end
 
