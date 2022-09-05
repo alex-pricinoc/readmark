@@ -7,8 +7,9 @@
 # General application configuration
 import Config
 
-config :readmark,
-  ecto_repos: [Readmark.Repo]
+config :readmark, ecto_repos: [Readmark.Repo]
+
+config :readmark, Readmark.Repo, migration_timestamps: [type: :utc_datetime_usec]
 
 # Configures the endpoint
 config :readmark, ReadmarkWeb.Endpoint,
