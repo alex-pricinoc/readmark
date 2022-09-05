@@ -1,7 +1,7 @@
 defmodule ReadmarkWeb.Sidebar do
   import Phoenix.LiveView
 
-  alias ReadmarkWeb.{HomeLive, NotesLive}
+  alias ReadmarkWeb.{HomeLive, NotesLive, BookmarksLive}
 
   def on_mount(:default, _params, _session, socket) do
     {:cont, attach_hook(socket, :active_tab, :handle_params, &handle_active_tab_params/3)}
@@ -15,6 +15,9 @@ defmodule ReadmarkWeb.Sidebar do
 
         {NotesLive, _} ->
           :notes
+
+        {BookmarksLive, _} ->
+          :bookmarks
 
         {_, _} ->
           nil

@@ -21,6 +21,9 @@ defmodule ReadmarkWeb.Router do
       live "/", HomeLive, :index
       live "/notes", NotesLive, :index
       live "/notes/:id", NotesLive, :show
+
+      live "/bookmarks", BookmarksLive, :index
+      live "/bookmarks/:id", BookmarksLive, :show
     end
   end
 
