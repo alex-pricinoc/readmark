@@ -19,7 +19,7 @@ defmodule ReadmarkWeb.Sidebar do
         {BookmarksLive, _} ->
           :bookmarks
 
-        {_, _} ->
+        _ ->
           nil
       end
 

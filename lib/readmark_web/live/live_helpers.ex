@@ -44,7 +44,7 @@ defmodule ReadmarkWeb.LiveHelpers do
     <div class="flex flex-col flex-1 overflow-y-auto">
       <div
         id="title"
-        class="sticky top-0 z-10 flex items-center px-3 py-6 bg-white/90 backdrop-blur transition-shadow [&.reveal]:border-b [&.reveal]:shadow [&.reveal_h1]:opacity-100 [&.reveal_h1]:translate-y-0"
+        class="sticky top-0 z-10 flex items-center px-4 py-6 bg-white/90 backdrop-blur transition-shadow [&.reveal]:border-b [&.reveal]:shadow [&.reveal_h1]:opacity-100 [&.reveal_h1]:translate-y-0"
         phx-hook="Reveal"
       >
         <div class="flex items-center">

@@ -1,1 +1,11 @@
-
+<div class="bg-white mt-4 px-3 py-2 self-start rounded-r-xl border lg:hidden">
+  <button
+    id="show-mobile-sidebar"
+    type="button"
+    class="p-2 rounded-md hover:bg-gray-200"
+    phx-click={show_sidebar()}
+  >
+    <span class="sr-only">Open sidebar</span>
+    <.icon name={:menu} class="w-4 h-4" />
+  </button>
+</div>
