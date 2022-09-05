@@ -4,6 +4,66 @@ defmodule ReadmarkWeb.LiveHelpers do
 
   alias Phoenix.LiveView.JS
 
+  def list(assigns) do
+    assigns =
+      assigns
+      |> assign_new(:class, fn -> "" end)
+      |> assign_new(:items, fn -> [] end)
+
+    ~H"""
+    <div class={"grow md:grow-0 md:block border-r bg-white md:w-80 xl:w-96 #{@class}"}>
+      <div class="flex items-center px-4 py-6">
+        <button
+          id="show-mobile-sidebar"
+          type="button"
+          class="p-2 mr-3 rounded-md hover:bg-gray-200 self-start lg:hidden"
+          phx-click={show_sidebar()}
+        >
+          <span class="sr-only">Open sidebar</span>
+          <.icon name={:menu} class="w-4 h-4" />
+        </button>
+        <h1 class="font-semibold capitalize">
+          <%= render_slot(@title) %>
+        </h1>
+      </div>
+      <ul class="md:p-2 -space-y-0.5">
+        <%= for item <- @items do %>
+          <li class="border-b border-gray-100 md:border-none">
+            <div class="px-3 py-1.5 cursor-pointer transition md:rounded-md hover:bg-gray-100">
+              <%= render_slot(@inner_block, item) %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+    """
+  end
+
+  def list_detail(assigns) do
+    ~H"""
+    <div class="flex flex-col flex-1 overflow-y-auto">
+      <div
+        id="title"
+        class="sticky top-0 z-10 flex items-center px-3 py-6 bg-white/90 backdrop-blur transition-shadow [&.reveal]:border-b [&.reveal]:shadow [&.reveal_h1]:opacity-100 [&.reveal_h1]:translate-y-0"
+        phx-hook="Reveal"
+      >
+        <div class="flex items-center">
+          <.link to={@back} class="p-2 mr-3 rounded-md hover:bg-gray-200 self-start md:hidden">
+            <span class="sr-only">Go back</span>
+            <.icon name={:arrow_left} class="w-4 h-4" />
+          </.link>
+          <h1 class="ml-3 text-md font-bold line-clamp-1 opacity-0 transition-all translate-y-2">
+            <%= @title %>
+          </h1>
+        </div>
+      </div>
+      <div class="px-10 py-8 flex-1 bg-white">
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
+
   def flash(%{kind: :error} = assigns) do
     ~H"""
     <%= if live_flash(@flash, @kind) do %>
@@ -168,6 +228,30 @@ defmodule ReadmarkWeb.LiveHelpers do
   def format_date(%Date{} = date) do
     Calendar.strftime(date, "%B %-d, %Y")
   end
+
+  @hour 60
+  @day @hour * 24
+  @week @day * 7
+  @month @day * 30
+  @year @day * 365
+
+  def format_time(%DateTime{} = time, now \\ DateTime.utc_now()) do
+    diff = DateTime.diff(now, time, :minute)
+
+    cond do
+      diff <= 5 -> "just now"
+      diff <= @hour -> "#{diff}m ago"
+      diff <= @day -> "#{div(diff, @hour)}h ago"
+      diff <= @day * 2 -> "yesterday"
+      diff <= @week -> "#{div(diff, @day)}d ago"
+      diff <= @month -> "#{div(diff, @week)}w ago"
+      diff <= @year -> "#{div(diff, @month)}mo ago"
+      true -> "#{div(diff, @year)}y ago"
+    end
+  end
+
+  @spec get_domain(String.t()) :: String.t()
+  def get_domain(url), do: URI.parse(url).host
 
   defp assign_rest(assigns, exclude) do
     assign(assigns, :rest, assigns_to_attributes(assigns, exclude))

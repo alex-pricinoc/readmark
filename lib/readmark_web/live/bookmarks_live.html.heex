@@ -1,0 +1,46 @@
+<.list items={@bookmarks} let={bookmark} class={if assigns[:bookmark], do: "hidden"}>
+  <:title><%= @active_tab %></:title>
+  <div class="relative flex flex-col">
+    <.link
+      to={Routes.bookmarks_path(@socket, :show, bookmark.id)}
+      class="after:absolute after:inset-0"
+    >
+      <span class="sr-only">Select bookmark</span>
+    </.link>
+
+    <a
+      href={bookmark.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="relative w-fit font-medium hover:text-indigo-700"
+    >
+      <%= bookmark.title %>
+    </a>
+
+    <div class="relative inline-flex gap-1 w-fit">
+      <%= for tag <- bookmark.tags do %>
+        <a class="text-sm hover:text-orange-600" href="#">
+          <%= tag %>
+        </a>
+      <% end %>
+    </div>
+
+    <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
+  </div>
+</.list>
+
+<%= if bookmark = assigns[:bookmark] do %>
+  <.list_detail title={bookmark.title} back={Routes.bookmarks_path(@socket, :index)}>
+    <a
+      href={bookmark.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="block mb-3 font-bold text-2xl xl:text-3xl"
+    >
+      <%= bookmark.title %>
+    </a>
+    <a href={bookmark.url} target="_blank" rel="noopener noreferrer" class="text-gray-600">
+      <%= get_domain(bookmark.url) %>
+    </a>
+  </.list_detail>
+<% end %>

@@ -1,64 +1,21 @@
-<div class={
-  "#{if assigns[:note], do: "hidden"} grow md:grow-0 md:block border-r dark:border-gray-700 bg-white dark:bg-gray-900 md:w-80 xl:w-96"
-}>
-  <div class="flex items-center px-4 py-6">
-    <button
-      id="show-mobile-sidebar"
-      type="button"
-      class="p-2 mr-3 rounded-md hover:bg-gray-200 self-start lg:hidden"
-      phx-click={show_sidebar()}
-    >
-      <span class="sr-only">Open sidebar</span>
-      <.icon name={:menu} class="w-4 h-4" />
-    </button>
-    <h2 class="font-semibold capitalize">
-      <%= @active_tab %>
-    </h2>
-  </div>
-  <div class="md:p-2 -space-y-0.5">
-    <%= for note <- @notes do %>
-      <.link
-        to={Routes.notes_path(@socket, :show, note)}
-        class="flex flex-col border-b md:border-none border-gray-100 "
-      >
-        <div class="px-3 py-1.5 cursor-pointer transition md:rounded-md hover:bg-gray-100 dark:hover:bg-gray-600">
-          <span class="font-medium text-sm line-clamp-1"><%= note.title %></span>
-          <span class="text-gray-600 dark:text-gray-300 text-sm line-clamp-1">
-            <%= format_date(note.date) %>
-          </span>
-        </div>
-      </.link>
-    <% end %>
-  </div>
-</div>
+<.list items={@notes} let={note} class={if assigns[:note], do: "hidden"}>
+  <:title><%= @active_tab %></:title>
+  <.link class="flex flex-col" to={Routes.notes_path(@socket, :show, note)}>
+    <span class="font-medium text-sm line-clamp-1"><%= note.title %></span>
+    <span class="text-gray-600 dark:text-gray-300 text-sm line-clamp-1">
+      <%= format_date(note.date) %>
+    </span>
+  </.link>
+</.list>
+
 <%= if note = assigns[:note] do %>
-  <div class="flex flex-col flex-1 overflow-y-auto">
-    <div
-      id="title"
-      class="sticky top-0 z-10 flex items-center px-3 py-6 bg-white/90 dark:bg-gray-900 backdrop-blur transition-shadow [&.reveal]:border-b [&.reveal]:shadow [&.reveal_h2]:opacity-100 [&.reveal_h2]:translate-y-0"
-      phx-hook="Reveal"
-    >
-      <div class="flex items-center">
-        <.link
-          to={Routes.notes_path(@socket, :index)}
-          class="p-2 mr-3 rounded-md hover:bg-gray-200 self-start md:hidden"
-        >
-          <span class="sr-only">Go back</span>
-          <.icon name={:arrow_left} class="w-4 h-4" />
-        </.link>
-        <h2 class="ml-3 text-md font-bold line-clamp-1 opacity-0 transition-all translate-y-2">
-          <%= note.title %>
-        </h2>
-      </div>
+  <.list_detail title={note.title} back={Routes.notes_path(@socket, :index)}>
+    <h1 class="mb-3 font-bold text-2xl xl:text-3xl"><%= note.title %></h1>
+    <span class="inline-block leading-snug">
+      <%= format_date(note.date) %>
+    </span>
+    <div class="mt-8 prose dark:text-white">
+      <%= raw(note.body) %>
     </div>
-    <div class="px-10 py-8 flex-1 bg-white dark:bg-gray-900">
-      <h1 class="mb-3 font-bold text-2xl xl:text-3xl"><%= note.title %></h1>
-      <span class="inline-block leading-snug">
-        <%= format_date(note.date) %>
-      </span>
-      <div class="mt-8 prose dark:text-white">
-        <%= raw(note.body) %>
-      </div>
-    </div>
-  </div>
+  </.list_detail>
 <% end %>
