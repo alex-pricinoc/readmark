@@ -69,7 +69,7 @@ defmodule ReadmarkWeb.LiveHelpers do
     <%= if live_flash(@flash, @kind) do %>
       <div
         id="flash"
-        class="rounded-md b bg-red-50 p-4 fixed top-1 right-1 w-96 fade-in-scale z-50"
+        class="rounded-md bg-red-50 p-3 sm:p-4 fixed top-1 right-1 sm:w-96 fade-in-scale z-50"
         phx-hook="Flash"
         phx-click={
           JS.push("lv:clear-flash")
@@ -86,7 +86,7 @@ defmodule ReadmarkWeb.LiveHelpers do
             type="button"
             class="inline-flex bg-red-50 rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
           >
-            <.icon name={:x} class="w-4 h-4" />
+            <.icon name={:x} />
           </button>
         </div>
       </div>
@@ -99,7 +99,7 @@ defmodule ReadmarkWeb.LiveHelpers do
     <%= if live_flash(@flash, @kind) do %>
       <div
         id="flash"
-        class="rounded-md bg-green-50 p-4 fixed top-1 right-1 w-96 fade-in-scale z-50"
+        class="rounded-md bg-green-50 p-3 sm:p-4 fixed top-1 right-1 sm:w-96 fade-in-scale z-50"
         phx-click={JS.push("lv:clear-flash") |> JS.remove_class("fade-in-scale") |> hide("#flash")}
         phx-value-key="info"
         phx-hook="Flash"
@@ -113,73 +113,11 @@ defmodule ReadmarkWeb.LiveHelpers do
             type="button"
             class="inline-flex bg-green-50 rounded-md p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-600"
           >
-            <.icon name={:x} class="w-4 h-4" />
+            <.icon name={:x} />
           </button>
         </div>
       </div>
     <% end %>
-    """
-  end
-
-  def icon(assigns) do
-    assigns =
-      assigns
-      |> assign_new(:outlined, fn -> false end)
-      |> assign_new(:class, fn -> "w-4 h-4 inline-block" end)
-      |> assign_new(:"aria-hidden", fn -> !Map.has_key?(assigns, :"aria-label") end)
-
-    ~H"""
-    <%= if @outlined do %>
-      <%= apply(Heroicons.Outline, @name, [assigns_to_attributes(assigns, [:outlined, :name])]) %>
-    <% else %>
-      <%= apply(Heroicons.Solid, @name, [assigns_to_attributes(assigns, [:outlined, :name])]) %>
-    <% end %>
-    """
-  end
-
-  def link(assigns) do
-    assigns =
-      assigns
-      |> assign_new(:replace, fn -> false end)
-      |> assign_new(:to, fn -> nil end)
-      |> assign_new(:link_type, fn -> "live_patch" end)
-      |> assign_rest(~w(link_type replace to)a)
-
-    ~H"""
-    <.custom_link
-      to={@to}
-      rest={@rest}
-      replace={@replace}
-      link_type={@link_type}
-      inner_block={@inner_block}
-    />
-    """
-  end
-
-  defp custom_link(%{link_type: "live_redirect"} = assigns) do
-    ~H"""
-    <a
-      href={@to}
-      data-phx-link="redirect"
-      data-phx-link-state="push"
-      data-phx-link-state={if @replace, do: "replace", else: "push"}
-      {@rest}
-    >
-      <%= render_slot(@inner_block) %>
-    </a>
-    """
-  end
-
-  defp custom_link(%{link_type: "live_patch"} = assigns) do
-    ~H"""
-    <a
-      href={@to}
-      data-phx-link="patch"
-      data-phx-link-state={if @replace, do: "replace", else: "push"}
-      {@rest}
-    >
-      <%= render_slot(@inner_block) %>
-    </a>
     """
   end
 
