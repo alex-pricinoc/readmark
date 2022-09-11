@@ -1,13 +1,21 @@
-<.list items={@bookmarks} let={bookmark} class={if assigns[:bookmark], do: "hidden"}>
+<.list items={@bookmarks} let={bookmark} class={if assigns[:active_bookmark], do: "hidden"}>
   <:title><%= @active_tab %></:title>
-  <div class="relative flex flex-col">
+  <:action>
+    <.icon_button
+      icon={:plus}
+      link_type="live_patch"
+      label="Add bookmark"
+      class="ml-auto"
+      to={Routes.bookmarks_path(@socket, :new)}
+    />
+  </:action>
+  <div class="relative px-3 py-1.5 flex flex-col">
     <.link
-      to={Routes.bookmarks_path(@socket, :show, bookmark.id)}
-      class="after:absolute after:inset-0"
+      to={Routes.bookmarks_path(@socket, :show, bookmark)}
+      class="absolute inset-0 md:rounded-md transition hover:bg-gray-100"
     >
       <span class="sr-only">Select bookmark</span>
     </.link>
-
     <a
       href={bookmark.url}
       target="_blank"
@@ -17,19 +25,38 @@
       <%= bookmark.title %>
     </a>
 
-    <div class="relative inline-flex gap-1 w-fit">
-      <%= for tag <- bookmark.tags do %>
-        <a class="text-sm hover:text-orange-600" href="#">
-          <%= tag %>
-        </a>
-      <% end %>
-    </div>
+    <%= unless bookmark.tags == [] do %>
+      <div class="relative inline-flex gap-1.5 w-fit">
+        <%= for tag <- bookmark.tags do %>
+          <a class="relative text-sm hover:text-orange-600 group" href="#">
+            <.circle class="absolute -translate-x-1 top-1/2 text-slate-300 group-hover:text-orange-600" />
+            <%= tag %>
+          </a>
+        <% end %>
+      </div>
+    <% end %>
 
-    <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
+    <div class="relative w-fit">
+      <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
+      <.link
+        to={Routes.bookmarks_path(@socket, :edit, bookmark)}
+        class="text-sm text-gray-400 hover:text-gray-900"
+      >
+        <span>edit</span>
+      </.link>
+      <.link
+        link_type="button"
+        phx-click="delete-bookmark"
+        phx-value-id={bookmark.id}
+        class="text-sm text-gray-400 hover:text-red-500"
+      >
+        <span>delete</span>
+      </.link>
+    </div>
   </div>
 </.list>
 
-<%= if bookmark = assigns[:bookmark] do %>
+<%= if bookmark = assigns[:active_bookmark] do %>
   <.list_detail title={bookmark.title} back={Routes.bookmarks_path(@socket, :index)}>
     <a
       href={bookmark.url}

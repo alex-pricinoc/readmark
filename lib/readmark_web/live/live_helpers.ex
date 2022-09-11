@@ -2,66 +2,202 @@ defmodule ReadmarkWeb.LiveHelpers do
   import Phoenix.LiveView
   import Phoenix.LiveView.Helpers
 
+  import ReadmarkWeb.BaseComponents
+
   alias Phoenix.LiveView.JS
+
+  alias ReadmarkWeb.Router.Helpers, as: Routes
+
+  alias ReadmarkWeb.{BookmarksLive, LayoutComponent}
+  alias Readmark.Bookmarks.Bookmark
+
+  @endpoint ReadmarkWeb.Endpoint
+
+  def return_to_bookmark(%Bookmark{} = bookmark),
+    do: Routes.bookmarks_path(@endpoint, :show, bookmark)
+
+  def return_to_bookmark(_), do: Routes.bookmarks_path(@endpoint, :index)
 
   def list(assigns) do
     assigns =
       assigns
       |> assign_new(:class, fn -> "" end)
       |> assign_new(:items, fn -> [] end)
+      |> assign_new(:action, fn -> [] end)
 
     ~H"""
-    <div class={"grow md:grow-0 md:block border-r bg-white md:w-80 xl:w-96 #{@class}"}>
-      <div class="flex items-center px-4 py-6">
-        <button
-          id="show-mobile-sidebar"
-          type="button"
-          class="p-2 mr-3 rounded-md hover:bg-gray-200 self-start lg:hidden"
-          phx-click={show_sidebar()}
-        >
-          <span class="sr-only">Open sidebar</span>
-          <.icon name={:menu} class="w-4 h-4" />
-        </button>
-        <h1 class="font-semibold capitalize">
-          <%= render_slot(@title) %>
-        </h1>
-      </div>
-      <ul class="md:p-2 -space-y-0.5">
-        <%= for item <- @items do %>
-          <li class="border-b border-gray-100 md:border-none">
-            <div class="px-3 py-1.5 cursor-pointer transition md:rounded-md hover:bg-gray-100">
+    <div
+      id="list"
+      class={"grow overflow-y-auto md:grow-0 md:block border-r bg-white md:w-80 xl:w-96 #{@class}"}
+      phx-hook="Reveal"
+    >
+      <header class="z-10 sticky h-20 -top-8 flex items-center bg-white/90 backdrop-blur reveal:shadow-md">
+        <div class="sticky top-0 h-12 px-4 flex flex-1 items-center">
+          <.show_sidebar_button class="mr-3 lg:hidden" />
+
+          <h1 class="font-semibold capitalize">
+            <%= render_slot(@title) %>
+          </h1>
+
+          <%= for action <- @action do %>
+            <%= render_slot(action) %>
+          <% end %>
+        </div>
+      </header>
+      <%= unless @items == [] do %>
+        <ul class="md:p-2 -space-y-0.5">
+          <%= for item <- @items do %>
+            <li class="border-b md:border-none border-gray-100">
               <%= render_slot(@inner_block, item) %>
-            </div>
-          </li>
-        <% end %>
-      </ul>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
     </div>
     """
   end
 
   def list_detail(assigns) do
     ~H"""
-    <div class="flex flex-col flex-1 overflow-y-auto">
-      <div
-        id="title"
-        class="sticky top-0 z-10 flex items-center px-4 py-6 bg-white/90 backdrop-blur transition-shadow [&.reveal]:border-b [&.reveal]:shadow [&.reveal_h1]:opacity-100 [&.reveal_h1]:translate-y-0"
-        phx-hook="Reveal"
-      >
-        <div class="flex items-center">
-          <.link to={@back} class="p-2 mr-3 rounded-md hover:bg-gray-200 self-start md:hidden">
-            <span class="sr-only">Go back</span>
-            <.icon name={:arrow_left} class="w-4 h-4" />
-          </.link>
-          <h1 class="ml-3 text-md font-bold line-clamp-1 opacity-0 transition-all translate-y-2">
+    <div id="list-detail" class="flex flex-col grow overflow-y-auto" phx-hook="Reveal">
+      <header class="z-10 sticky h-20 -top-8 flex shrink-0 items-center bg-white/90 backdrop-blur transition-shadow reveal:shadow-md">
+        <div class="sticky top-0 h-12 px-4 flex flex-1 items-center">
+          <.icon_button
+            to={@back}
+            link_type="live_patch"
+            class="mr-3 md:hidden"
+            label="Go back"
+            icon={:arrow_left}
+          />
+          <h1 class="ml-3 text-md font-bold line-clamp-1 opacity-0 transition-all translate-y-2 reveal:opacity-100 reveal:translate-y-0">
             <%= @title %>
           </h1>
         </div>
-      </div>
-      <div class="px-10 py-8 flex-1 bg-white">
+      </header>
+      <div class="px-6 sm:px-10 py-3 sm:py-6 flex-1 bg-white">
         <%= render_slot(@inner_block) %>
       </div>
     </div>
     """
+  end
+
+  def show_sidebar_button(assigns) do
+    assigns = assign_rest(assigns)
+
+    ~H"""
+    <.icon_button
+      id="show-mobile-sidebar"
+      label="Open sidebar"
+      icon={:menu}
+      phx-click={show_sidebar()}
+      {@rest}
+    />
+    """
+  end
+
+  def close_sidebar_button(assigns) do
+    assigns = assign_rest(assigns)
+
+    ~H"""
+    <.icon_button label="Close sidebar" icon={:x} phx-click={hide_sidebar()} {@rest} />
+    """
+  end
+
+  def circle(assigns) do
+    assigns = assign_rest(assigns)
+
+    ~H"""
+    <svg width="2" height="2" aria-hidden="true" fill="currentColor" {@rest}>
+      <circle cx="1" cy="1" r="1" />
+    </svg>
+    """
+  end
+
+  def modal(assigns) do
+    assigns =
+      assigns
+      |> assign_rest(~w(title return_to)a)
+
+    ~H"""
+    <div id="modal" {@rest} phx-remove={hide_modal()}>
+      <div
+        id="modal-overlay"
+        class="fixed inset-0 z-50 transition-opacity bg-gray-900 fade-in bg-opacity-30"
+        aria-hidden="true"
+      />
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center px-4 my-4 overflow-hidden transform sm:px-6"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          id="modal-content"
+          class="max-w-md fade-in-scale w-full max-h-full overflow-auto bg-white rounded shadow-lg"
+          phx-key="escape"
+          phx-click-away={hide_modal()}
+          phx-window-keydown={hide_modal()}
+        >
+          <!-- TODO: remove when live_view 0.18 is released -->
+          <.link to={@return_to} data-modal-return class="hidden"></.link>
+          <!-- Header -->
+          <div class="px-5 py-3 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+              <div class="font-semibold text-gray-800">
+                <%= @title %>
+              </div>
+              <.link
+                link_type="button"
+                phx-click={hide_modal()}
+                class="text-gray-400 hover:text-gray-500"
+              >
+                <div class="sr-only">Close</div>
+                <.icon name={:x} />
+              </.link>
+            </div>
+          </div>
+          <!-- Content -->
+          <div class="p-5">
+            <%= render_slot(@inner_block) %>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  def hide_modal(js \\ %JS{}) do
+    js
+    |> JS.remove_class("overflow-hidden", to: "body")
+    |> JS.remove_class("fade-in", to: "#modal-overlay")
+    |> JS.hide(
+      transition: {
+        "ease-in duration-200",
+        "opacity-100",
+        "opacity-0"
+      },
+      to: "#modal-overlay"
+    )
+    |> JS.hide(
+      transition: {
+        "ease-in duration-200",
+        "opacity-100 translate-y-0 md:scale-100",
+        "opacity-0 translate-y-4 md:translate-y-0 md:scale-95"
+      },
+      to: "#modal-content"
+    )
+    |> JS.dispatch("click", to: "#modal [data-modal-return]")
+  end
+
+  def show_bookmark_modal(%{assigns: assigns} = socket) do
+    LayoutComponent.show_modal(BookmarksLive.FormComponent, %{
+      id: assigns.bookmark.id || :new,
+      title: assigns.bookmark.title || "Add New bookmark",
+      action: assigns.live_action,
+      bookmark: assigns.bookmark,
+      return_to: return_to_bookmark(assigns[:active_bookmark])
+    })
+
+    socket
   end
 
   def flash(%{kind: :error} = assigns) do
@@ -143,11 +279,21 @@ defmodule ReadmarkWeb.LiveHelpers do
   end
 
   def hide_sidebar(js \\ %JS{}) do
-    JS.add_class(js, "-translate-x-full", to: "#sidebar")
+    js
+    |> JS.hide(to: "#sidebar-overlay", transition: "fade-out")
+    |> JS.hide(
+      to: "#sidebar",
+      transition: {"transition duration-200 transform-gpu", "translate-x-0", "-translate-x-full"}
+    )
   end
 
   def show_sidebar(js \\ %JS{}) do
-    JS.remove_class(js, "-translate-x-full", to: "#sidebar")
+    js
+    |> JS.show(to: "#sidebar-overlay", transition: "fade-in")
+    |> JS.show(
+      to: "#sidebar",
+      transition: {"transition duration-200 transform-gpu", "-translate-x-full", "translate-x-0"}
+    )
   end
 
   @doc """
@@ -191,7 +337,10 @@ defmodule ReadmarkWeb.LiveHelpers do
   @spec get_domain(String.t()) :: String.t()
   def get_domain(url), do: URI.parse(url).host
 
-  defp assign_rest(assigns, exclude) do
-    assign(assigns, :rest, assigns_to_attributes(assigns, exclude))
+  def list_input_value(form, field) do
+    value_to_string(Phoenix.HTML.Form.input_value(form, field))
   end
+
+  defp value_to_string(list) when is_list(list), do: Enum.join(list, " ")
+  defp value_to_string(value), do: value
 end
