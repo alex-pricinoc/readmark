@@ -1,38 +1,38 @@
 <.flash flash={@flash} kind={:info} />
 <.flash flash={@flash} kind={:error} />
 
-<nav
+<.live_component module={ReadmarkWeb.LayoutComponent} id="layout" />
+
+<div
   id="sidebar"
-  class="z-20 absolute bg-white dark:bg-gray-900 lg:relative transform-gpu -translate-x-full duration-200 overflow-y-auto lg:translate-x-0 flex flex-col h-full border-r dark:border-gray-700 w-3/4 sm:w-1/2 md:w-1/3 lg:w-56 2xl:w-72 3xl:w-80"
-  phx-click-away={hide_sidebar()}
+  class="z-30 fixed hidden lg:block lg:static h-screen bg-white border-r w-3/4 sm:w-1/2 md:w-1/3 lg:w-56 2xl:w-72 3xl:w-80"
 >
-  <div class="z-10 sticky top-0 flex items-center px-3 py-6 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
-    <button
-      class="p-2 rounded-md transition hover:bg-gray-200 lg:hidden"
-      type="button"
-      phx-click={hide_sidebar()}
-    >
-      <.icon name={:x} class="w-4 h-4" />
-      <span class="sr-only">Close sidebar</span>
-    </button>
+  <div class="flex items-center px-3 py-6">
+    <.close_sidebar_button class="lg:hidden" />
     <h2 class="ml-3 text-md font-bold line-clamp-1">Alex Pricinoc</h2>
   </div>
-  <ul class="flex-1 px-3 py-3 space-y-1">
+
+  <nav class="flex-1 px-3 py-3 space-y-1">
     <%= for link <- links() do %>
-      <li>
-        <.link
-          to={link.to}
-          class={
-            "flex-1 flex items-center space-x-3 px-2 py-1.5 font-medium text-sm text-gray-700 rounded-md transition #{if @active_tab == link.name, do: "bg-gray-900 dark:bg-white text-white dark:text-gray-900", else: "dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"}"
-          }
-        >
-          <.icon name={link.icon} class="w-6 h-6 inline-block" outlined />
-          <span><%= link.label %></span>
-        </.link>
-      </li>
+      <.link
+        to={link.to}
+        class={
+          "flex items-center space-x-3 px-2 py-1.5 font-medium text-sm rounded-md transition #{if @active_tab == link.name, do: "bg-gray-900 text-white", else: "text-gray-700 hover:bg-gray-200"}"
+        }
+      >
+        <.icon name={link.icon} class="w-6 h-6" outlined />
+        <span><%= link.label %></span>
+      </.link>
     <% end %>
-  </ul>
-</nav>
+  </nav>
+</div>
+
+<div
+  id="sidebar-overlay"
+  class="z-20 hidden fixed inset-0 bg-neutral-500/50"
+  phx-click={hide_sidebar()}
+>
+</div>
 
 <main class="flex flex-1 bg-white bg-graph-paper">
   <%= @inner_content %>

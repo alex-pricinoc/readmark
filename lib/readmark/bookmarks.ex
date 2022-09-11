@@ -18,7 +18,7 @@ defmodule Readmark.Bookmarks do
 
   """
   def list_bookmarks do
-    Repo.all(Bookmark)
+    Bookmark |> order_by(desc: :inserted_at) |> Repo.all()
   end
 
   @doc """
