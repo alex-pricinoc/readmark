@@ -47,7 +47,7 @@ defmodule ReadmarkWeb do
       @opts Keyword.merge(
               [
                 layout: {ReadmarkWeb.LayoutView, "live.html"},
-                container: {:div, class: "relative h-screen flex overflow-hidden bg-gray-50"}
+                container: {:div, "live-root": true}
               ],
               unquote(opts)
             )

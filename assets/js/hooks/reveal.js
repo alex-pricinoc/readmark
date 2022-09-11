@@ -1,21 +1,23 @@
-import { throttle } from "../lib/utils";
+import { throttle } from "../lib/utils"
 
 const Reveal = {
   mounted() {
-    const parent = this.el.parentElement;
+    const handleScroll = () => this.updateDOM()
 
-    const handleScroll = (e) => {
-      const scrollPosition = e.target.scrollTop;
+    this.el.addEventListener("scroll", throttle(handleScroll))
+  },
 
-      if (scrollPosition > 70) {
-        this.el.classList.add("reveal");
-      } else {
-        this.el.classList.remove("reveal");
-      }
-    };
+  updated() {
+    this.updateDOM()
+  },
 
-    parent.addEventListener("scroll", throttle(handleScroll));
+  updateDOM() {
+    if (this.el.scrollTop > 70) {
+      this.el.classList.add("reveal")
+    } else {
+      this.el.classList.remove("reveal")
+    }
   }
-};
+}
 
-export default Reveal;
+export default Reveal
