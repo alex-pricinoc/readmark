@@ -71,3 +71,15 @@
     </a>
   </.list_detail>
 <% end %>
+
+<%= if @live_action in [:new, :edit] do %>
+  <.modal title={@page_title} return_to={bookmark_path(@active_bookmark)}>
+    <.live_component
+      module={ReadmarkWeb.BookmarksLive.FormComponent}
+      bookmark={@bookmark}
+      id={@bookmark.id || :new}
+      action={@live_action}
+      return_to={bookmark_path(@active_bookmark)}
+    />
+  </.modal>
+<% end %>

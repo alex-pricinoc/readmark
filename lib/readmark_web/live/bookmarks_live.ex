@@ -14,7 +14,6 @@ defmodule ReadmarkWeb.BookmarksLive do
 
   @impl true
   def handle_params(params, _url, socket) do
-    ReadmarkWeb.LayoutComponent.hide_modal()
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
@@ -53,13 +52,11 @@ defmodule ReadmarkWeb.BookmarksLive do
     socket
     |> assign(:page_title, bookmark.title)
     |> assign(:bookmark, bookmark)
-    |> show_bookmark_modal
   end
 
   defp apply_action(socket, :new, _params) do
     socket
     |> assign(:page_title, "New bookmark")
     |> assign(:bookmark, %Bookmark{})
-    |> show_bookmark_modal
   end
 end

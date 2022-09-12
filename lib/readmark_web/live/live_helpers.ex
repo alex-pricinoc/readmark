@@ -8,15 +8,14 @@ defmodule ReadmarkWeb.LiveHelpers do
 
   alias ReadmarkWeb.Router.Helpers, as: Routes
 
-  alias ReadmarkWeb.{BookmarksLive, LayoutComponent}
   alias Readmark.Bookmarks.Bookmark
 
   @endpoint ReadmarkWeb.Endpoint
 
-  def return_to_bookmark(%Bookmark{} = bookmark),
+  def bookmark_path(%Bookmark{} = bookmark),
     do: Routes.bookmarks_path(@endpoint, :show, bookmark)
 
-  def return_to_bookmark(_), do: Routes.bookmarks_path(@endpoint, :index)
+  def bookmark_path(_), do: Routes.bookmarks_path(@endpoint, :index)
 
   def list(assigns) do
     assigns =
@@ -186,18 +185,6 @@ defmodule ReadmarkWeb.LiveHelpers do
       to: "#modal-content"
     )
     |> JS.dispatch("click", to: "#modal [data-modal-return]")
-  end
-
-  def show_bookmark_modal(%{assigns: assigns} = socket) do
-    LayoutComponent.show_modal(BookmarksLive.FormComponent, %{
-      id: assigns.bookmark.id || :new,
-      title: assigns.bookmark.title || "Add New bookmark",
-      action: assigns.live_action,
-      bookmark: assigns.bookmark,
-      return_to: return_to_bookmark(assigns[:active_bookmark])
-    })
-
-    socket
   end
 
   def flash(%{kind: :error} = assigns) do
