@@ -29,7 +29,7 @@
       <div class="relative inline-flex gap-1.5 w-fit">
         <%= for tag <- bookmark.tags do %>
           <a class="relative text-sm hover:text-orange-600 group" href="#">
-            <.circle class="absolute -translate-x-1 top-1/2 text-slate-300 group-hover:text-orange-600" />
+            <.dot class="absolute -translate-x-1 top-1/2 text-slate-300 group-hover:text-orange-600" />
             <%= tag %>
           </a>
         <% end %>

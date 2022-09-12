@@ -1,6 +1,6 @@
-const colors = require("tailwindcss/colors");
-const defaultTheme = require("tailwindcss/defaultTheme");
-const plugin = require("tailwindcss/plugin");
+const colors = require("tailwindcss/colors")
+const defaultTheme = require("tailwindcss/defaultTheme")
+const plugin = require("tailwindcss/plugin")
 
 module.exports = {
   content: ["./js/**/*.js", "../lib/*_web.ex", "../lib/*_web/**/*.*ex"],
@@ -37,4 +37,4 @@ module.exports = {
     ),
     plugin(({ addVariant }) => addVariant("reveal", ["&.reveal", ".reveal &"]))
   ]
-};
+}

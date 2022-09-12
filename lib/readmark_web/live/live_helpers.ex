@@ -30,7 +30,7 @@ defmodule ReadmarkWeb.LiveHelpers do
       class={"grow overflow-y-auto md:grow-0 md:block border-r bg-white md:w-80 xl:w-96 #{@class}"}
       phx-hook="Reveal"
     >
-      <header class="z-10 sticky h-20 -top-8 flex items-center bg-white/90 backdrop-blur reveal:shadow-md">
+      <header class="z-10 sticky h-20 -top-8 flex items-center bg-white/90 backdrop-blur transition-shadow reveal:shadow-md">
         <div class="sticky top-0 h-12 px-4 flex flex-1 items-center">
           <.show_sidebar_button class="mr-3 lg:hidden" />
 
@@ -102,7 +102,7 @@ defmodule ReadmarkWeb.LiveHelpers do
     """
   end
 
-  def circle(assigns) do
+  def dot(assigns) do
     assigns = assign_rest(assigns)
 
     ~H"""
@@ -166,8 +166,6 @@ defmodule ReadmarkWeb.LiveHelpers do
 
   def hide_modal(js \\ %JS{}) do
     js
-    |> JS.remove_class("overflow-hidden", to: "body")
-    |> JS.remove_class("fade-in", to: "#modal-overlay")
     |> JS.hide(
       transition: {
         "ease-in duration-200",
@@ -179,8 +177,8 @@ defmodule ReadmarkWeb.LiveHelpers do
     |> JS.hide(
       transition: {
         "ease-in duration-200",
-        "opacity-100 translate-y-0 md:scale-100",
-        "opacity-0 translate-y-4 md:translate-y-0 md:scale-95"
+        "opacity-100 scale-100",
+        "opacity-0 scale-95"
       },
       to: "#modal-content"
     )
