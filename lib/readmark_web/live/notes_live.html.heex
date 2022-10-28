@@ -1,8 +1,13 @@
 <.list items={@notes} let={note} class={if assigns[:note], do: "hidden"}>
-  <:title><%= @active_tab %></:title>
+  <:header>
+    <.show_sidebar_button class=" mr-3 lg:hidden" />
+    <h1 class="font-semibold capitalize">
+      <%= @active_tab %>
+    </h1>
+  </:header>
   <.link
     class="px-3 py-1.5 flex flex-col md:rounded-md hover:bg-gray-100"
-    to={Routes.notes_path(@socket, :show, note)}
+    patch={Routes.notes_path(@socket, :show, note)}
   >
     <span class="font-medium text-sm line-clamp-1"><%= note.title %></span>
     <span class="text-gray-600 dark:text-gray-300 text-sm line-clamp-1">

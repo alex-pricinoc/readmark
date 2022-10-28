@@ -10,7 +10,12 @@
     <fieldset class="mb-6 space-y-4">
       <div>
         <.form_label form={f} field={:url} />
-        <.url_input form={f} field={:url} placeholder="www.example.com/article.html" />
+        <.url_input
+          form={f}
+          field={:url}
+          placeholder="www.example.com/article.html"
+          disabled={@action == :edit}
+        />
         <.form_field_error form={f} field={:url} class="fixed" />
       </div>
       <div>
