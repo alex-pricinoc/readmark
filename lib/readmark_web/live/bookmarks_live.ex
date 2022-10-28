@@ -6,10 +6,15 @@ defmodule ReadmarkWeb.BookmarksLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok,
-     socket
-     |> assign(:page_title, "Bookmarks")
-     |> assign(:bookmarks, Bookmarks.list_bookmarks())}
+    if connected?(socket), do: Bookmarks.subscribe()
+
+    assigns = [
+      tags: [],
+      bookmarks: Bookmarks.list_bookmarks(),
+      counter: 0
+    ]
+
+    {:ok, assign(socket, assigns), temporary_assigns: [bookmarks: []]}
   end
 
   @impl true
@@ -23,13 +28,31 @@ defmodule ReadmarkWeb.BookmarksLive do
     {:ok, _} = Bookmarks.delete_bookmark(bookmark)
 
     socket =
-      if socket.assigns[:active_bookmark] == bookmark do
-        assign(socket, :active_bookmark, nil)
+      if get_in(socket.assigns, [:active_bookmark, Access.key(:id)]) == id do
+        push_patch(socket, to: bookmark_path(nil))
       else
         socket
       end
 
-    {:noreply, assign(socket, :bookmarks, Bookmarks.list_bookmarks())}
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("select-tag", %{"name" => tag}, socket) do
+    toggle_tag = fn tags, tag ->
+      case tag in tags do
+        true -> List.delete(tags, tag)
+        false -> List.insert_at(tags, 0, tag)
+      end
+    end
+
+    tags = toggle_tag.(socket.assigns.tags, tag)
+
+    {:noreply,
+     socket
+     |> assign(:tags, tags)
+     |> assign(:bookmarks, Bookmarks.list_bookmarks(tags: tags))
+     |> update(:counter, &(&1 + 1))}
   end
 
   defp apply_action(socket, :index, _params) do
@@ -39,7 +62,7 @@ defmodule ReadmarkWeb.BookmarksLive do
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do
-    bookmark = Enum.find(socket.assigns.bookmarks, &(&1.id == id))
+    bookmark = Bookmarks.get_bookmark!(id)
 
     socket
     |> assign(:page_title, bookmark.title)
@@ -47,7 +70,7 @@ defmodule ReadmarkWeb.BookmarksLive do
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    bookmark = Enum.find(socket.assigns.bookmarks, &(&1.id == id))
+    bookmark = Bookmarks.get_bookmark!(id)
 
     socket
     |> assign(:page_title, bookmark.title)
@@ -58,5 +81,10 @@ defmodule ReadmarkWeb.BookmarksLive do
     socket
     |> assign(:page_title, "New bookmark")
     |> assign(:bookmark, %Bookmark{})
+  end
+
+  @impl true
+  def handle_info({{:bookmark, _}, bookmark}, socket) do
+    {:noreply, update(socket, :bookmarks, fn bookmarks -> [bookmark | bookmarks] end)}
   end
 end

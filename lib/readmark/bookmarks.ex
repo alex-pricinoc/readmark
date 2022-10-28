@@ -17,8 +17,29 @@ defmodule Readmark.Bookmarks do
       [%Bookmark{}, ...]
 
   """
-  def list_bookmarks do
-    Bookmark |> order_by(desc: :inserted_at) |> Repo.all()
+  def list_bookmarks(params \\ []) do
+    Bookmark
+    |> order_by(desc: :inserted_at)
+    |> where(^filter_where(params))
+    |> Repo.all()
+  end
+
+  defp filter_where(params) do
+    Enum.reduce(params, dynamic(true), fn
+      {:tags, tags}, dynamic when tags != [] ->
+        dynamic(
+          [b],
+          ^dynamic and
+            fragment(
+              "? @> string_to_array(?, ',')::varchar[]",
+              b.tags,
+              ^Enum.join(tags, ",")
+            )
+        )
+
+      {_, _}, dynamic ->
+        dynamic
+    end)
   end
 
   @doc """
@@ -53,6 +74,7 @@ defmodule Readmark.Bookmarks do
     %Bookmark{}
     |> Bookmark.changeset(attrs)
     |> Repo.insert()
+    |> broadcast!({:bookmark, :created})
   end
 
   @doc """
@@ -71,6 +93,7 @@ defmodule Readmark.Bookmarks do
     bookmark
     |> Bookmark.changeset(attrs)
     |> Repo.update()
+    |> broadcast!({:bookmark, :updated})
   end
 
   @doc """
@@ -87,6 +110,7 @@ defmodule Readmark.Bookmarks do
   """
   def delete_bookmark(%Bookmark{} = bookmark) do
     Repo.delete(bookmark)
+    |> broadcast!({:bookmark, :deleted})
   end
 
   @doc """
@@ -100,5 +124,19 @@ defmodule Readmark.Bookmarks do
   """
   def change_bookmark(%Bookmark{} = bookmark, attrs \\ %{}) do
     Bookmark.changeset(bookmark, attrs)
+  end
+
+  @topic "bookmarks"
+  @pubsub Readmark.PubSub
+
+  def subscribe do
+    Phoenix.PubSub.subscribe(@pubsub, @topic)
+  end
+
+  defp broadcast!({:error, _reason} = error, _event), do: error
+
+  defp broadcast!({:ok, bookmark}, event) do
+    Phoenix.PubSub.broadcast!(@pubsub, @topic, {event, bookmark})
+    {:ok, bookmark}
   end
 end

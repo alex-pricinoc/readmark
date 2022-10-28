@@ -1,17 +1,29 @@
-<.list items={@bookmarks} let={bookmark} class={if assigns[:active_bookmark], do: "hidden"}>
-  <:title><%= @active_tab %></:title>
-  <:action>
-    <.icon_button
-      icon={:plus}
-      link_type="live_patch"
-      label="Add bookmark"
-      class="ml-auto"
-      to={Routes.bookmarks_path(@socket, :new)}
-    />
-  </:action>
+<.list
+  items={@bookmarks}
+  let={bookmark}
+  class={if assigns[:active_bookmark], do: "hidden"}
+  counter={@counter}
+>
+  <:header>
+    <div class="flex-1 w-full">
+      <div class="flex flex-1 items-center">
+        <.show_sidebar_button class=" mr-3 lg:hidden" />
+
+        <h1 class="grow font-semibold capitalize">
+          <%= @active_tab %>
+        </h1>
+
+        <.icon_button
+          icon={:plus}
+          label="Add bookmark"
+          patch={Routes.bookmarks_path(@socket, :new)}
+        />
+      </div>
+    </div>
+  </:header>
   <div class="relative px-3 py-1.5 flex flex-col">
     <.link
-      to={Routes.bookmarks_path(@socket, :show, bookmark)}
+      patch={Routes.bookmarks_path(@socket, :show, bookmark)}
       class="absolute inset-0 md:rounded-md transition hover:bg-gray-100"
     >
       <span class="sr-only">Select bookmark</span>
@@ -28,10 +40,15 @@
     <%= unless bookmark.tags == [] do %>
       <div class="relative inline-flex gap-1.5 w-fit">
         <%= for tag <- bookmark.tags do %>
-          <a class="relative text-sm hover:text-orange-600 group" href="#">
-            <.dot class="absolute -translate-x-1 top-1/2 text-slate-300 group-hover:text-orange-600" />
+          <.link
+            class={
+              "text-sm hover:text-orange-600 #{if tag in @tags, do: "text-orange-600 hover:text-gray-900"}"
+            }
+            phx-click="select-tag"
+            phx-value-name={tag}
+          >
             <%= tag %>
-          </a>
+          </.link>
         <% end %>
       </div>
     <% end %>
@@ -39,16 +56,15 @@
     <div class="relative w-fit">
       <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
       <.link
-        to={Routes.bookmarks_path(@socket, :edit, bookmark)}
+        patch={Routes.bookmarks_path(@socket, :edit, bookmark)}
         class="text-sm text-gray-400 hover:text-gray-900"
       >
         <span>edit</span>
       </.link>
       <.link
-        link_type="button"
         phx-click="delete-bookmark"
         phx-value-id={bookmark.id}
-        class="text-sm text-gray-400 hover:text-red-500"
+        class="text-sm text-gray-400 hover:text-red-600"
       >
         <span>delete</span>
       </.link>
@@ -73,13 +89,13 @@
 <% end %>
 
 <%= if @live_action in [:new, :edit] do %>
-  <.modal title={@page_title} return_to={bookmark_path(@active_bookmark)}>
+  <.modal title={@page_title} return_to={bookmark_path(assigns[:active_bookmark])}>
     <.live_component
       module={ReadmarkWeb.BookmarksLive.FormComponent}
       bookmark={@bookmark}
       id={@bookmark.id || :new}
       action={@live_action}
-      return_to={bookmark_path(@active_bookmark)}
+      return_to={bookmark_path(assigns[:active_bookmark])}
     />
   </.modal>
 <% end %>
