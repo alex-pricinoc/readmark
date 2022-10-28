@@ -15,9 +15,7 @@ defmodule Readmark.Notes do
 
   @notes Enum.sort_by(notes, & &1.date, {:desc, Date})
 
-  def list_notes do
-    @notes
-  end
+  def list_notes, do: @notes
 
   defmodule NotFoundError do
     defexception [:message, plug_status: 404]
@@ -25,9 +23,7 @@ defmodule Readmark.Notes do
 
   @tags notes |> Enum.flat_map(& &1.tags) |> Enum.uniq() |> Enum.sort()
 
-  def list_tags do
-    @tags
-  end
+  def list_tags, do: @tags
 
   def get_notes_by_tag!(tag) do
     case Enum.filter(list_notes(), &(tag in &1.tags)) do

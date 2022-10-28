@@ -15,9 +15,7 @@ defmodule ReadmarkWeb.NotesLive do
 
   @impl true
   def handle_params(params, _url, socket) do
-    {:noreply,
-     socket
-     |> apply_action(socket.assigns.live_action, params)}
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
   defp apply_action(socket, :index, _params) do
@@ -27,7 +25,7 @@ defmodule ReadmarkWeb.NotesLive do
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do
-    note = Enum.find(socket.assigns.notes, fn note -> note.id == id end)
+    note = Enum.find(socket.assigns.notes, &(&1.id == id))
 
     socket
     |> assign(:page_title, note.title)

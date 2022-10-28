@@ -79,25 +79,23 @@ defmodule ReadmarkWeb.BaseComponents do
   def button(assigns) do
     assigns =
       assigns
-      |> assign_new(:to, fn -> nil end)
-      |> assign_new(:link_type, fn -> "button" end)
       |> assign_new(:inner_block, fn -> nil end)
       |> assign_new(:size, fn -> "md" end)
       |> assign_new(:disabled, fn -> false end)
       |> assign_new(:class, fn -> "" end)
       |> assign_new(:color, fn -> "primary" end)
       |> assign_new(:icon, fn -> false end)
-      |> assign_rest(~w(disabled link_type size color icon class label to)a)
+      |> assign_rest(~w(disabled size color icon class label)a)
       |> assign_new(:classes, &button_classes/1)
 
     ~H"""
-    <.link to={@to} link_type={@link_type} class={@classes} disabled={@disabled} {@rest}>
+    <button class={@classes} disabled={@disabled} {@rest}>
       <%= if @inner_block do %>
         <%= render_slot(@inner_block) %>
       <% else %>
         <%= @label %>
       <% end %>
-    </.link>
+    </button>
     """
   end
 
@@ -138,18 +136,14 @@ defmodule ReadmarkWeb.BaseComponents do
   end
 
   def icon_button(assigns) do
-    base_classes = "p-2 rounded-md hover:bg-gray-200"
+    base_classes = "p-2 rounded-md transition-colors hover:bg-gray-200"
 
     assigns =
       assigns
-      |> assign_new(:disabled, fn -> false end)
-      |> assign_new(:to, fn -> nil end)
-      |> assign_new(:link_type, fn -> "button" end)
-      |> assign_rest(~w(disabled to link_type icon class)a)
-      |> assign_new(:classes, fn -> [base_classes, assigns[:class]] end)
+      |> assign_rest(~w(icon class label)a)
 
     ~H"""
-    <.link {@rest} to={@to} link_type={@link_type} disabled={@disabled} class={@classes}>
+    <.link class={[base_classes, assigns[:class]]} {@rest}>
       <.icon name={@icon} />
       <span class="sr-only"><%= @label %></span>
     </.link>
@@ -172,29 +166,33 @@ defmodule ReadmarkWeb.BaseComponents do
     """
   end
 
-  def link(assigns) do
-    assigns =
-      assigns
-      |> assign_new(:replace, fn -> false end)
-      |> assign_new(:to, fn -> nil end)
-      |> assign_new(:link_type, fn -> "live_patch" end)
-      |> assign_rest(~w(link_type replace to)a)
+  # TODO: remove when live_view 0.18 is released
+  def link(assigns) when not is_map_key(assigns, :rest) do
+    assigns
+    |> assign_new(:replace, fn -> false end)
+    |> assign_new(:patch, fn -> nil end)
+    |> assign_new(:navigate, fn -> nil end)
+    |> assign_rest(~w(replace patch navigate)a)
+    |> link
+  end
 
+  def link(%{navigate: to} = assigns) when is_binary(to) do
     ~H"""
-    <.custom_link
-      to={@to}
-      replace={@replace}
-      link_type={@link_type}
-      inner_block={@inner_block}
-      rest={@rest}
-    />
+    <a
+      href={@navigate}
+      data-phx-link="redirect"
+      data-phx-link-state={if @replace, do: "replace", else: "push"}
+      {@rest}
+    >
+      <%= render_slot(@inner_block) %>
+    </a>
     """
   end
 
-  defp custom_link(%{link_type: "live_patch"} = assigns) do
+  def link(%{patch: to} = assigns) when is_binary(to) do
     ~H"""
     <a
-      href={@to}
+      href={@patch}
       data-phx-link="patch"
       data-phx-link-state={if @replace, do: "replace", else: "push"}
       {@rest}
@@ -204,25 +202,9 @@ defmodule ReadmarkWeb.BaseComponents do
     """
   end
 
-  defp custom_link(%{link_type: "live_redirect"} = assigns) do
+  def link(%{} = assigns) do
     ~H"""
-    <a
-      href={@to}
-      data-phx-link="redirect"
-      data-phx-link-state="push"
-      data-phx-link-state={if @replace, do: "replace", else: "push"}
-      {@rest}
-    >
-      <%= render_slot(@inner_block) %>
-    </a>
-    """
-  end
-
-  defp custom_link(%{link_type: "button"} = assigns) do
-    ~H"""
-    <button {@rest}>
-      <%= render_slot(@inner_block) %>
-    </button>
+    <a href="#" {@rest}><%= render_slot(@inner_block) %></a>
     """
   end
 
