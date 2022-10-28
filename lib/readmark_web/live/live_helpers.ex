@@ -22,7 +22,7 @@ defmodule ReadmarkWeb.LiveHelpers do
       assigns
       |> assign_new(:class, fn -> "" end)
       |> assign_new(:items, fn -> [] end)
-      |> assign_new(:action, fn -> [] end)
+      |> assign_new(:counter, fn -> 0 end)
 
     ~H"""
     <div
@@ -31,22 +31,18 @@ defmodule ReadmarkWeb.LiveHelpers do
       phx-hook="Reveal"
     >
       <header class="z-10 sticky h-20 -top-8 flex items-center bg-white/90 backdrop-blur transition-shadow reveal:shadow-md">
-        <div class="sticky top-0 h-12 px-4 flex flex-1 items-center">
-          <.show_sidebar_button class="mr-3 lg:hidden" />
-
-          <h1 class="font-semibold capitalize">
-            <%= render_slot(@title) %>
-          </h1>
-
-          <%= for action <- @action do %>
-            <%= render_slot(action) %>
-          <% end %>
+        <div class="sticky top-0 h-12 px-4 flex flex-1 items-center overflow-hidden">
+          <%= render_slot(@header) %>
         </div>
       </header>
       <%= unless @items == [] do %>
-        <ul class="md:p-2 -space-y-0.5">
+        <ul class="md:p-2 -space-y-0.5" id={"list-items-#{@counter}"} phx-update="prepend">
           <%= for item <- @items do %>
-            <li class="border-b md:border-none border-gray-100">
+            <li
+              id={item.id}
+              class="border-b md:border-none border-gray-100"
+              style={deleted?(item) and "display: none;"}
+            >
               <%= render_slot(@inner_block, item) %>
             </li>
           <% end %>
@@ -61,13 +57,7 @@ defmodule ReadmarkWeb.LiveHelpers do
     <div id="list-detail" class="flex flex-col grow overflow-y-auto" phx-hook="Reveal">
       <header class="z-10 sticky h-20 -top-8 flex shrink-0 items-center bg-white/90 backdrop-blur transition-shadow reveal:shadow-md">
         <div class="sticky top-0 h-12 px-4 flex flex-1 items-center">
-          <.icon_button
-            to={@back}
-            link_type="live_patch"
-            class="mr-3 md:hidden"
-            label="Go back"
-            icon={:arrow_left}
-          />
+          <.icon_button patch={@back} class="mr-3 md:hidden" label="Go back" icon={:arrow_left} />
           <h1 class="ml-3 text-md font-bold line-clamp-1 opacity-0 transition-all translate-y-2 reveal:opacity-100 reveal:translate-y-0">
             <%= @title %>
           </h1>
@@ -84,13 +74,7 @@ defmodule ReadmarkWeb.LiveHelpers do
     assigns = assign_rest(assigns)
 
     ~H"""
-    <.icon_button
-      id="show-mobile-sidebar"
-      label="Open sidebar"
-      icon={:menu}
-      phx-click={show_sidebar()}
-      {@rest}
-    />
+    <.icon_button label="Open sidebar" icon={:menu} phx-click={show_sidebar()} {@rest} />
     """
   end
 
@@ -99,16 +83,6 @@ defmodule ReadmarkWeb.LiveHelpers do
 
     ~H"""
     <.icon_button label="Close sidebar" icon={:x} phx-click={hide_sidebar()} {@rest} />
-    """
-  end
-
-  def dot(assigns) do
-    assigns = assign_rest(assigns)
-
-    ~H"""
-    <svg width="2" height="2" aria-hidden="true" fill="currentColor" {@rest}>
-      <circle cx="1" cy="1" r="1" />
-    </svg>
     """
   end
 
@@ -133,11 +107,11 @@ defmodule ReadmarkWeb.LiveHelpers do
           id="modal-content"
           class="max-w-md fade-in-scale w-full max-h-full overflow-auto bg-white rounded shadow-lg"
           phx-key="escape"
-          phx-click-away={hide_modal()}
-          phx-window-keydown={hide_modal()}
+          phx-click-away={hide_modal() |> JS.dispatch("click", to: "#modal [data-modal-return]")}
+          phx-window-keydown={hide_modal() |> JS.dispatch("click", to: "#modal [data-modal-return]")}
         >
           <!-- TODO: remove when live_view 0.18 is released -->
-          <.link to={@return_to} data-modal-return class="hidden"></.link>
+          <.link patch={@return_to} data-modal-return class="hidden"></.link>
           <!-- Header -->
           <div class="px-5 py-3 border-b border-gray-100">
             <div class="flex items-center justify-between">
@@ -145,8 +119,7 @@ defmodule ReadmarkWeb.LiveHelpers do
                 <%= @title %>
               </div>
               <.link
-                link_type="button"
-                phx-click={hide_modal()}
+                phx-click={hide_modal() |> JS.dispatch("click", to: "#modal [data-modal-return]")}
                 class="text-gray-400 hover:text-gray-500"
               >
                 <div class="sr-only">Close</div>
@@ -182,7 +155,6 @@ defmodule ReadmarkWeb.LiveHelpers do
       },
       to: "#modal-content"
     )
-    |> JS.dispatch("click", to: "#modal [data-modal-return]")
   end
 
   def flash(%{kind: :error} = assigns) do
@@ -328,4 +300,7 @@ defmodule ReadmarkWeb.LiveHelpers do
 
   defp value_to_string(list) when is_list(list), do: Enum.join(list, " ")
   defp value_to_string(value), do: value
+
+  defp deleted?(%{__meta__: %{state: :deleted}}), do: true
+  defp deleted?(_), do: false
 end
