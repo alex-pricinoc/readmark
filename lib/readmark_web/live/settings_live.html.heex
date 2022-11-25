@@ -1,0 +1,13 @@
+<div class="bg-white flex-1 px-4 w-full">
+  <header class="h-20 flex items-center">
+    <.show_sidebar_button class="mr-3 lg:hidden" />
+    <h1 class="font-semibold">
+      Settings
+    </h1>
+  </header>
+  <.tab_list id="my-tabs">
+    <:tab title="Import" current>
+      <.live_component id={:new} module={UploadFormComponent} />
+    </:tab>
+  </.tab_list>
+</div>

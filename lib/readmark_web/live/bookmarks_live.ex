@@ -11,7 +11,7 @@ defmodule ReadmarkWeb.BookmarksLive do
     assigns = [
       tags: [],
       bookmarks: Bookmarks.list_bookmarks(),
-      counter: 0
+      reset_counter: 0
     ]
 
     {:ok, assign(socket, assigns), temporary_assigns: [bookmarks: []]}
@@ -52,7 +52,7 @@ defmodule ReadmarkWeb.BookmarksLive do
      socket
      |> assign(:tags, tags)
      |> assign(:bookmarks, Bookmarks.list_bookmarks(tags: tags))
-     |> update(:counter, &(&1 + 1))}
+     |> update(:reset_counter, &(&1 + 1))}
   end
 
   defp apply_action(socket, :index, _params) do

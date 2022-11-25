@@ -21,6 +21,12 @@ defmodule ReadmarkWeb.LayoutView do
         name: :bookmarks,
         label: "Bookmarks",
         to: Routes.bookmarks_path(@endpoint, :index)
+      },
+      %{
+        icon: :cog,
+        name: :settings,
+        label: "Settings",
+        to: Routes.settings_path(@endpoint, :index)
       }
     ]
   end

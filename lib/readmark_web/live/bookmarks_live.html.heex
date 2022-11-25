@@ -2,12 +2,12 @@
   items={@bookmarks}
   let={bookmark}
   class={if assigns[:active_bookmark], do: "hidden"}
-  counter={@counter}
+  reset_counter={@reset_counter}
 >
   <:header>
     <div class="flex-1 w-full">
       <div class="flex flex-1 items-center">
-        <.show_sidebar_button class=" mr-3 lg:hidden" />
+        <.show_sidebar_button class="mr-3 lg:hidden" />
 
         <h1 class="grow font-semibold capitalize">
           <%= @active_tab %>
@@ -32,17 +32,17 @@
       href={bookmark.url}
       target="_blank"
       rel="noopener noreferrer"
-      class="relative w-fit font-medium hover:text-indigo-700"
+      class="relative font-medium line-clamp-2 hover:text-primary-700"
     >
       <%= bookmark.title %>
     </a>
 
-    <%= unless bookmark.tags == [] do %>
-      <div class="relative inline-flex gap-1.5 w-fit">
+    <%= unless Enum.empty?(bookmark.tags) do %>
+      <div class="leading-none">
         <%= for tag <- bookmark.tags do %>
           <.link
             class={
-              "text-sm hover:text-orange-600 #{if tag in @tags, do: "text-orange-600 hover:text-gray-900"}"
+              "relative text-sm hover:text-orange-600 #{if tag in @tags, do: "text-orange-600 hover:text-gray-900"}"
             }
             phx-click="select-tag"
             phx-value-name={tag}

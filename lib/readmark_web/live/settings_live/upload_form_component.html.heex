@@ -1,0 +1,51 @@
+<div>
+  <.form
+    id="upload-bookmarks-form"
+    for={:bookmarks}
+    phx-target={@myself}
+    phx-change="validate"
+    phx-submit="save"
+    class="mt-2 max-w-full sm:max-w-sm"
+  >
+    <div
+      class="my-5 border-dashed border-gray-300 border-2 rounded-md px-4 sm:px-6 py-5"
+      phx-drop-target={@uploads.bookmarks.ref}
+    >
+      <%= live_file_input(@uploads.bookmarks,
+        class:
+          "cursor-pointer rounded-md text-sm font-medium text-primary-600 hover:text-primary-500"
+      ) %>
+    </div>
+
+    <.button type="submit" phx-disable-with="Saving..." label="Save" class="self-start" />
+  </.form>
+
+  <%= unless Enum.empty?(@imported) do %>
+    <div class="max-w-lg">
+      <%= if (count = Enum.count(@imported, fn {key, _} -> key == :ok end)) > 0 do %>
+        <h1 class="text-green-600"><%= "Imported #{count} links" %></h1>
+      <% end %>
+      <%= if (count = Enum.count(@imported, fn {key, _} -> key == :error end)) > 0 do %>
+        <details class="">
+          <summary class="text-red-600"><%= "Failed to import #{count} links" %></summary>
+          <dl>
+            <%= for {:error, item} <- @imported do %>
+              <%= case item do %>
+                <% %Ecto.Changeset{} -> %>
+                  <dt class="text-sm truncate"><%= item.changes.title %></dt>
+                  <dd class="text-xs text-gray-600">
+                    <%= item.changes.url %>
+                  </dd>
+                <% _ -> %>
+                  <dt class="font-medium">Failed to parse:</dt>
+                  <dd>
+                    <pre class="prose-code text-sm"><%= "#{item}" %></pre>
+                  </dd>
+              <% end %>
+            <% end %>
+          </dl>
+        </details>
+      <% end %>
+    </div>
+  <% end %>
+</div>
