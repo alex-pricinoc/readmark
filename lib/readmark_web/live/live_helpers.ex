@@ -22,7 +22,7 @@ defmodule ReadmarkWeb.LiveHelpers do
       assigns
       |> assign_new(:class, fn -> "" end)
       |> assign_new(:items, fn -> [] end)
-      |> assign_new(:counter, fn -> 0 end)
+      |> assign_new(:reset_counter, fn -> 0 end)
 
     ~H"""
     <div
@@ -36,7 +36,7 @@ defmodule ReadmarkWeb.LiveHelpers do
         </div>
       </header>
       <%= unless @items == [] do %>
-        <ul class="md:p-2 -space-y-0.5" id={"list-items-#{@counter}"} phx-update="prepend">
+        <ul class="md:p-2 -space-y-0.5" id={"list-items-#{@reset_counter}"} phx-update="prepend">
           <%= for item <- @items do %>
             <li
               id={item.id}
@@ -54,7 +54,7 @@ defmodule ReadmarkWeb.LiveHelpers do
 
   def list_detail(assigns) do
     ~H"""
-    <div id="list-detail" class="flex flex-col grow overflow-y-auto" phx-hook="Reveal">
+    <div id="list-detail" class="flex flex-col flex-1 overflow-y-auto" phx-hook="Reveal">
       <header class="z-10 sticky h-20 -top-8 flex shrink-0 items-center bg-white/90 backdrop-blur transition-shadow reveal:shadow-md">
         <div class="sticky top-0 h-12 px-4 flex flex-1 items-center">
           <.icon_button patch={@back} class="mr-3 md:hidden" label="Go back" icon={:arrow_left} />
@@ -68,6 +68,85 @@ defmodule ReadmarkWeb.LiveHelpers do
       </div>
     </div>
     """
+  end
+
+  # credits to https://fly.io/phoenix-files/making-tabs-mobile-friendly/
+  def tab_list(assigns) do
+    assigns =
+      assigns
+      |> assign_new(:active_class, fn -> "border-primary-500 text-primary-600" end)
+      |> assign_new(:inactive_class, fn ->
+        "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+      end)
+      |> assign_new(:class, fn -> "" end)
+      |> assign_new(:tab, fn -> [] end)
+
+    ~H"""
+    <div id={@id} class={@class}>
+      <div class="sm:hidden">
+        <label for={"#{@id}-mobile"} class="sr-only">Select a tab</label>
+        <select
+          id={"#{@id}-mobile"}
+          name="tabs"
+          phx-change={JS.dispatch("js:tab-selected", detail: %{id: "#{@id}-mobile"})}
+          class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
+        >
+          <%= for {tab, i} <- Enum.with_index(@tab) do %>
+            <option value={"#{@id}-#{i}"}><%= tab.title %></option>
+          <% end %>
+        </select>
+      </div>
+      <div class="hidden sm:block">
+        <div class="border-b border-gray-200">
+          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <%= for {tab, i} <- Enum.with_index(@tab), tab_id = "#{@id}-#{i}" do %>
+              <%= if tab[:current] do %>
+                <.link
+                  id={tab_id}
+                  phx-click={show_tab(@id, i, @active_class, @inactive_class)}
+                  class={
+                    "group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm #{@active_class}"
+                  }
+                  aria-current="page"
+                >
+                  <%= tab.title %>
+                </.link>
+              <% else %>
+                <.link
+                  id={tab_id}
+                  phx-click={show_tab(@id, i, @active_class, @inactive_class)}
+                  class={
+                    "group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm #{@inactive_class}"
+                  }
+                >
+                  <%= tab.title %>
+                </.link>
+              <% end %>
+            <% end %>
+          </nav>
+        </div>
+      </div>
+      <%= for {tab, i} <- Enum.with_index(@tab) do %>
+        <div id={"#{@id}-#{i}-content"} class={if !tab[:current], do: "hidden"} data-tab-content>
+          <%= render_slot(tab) %>
+        </div>
+      <% end %>
+    </div>
+    """
+  end
+
+  defp show_tab(js \\ %JS{}, id, tab_index, active_class, inactive_class) do
+    tab_id = "#{id}-#{tab_index}"
+
+    js
+    |> JS.add_class("hidden", to: "##{id} [data-tab-content]")
+    |> JS.remove_class("hidden", to: "##{tab_id}-content")
+    |> JS.remove_class(active_class, to: "##{id} nav a")
+    |> JS.add_class(inactive_class, to: "##{id} nav a")
+    |> JS.remove_class(inactive_class, to: "##{tab_id}")
+    |> JS.add_class(active_class, to: "##{tab_id}")
+    |> JS.remove_attribute("selected", to: "##{id}-mobile option")
+    |> JS.set_attribute({"selected", ""}, to: "##{id}-mobile option[value='#{tab_id}'")
   end
 
   def show_sidebar_button(assigns) do

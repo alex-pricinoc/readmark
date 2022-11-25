@@ -10,7 +10,7 @@ module.exports = {
         sans: ["Inter var", ...defaultTheme.fontFamily.sans]
       },
       colors: {
-        primary: colors.purple,
+        primary: colors.indigo,
         secondary: colors.yellow
       },
       backgroundImage: {

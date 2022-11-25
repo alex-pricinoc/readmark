@@ -25,4 +25,10 @@ export function registerGlobalEventHandlers() {
       e.target.focus()
     }
   })
+
+  window.addEventListener("js:tab-selected", ({ detail }) => {
+    let select = document.getElementById(detail.id)
+    let link = document.getElementById(select.value)
+    liveSocket.execJS(link, link.getAttribute("phx-click"))
+  })
 }

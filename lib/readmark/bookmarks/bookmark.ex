@@ -6,7 +6,7 @@ defmodule Readmark.Bookmarks.Bookmark do
 
   alias Readmark.Bookmarks.Tag
 
-  @params ~w(url title tags)a
+  @params ~w(url title tags inserted_at is_private notes)a
   @required ~w(url title)a
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -14,6 +14,8 @@ defmodule Readmark.Bookmarks.Bookmark do
     field :url, :string
     field :title, :string
     field :tags, Tag, default: []
+    field :notes, :string, default: ""
+    field :is_private, :boolean, default: false
 
     timestamps()
   end
