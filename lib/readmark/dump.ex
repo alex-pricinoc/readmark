@@ -9,8 +9,7 @@ defmodule Readmark.Dump do
   def import(document) do
     {:ok, bookmarks} = HTMLParser.parse_document(document)
 
-    bookmarks
-    |> Enum.map(&save/1)
+    Enum.map(bookmarks, &save/1)
   end
 
   defp save({:ok, attrs}) do

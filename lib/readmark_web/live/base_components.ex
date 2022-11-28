@@ -24,7 +24,7 @@ defmodule ReadmarkWeb.BaseComponents do
   end
 
   def text_input(assigns) do
-    assigns = assign_defaults(assigns, text_input_classes(has_error?(assigns)))
+    assigns = assign_input_defaults(assigns, text_input_classes(has_error?(assigns)))
 
     ~H"""
     <%= text_input(
@@ -36,7 +36,7 @@ defmodule ReadmarkWeb.BaseComponents do
   end
 
   def url_input(assigns) do
-    assigns = assign_defaults(assigns, text_input_classes(has_error?(assigns)))
+    assigns = assign_input_defaults(assigns, text_input_classes(has_error?(assigns)))
 
     ~H"""
     <%= url_input(
@@ -47,7 +47,7 @@ defmodule ReadmarkWeb.BaseComponents do
     """
   end
 
-  defp assign_defaults(assigns, base_classes) do
+  defp assign_input_defaults(assigns, base_classes) do
     assigns
     |> assign_new(:type, fn -> "text" end)
     |> assign_rest(~w(class form field type)a)
@@ -55,7 +55,7 @@ defmodule ReadmarkWeb.BaseComponents do
   end
 
   defp text_input_classes(has_error) do
-    "#{if has_error, do: "has-error", else: ""} border-gray-300 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:focus:border-primary-500 sm:text-sm block disabled:bg-gray-100 disabled:cursor-not-allowed shadow-sm w-full rounded-md dark:bg-gray-800 dark:text-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+    "#{if has_error, do: "has-error", else: ""} border-gray-300 focus:border-primary-500 focus:ring-primary-500 sm:text-sm block disabled:bg-gray-100 disabled:cursor-not-allowed shadow-sm w-full rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
   end
 
   def form_field_error(assigns) do
@@ -85,8 +85,8 @@ defmodule ReadmarkWeb.BaseComponents do
       |> assign_new(:class, fn -> "" end)
       |> assign_new(:color, fn -> "primary" end)
       |> assign_new(:icon, fn -> false end)
-      |> assign_rest(~w(disabled size color icon class label)a)
       |> assign_new(:classes, &button_classes/1)
+      |> assign_rest(~w(classes disabled size color icon class label)a)
 
     ~H"""
     <button class={@classes} disabled={@disabled} {@rest}>
@@ -140,13 +140,34 @@ defmodule ReadmarkWeb.BaseComponents do
 
     assigns =
       assigns
-      |> assign_rest(~w(icon class label)a)
+      |> assign_rest(~w(class label)a)
 
     ~H"""
     <.link class={[base_classes, assigns[:class]]} {@rest}>
-      <.icon name={@icon} />
       <span class="sr-only"><%= @label %></span>
+      <%= render_slot(@inner_block) %>
     </.link>
+    """
+  end
+
+  def spinner(assigns) do
+    base_classes = "animate-spin h-6 w-6"
+    show_class = if assigns[:show] == false, do: "hidden", else: ""
+
+    assigns =
+      assigns
+      |> assign_new(:classes, fn -> [base_classes, show_class] end)
+      |> assign_rest(~w(classes size class show)a)
+
+    ~H"""
+    <svg {@rest} class={@classes} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
     """
   end
 

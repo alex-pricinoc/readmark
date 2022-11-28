@@ -40,7 +40,7 @@ defmodule Readmark.Notes.Note do
 
   defp parse_attr(:description, value), do: String.trim(value)
 
-  defp parse_attr(:body, value), do: value |> Earmark.as_html!()
+  defp parse_attr(:body, value), do: Earmark.as_html!(value)
 
   defp parse_attr(:tags, value),
     do: value |> String.split(",") |> Enum.map(&String.trim/1) |> Enum.sort()
