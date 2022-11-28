@@ -8,6 +8,7 @@ defmodule Readmark.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {Task.Supervisor, name: Readmark.TaskSupervisor},
       # Start the Ecto repository
       Readmark.Repo,
       # Start the Telemetry supervisor

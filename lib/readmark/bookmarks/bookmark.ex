@@ -2,11 +2,9 @@ defmodule Readmark.Bookmarks.Bookmark do
   use Readmark.Schema
   import Ecto.Changeset
 
-  @type t :: Ecto.Schema.t()
+  alias Readmark.Bookmarks.{Tag, Article}
 
-  alias Readmark.Bookmarks.Tag
-
-  @params ~w(url title tags inserted_at is_private notes)a
+  @params ~w(url title tags inserted_at is_private notes article_id)a
   @required ~w(url title)a
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -16,6 +14,8 @@ defmodule Readmark.Bookmarks.Bookmark do
     field :tags, Tag, default: []
     field :notes, :string, default: ""
     field :is_private, :boolean, default: false
+
+    belongs_to :article, Article
 
     timestamps()
   end
