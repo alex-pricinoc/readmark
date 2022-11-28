@@ -65,9 +65,9 @@ defmodule ReadmarkWeb.BookmarksLive do
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do
-    bookmark = Bookmarks.get_bookmark!(id, :article)
+    bookmark = Bookmarks.get_bookmark!(id)
 
-    if bookmark.article == nil, do: maybe_fetch_article(bookmark)
+    if bookmark.content == nil, do: fetch_article(bookmark)
 
     socket
     |> assign(:page_title, bookmark.title)
@@ -97,33 +97,9 @@ defmodule ReadmarkWeb.BookmarksLive do
   end
 
   @impl true
-  def handle_info({:article_fetch_response, response, bookmark_id}, socket) do
-    bookmark = Bookmarks.get_bookmark!(bookmark_id)
-
-    with {:ok, article} <- Bookmarks.create_bookmark_article(response),
-         {:ok, _bookmark} <- Bookmarks.update_bookmark(bookmark, %{article_id: article.id}) do
-      {:noreply, socket}
-    else
-      {:error, reason} ->
-        Logger.error("unable to create article #{inspect(reason)}")
-        {:noreply, socket}
-    end
-  end
-
-  defp maybe_fetch_article(bookmark) do
-    if article = Bookmarks.get_article_by_url(bookmark.url) do
-      case Bookmarks.update_bookmark(bookmark, %{article_id: article.id}) do
-        {:ok, _bookmark} ->
-          Logger.info("Found the bookmark #{bookmark.url} in the database")
-          :ok
-
-        {:error, reason} ->
-          Logger.error("Unable to create article #{inspect(reason)}")
-          :error
-      end
-    else
-      fetch_article(bookmark)
-    end
+  def handle_info({:article_fetch_response, content, bookmark}, socket) do
+    {:ok, _bookmark} = Bookmarks.update_bookmark(bookmark, %{content: content})
+    {:noreply, socket}
   end
 
   defp fetch_article(bookmark) do
@@ -132,19 +108,18 @@ defmodule ReadmarkWeb.BookmarksLive do
     Task.Supervisor.start_child(Readmark.TaskSupervisor, fn ->
       Logger.info("Fetching URL: #{bookmark.url}")
 
-      response =
-        bookmark.url
-        |> Readability.summarize()
-        |> Map.from_struct()
-        |> Map.put(:url, bookmark.url)
+      %Readability.Summary{article_html: html, article_text: text} =
+        Readability.summarize(bookmark.url)
 
-      send(pid, {:article_fetch_response, response, bookmark.id})
+      content = html || text
+
+      send(pid, {:article_fetch_response, content, bookmark})
     end)
   end
 
   defp maybe_update_active_bookmark(:updated, socket, active_bookmark, bookmark)
        when active_bookmark.id == bookmark.id,
-       do: assign(socket, :active_bookmark, Bookmarks.get_bookmark!(active_bookmark.id, :article))
+       do: assign(socket, :active_bookmark, Bookmarks.get_bookmark!(active_bookmark.id))
 
   defp maybe_update_active_bookmark(_, socket, _, _), do: socket
 end
