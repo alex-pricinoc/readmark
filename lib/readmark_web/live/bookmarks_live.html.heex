@@ -83,6 +83,15 @@
     <a href={bookmark.url} target="_blank" rel="noopener noreferrer" class="text-gray-600">
       <%= get_domain(bookmark.url) %>
     </a>
+    <%= if article = bookmark.article do %>
+      <div class="mt-8 prose overflow-hidden">
+        <%= if article.article_html != nil do %>
+          <%= raw(article.article_html) %>
+        <% else %>
+          <p>Cannot fetch article</p>
+        <% end %>
+      </div>
+    <% end %>
   </.list_detail>
 <% end %>
 
