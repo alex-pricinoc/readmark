@@ -57,7 +57,9 @@ defmodule ReadmarkWeb.LiveHelpers do
     <div id="list-detail" class="flex flex-col flex-1 overflow-y-auto" phx-hook="Reveal">
       <header class="z-10 sticky h-20 -top-8 flex shrink-0 items-center bg-white/90 backdrop-blur transition-shadow reveal:shadow-md">
         <div class="sticky top-0 h-12 px-4 flex flex-1 items-center">
-          <.icon_button patch={@back} class="mr-3 md:hidden" label="Go back" icon={:arrow_left} />
+          <.icon_button patch={@back} class="mr-3 md:hidden" label="Go back">
+            <.icon name={:arrow_left} />
+          </.icon_button>
           <h1 class="ml-3 text-md font-bold line-clamp-1 opacity-0 transition-all translate-y-2 reveal:opacity-100 reveal:translate-y-0">
             <%= @title %>
           </h1>
@@ -153,7 +155,9 @@ defmodule ReadmarkWeb.LiveHelpers do
     assigns = assign_rest(assigns)
 
     ~H"""
-    <.icon_button label="Open sidebar" icon={:menu} phx-click={show_sidebar()} {@rest} />
+    <.icon_button label="Open sidebar" phx-click={show_sidebar()} {@rest}>
+      <.icon name={:menu} />
+    </.icon_button>
     """
   end
 
@@ -161,14 +165,14 @@ defmodule ReadmarkWeb.LiveHelpers do
     assigns = assign_rest(assigns)
 
     ~H"""
-    <.icon_button label="Close sidebar" icon={:x} phx-click={hide_sidebar()} {@rest} />
+    <.icon_button label="Close sidebar" phx-click={hide_sidebar()} {@rest}>
+      <.icon name={:x} />
+    </.icon_button>
     """
   end
 
   def modal(assigns) do
-    assigns =
-      assigns
-      |> assign_rest(~w(title return_to)a)
+    assigns = assign_rest(assigns, ~w(title return_to)a)
 
     ~H"""
     <div id="modal" {@rest} phx-remove={hide_modal()}>

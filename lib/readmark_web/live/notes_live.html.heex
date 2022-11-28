@@ -10,7 +10,7 @@
     patch={Routes.notes_path(@socket, :show, note)}
   >
     <span class="font-medium text-sm line-clamp-1"><%= note.title %></span>
-    <span class="text-gray-600 dark:text-gray-300 text-sm line-clamp-1">
+    <span class="text-gray-600 text-sm line-clamp-1">
       <%= format_date(note.date) %>
     </span>
   </.link>
@@ -22,7 +22,7 @@
     <span class="inline-block leading-snug">
       <%= format_date(note.date) %>
     </span>
-    <div class="mt-8 prose dark:text-white">
+    <div class="mt-8 prose ">
       <%= raw(note.body) %>
     </div>
   </.list_detail>
