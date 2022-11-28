@@ -1,7 +1,7 @@
 <.list
   items={@bookmarks}
   let={bookmark}
-  class={if assigns[:active_bookmark], do: "hidden"}
+  class={if @active_bookmark, do: "hidden"}
   reset_counter={@reset_counter}
 >
   <:header>
@@ -70,7 +70,7 @@
   </div>
 </.list>
 
-<%= if bookmark = assigns[:active_bookmark] do %>
+<%= if bookmark = @active_bookmark do %>
   <.list_detail title={bookmark.title} back={Routes.bookmarks_path(@socket, :index)}>
     <a
       href={bookmark.url}
@@ -83,26 +83,22 @@
     <a href={bookmark.url} target="_blank" rel="noopener noreferrer" class="text-gray-600">
       <%= get_domain(bookmark.url) %>
     </a>
-    <%= if article = bookmark.article do %>
+    <%= if content = bookmark.content do %>
       <div class="mt-8 prose overflow-hidden">
-        <%= if article.article_html != nil do %>
-          <%= raw(article.article_html) %>
-        <% else %>
-          <p>Cannot fetch article</p>
-        <% end %>
+        <%= raw(content) %>
       </div>
     <% end %>
   </.list_detail>
 <% end %>
 
 <%= if @live_action in [:new, :edit] do %>
-  <.modal title={@page_title} return_to={bookmark_path(assigns[:active_bookmark])}>
+  <.modal title={@page_title} return_to={bookmark_path(@active_bookmark)}>
     <.live_component
       module={ReadmarkWeb.BookmarksLive.FormComponent}
       bookmark={@bookmark}
       id={@bookmark.id || :new}
       action={@live_action}
-      return_to={bookmark_path(assigns[:active_bookmark])}
+      return_to={bookmark_path(@active_bookmark)}
     />
   </.modal>
 <% end %>

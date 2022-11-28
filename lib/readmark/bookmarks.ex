@@ -6,7 +6,7 @@ defmodule Readmark.Bookmarks do
   import Ecto.Query, warn: false
   alias Readmark.Repo
 
-  alias Readmark.Bookmarks.{Bookmark, Article}
+  alias Readmark.Bookmarks.Bookmark
 
   @doc """
   Returns the list of bookmarks.
@@ -56,7 +56,7 @@ defmodule Readmark.Bookmarks do
       ** (Ecto.NoResultsError)
 
   """
-  def get_bookmark!(id, preload \\ []), do: Repo.get!(Bookmark, id) |> Repo.preload(preload)
+  def get_bookmark!(id), do: Repo.get!(Bookmark, id)
 
   @doc """
   Creates a bookmark.
@@ -113,40 +113,6 @@ defmodule Readmark.Bookmarks do
     |> Repo.delete()
     |> broadcast!({:bookmark, :deleted})
   end
-
-  @doc """
-  Creates a bookmark article.
-
-  ## Examples
-
-      iex> create_bookmark_article(%{field: value})
-      {:ok, %Bookmark{}}
-
-      iex> create_bookmark_article(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_bookmark_article(attrs \\ %{}) do
-    %Article{}
-    |> Article.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Gets a single article by url.
-
-  Returns nil if no article was found. Raises if more than one entry.
-
-  ## Examples
-
-      iex> get_article_by_url("https://example.com")
-      %Article{}
-
-      iex> get_article_by_url(456)
-      nil
-
-  """
-  def get_article_by_url(url), do: Repo.get_by(Article, url: url)
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking bookmark changes.
