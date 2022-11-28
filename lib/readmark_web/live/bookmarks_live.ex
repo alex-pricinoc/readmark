@@ -1,6 +1,8 @@
 defmodule ReadmarkWeb.BookmarksLive do
   use ReadmarkWeb, :live_view
 
+  require Logger
+
   alias Readmark.Bookmarks
   alias Bookmarks.Bookmark
 
@@ -11,7 +13,8 @@ defmodule ReadmarkWeb.BookmarksLive do
     assigns = [
       tags: [],
       bookmarks: Bookmarks.list_bookmarks(),
-      reset_counter: 0
+      reset_counter: 0,
+      active_bookmark: nil
     ]
 
     {:ok, assign(socket, assigns), temporary_assigns: [bookmarks: []]}
@@ -62,7 +65,9 @@ defmodule ReadmarkWeb.BookmarksLive do
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do
-    bookmark = Bookmarks.get_bookmark!(id)
+    bookmark = Bookmarks.get_bookmark!(id, :article)
+
+    if bookmark.article == nil, do: maybe_fetch_article(bookmark)
 
     socket
     |> assign(:page_title, bookmark.title)
@@ -84,7 +89,62 @@ defmodule ReadmarkWeb.BookmarksLive do
   end
 
   @impl true
-  def handle_info({{:bookmark, _}, bookmark}, socket) do
+  def handle_info({{:bookmark, action}, bookmark}, socket) do
+    socket =
+      maybe_update_active_bookmark(action, socket, socket.assigns.active_bookmark, bookmark)
+
     {:noreply, update(socket, :bookmarks, fn bookmarks -> [bookmark | bookmarks] end)}
   end
+
+  @impl true
+  def handle_info({:article_fetch_response, response, bookmark_id}, socket) do
+    bookmark = Bookmarks.get_bookmark!(bookmark_id)
+
+    with {:ok, article} <- Bookmarks.create_bookmark_article(response),
+         {:ok, _bookmark} <- Bookmarks.update_bookmark(bookmark, %{article_id: article.id}) do
+      {:noreply, socket}
+    else
+      {:error, reason} ->
+        Logger.error("unable to create article #{inspect(reason)}")
+        {:noreply, socket}
+    end
+  end
+
+  defp maybe_fetch_article(bookmark) do
+    if article = Bookmarks.get_article_by_url(bookmark.url) do
+      case Bookmarks.update_bookmark(bookmark, %{article_id: article.id}) do
+        {:ok, _bookmark} ->
+          Logger.info("Found the bookmark #{bookmark.url} in the database")
+          :ok
+
+        {:error, reason} ->
+          Logger.error("Unable to create article #{inspect(reason)}")
+          :error
+      end
+    else
+      fetch_article(bookmark)
+    end
+  end
+
+  defp fetch_article(bookmark) do
+    pid = self()
+
+    Task.Supervisor.start_child(Readmark.TaskSupervisor, fn ->
+      Logger.info("Fetching URL: #{bookmark.url}")
+
+      response =
+        bookmark.url
+        |> Readability.summarize()
+        |> Map.from_struct()
+        |> Map.put(:url, bookmark.url)
+
+      send(pid, {:article_fetch_response, response, bookmark.id})
+    end)
+  end
+
+  defp maybe_update_active_bookmark(:updated, socket, active_bookmark, bookmark)
+       when active_bookmark.id == bookmark.id,
+       do: assign(socket, :active_bookmark, Bookmarks.get_bookmark!(active_bookmark.id, :article))
+
+  defp maybe_update_active_bookmark(_, socket, _, _), do: socket
 end
