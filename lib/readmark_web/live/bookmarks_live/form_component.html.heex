@@ -1,6 +1,7 @@
 <div>
+  <.header class="mb-4g sm:mb-10"><%= @title %></.header>
   <.form
-    let={f}
+    :let={f}
     for={@changeset}
     id="bookmark-form"
     phx-target={@myself}
@@ -8,34 +9,21 @@
     phx-submit="save"
   >
     <fieldset class="mb-6 space-y-4">
-      <div>
-        <.form_label form={f} field={:url} />
-        <.url_input
-          form={f}
-          field={:url}
-          placeholder="www.example.com/article.html"
-          disabled={@action == :edit}
-        />
-        <.form_field_error form={f} field={:url} class="fixed" />
-      </div>
-      <div>
-        <.form_label form={f} field={:title} />
-        <.text_input form={f} field={:title} placeholder="Example title" />
-        <.form_field_error form={f} field={:title} class="fixed" />
-      </div>
-
-      <div>
-        <.form_label form={f} field={:tags} />
-        <.text_input
-          form={f}
-          field={:tags}
-          value={list_input_value(f, :tags)}
-          placeholder="tag_1 tag_2"
-        />
-        <.form_field_error form={f} field={:tags} class="fixed" />
-      </div>
+      <.input
+        field={{f, :url}}
+        label="Url"
+        placeholder="www.example.com/article.html"
+        disabled={@action == :edit}
+      />
+      <.input field={{f, :title}} placeholder="Example title" label="Title" />
+      <.input
+        field={{f, :tags}}
+        value={list_input_value(f, :tags)}
+        label="Tags"
+        placeholder="tag_1 tag_2"
+      />
     </fieldset>
 
-    <.button type="submit" phx-disable-with="Saving..." label="Save" />
+    <.button type="submit" phx-disable-with="Saving...">Save</.button>
   </.form>
 </div>

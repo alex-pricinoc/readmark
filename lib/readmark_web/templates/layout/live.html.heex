@@ -1,8 +1,0 @@
-<%= render("_sidebar.html", active_tab: @active_tab) %>
-
-<main class="flex flex-1 bg-white bg-graph-paper w-full">
-  <%= @inner_content %>
-</main>
-
-<.flash flash={@flash} kind={:info} />
-<.flash flash={@flash} kind={:error} />

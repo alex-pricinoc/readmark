@@ -6,6 +6,7 @@ defmodule ReadmarkWeb.NotesLive do
   @impl true
   def mount(_params, _session, socket) do
     assigns = [
+      note: nil,
       page_title: "Notes",
       notes: Notes.list_notes()
     ]

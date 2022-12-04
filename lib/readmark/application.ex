@@ -8,17 +8,19 @@ defmodule Readmark.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {Task.Supervisor, name: Readmark.TaskSupervisor},
-      # Start the Ecto repository
-      Readmark.Repo,
       # Start the Telemetry supervisor
       ReadmarkWeb.Telemetry,
+      # Start the Ecto repository
+      Readmark.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: Readmark.PubSub},
+      # Start Finch
+      {Finch, name: Readmark.Finch},
       # Start the Endpoint (http/https)
-      ReadmarkWeb.Endpoint
+      ReadmarkWeb.Endpoint,
       # Start a worker by calling: Readmark.Worker.start_link(arg)
       # {Readmark.Worker, arg}
+      {Task.Supervisor, name: Readmark.TaskSupervisor}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

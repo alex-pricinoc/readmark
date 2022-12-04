@@ -19,15 +19,15 @@ defmodule ReadmarkWeb.ConnCase do
 
   using do
     quote do
+      # The default endpoint for testing
+      @endpoint ReadmarkWeb.Endpoint
+
+      use ReadmarkWeb, :verified_routes
+
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
       import ReadmarkWeb.ConnCase
-
-      alias ReadmarkWeb.Router.Helpers, as: Routes
-
-      # The default endpoint for testing
-      @endpoint ReadmarkWeb.Endpoint
     end
   end
 
