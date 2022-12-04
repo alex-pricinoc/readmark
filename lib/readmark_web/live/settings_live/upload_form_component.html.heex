@@ -11,13 +11,15 @@
       class="my-5 border-dashed border-gray-300 border-2 rounded-md px-4 sm:px-6 py-5"
       phx-drop-target={@uploads.bookmarks.ref}
     >
-      <%= live_file_input(@uploads.bookmarks,
-        class:
-          "cursor-pointer rounded-md text-sm font-medium text-primary-600 hover:text-primary-500"
-      ) %>
+      <.live_file_input
+        upload={@uploads.bookmarks}
+        class="cursor-pointer rounded-md text-sm font-medium text-primary-600 hover:text-primary-500"
+      />
     </div>
 
-    <.button type="submit" phx-disable-with="Saving..." label="Save" class="self-start" />
+    <.button type="submit" phx-disable-with="Saving..." class="self-start">
+      Save
+    </.button>
   </.form>
 
   <%= unless Enum.empty?(@imported) do %>

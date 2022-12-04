@@ -1,4 +1,6 @@
 defmodule ReadmarkWeb.Sidebar do
+  use Phoenix.Component
+
   import Phoenix.LiveView
 
   alias ReadmarkWeb.{HomeLive, NotesLive, BookmarksLive, SettingsLive}

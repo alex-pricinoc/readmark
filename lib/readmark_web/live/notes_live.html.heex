@@ -1,13 +1,13 @@
-<.list items={@notes} let={note} class={if assigns[:note], do: "hidden"}>
+<.list :let={note} items={@notes} class={if assigns[:note], do: "hidden"}>
   <:header>
-    <.show_sidebar_button class=" mr-3 lg:hidden" />
+    <.show_sidebar_button class="mr-3 lg:hidden" />
     <h1 class="font-semibold capitalize">
       <%= @active_tab %>
     </h1>
   </:header>
   <.link
     class="px-3 py-1.5 flex flex-col md:rounded-md hover:bg-gray-100"
-    patch={Routes.notes_path(@socket, :show, note)}
+    patch={~p"/notes/#{note}"}
   >
     <span class="font-medium text-sm line-clamp-1"><%= note.title %></span>
     <span class="text-gray-600 text-sm line-clamp-1">
@@ -16,14 +16,12 @@
   </.link>
 </.list>
 
-<%= if note = assigns[:note] do %>
-  <.list_detail title={note.title} back={Routes.notes_path(@socket, :index)}>
-    <h1 class="mb-3 font-bold text-2xl xl:text-3xl"><%= note.title %></h1>
-    <span class="inline-block leading-snug">
-      <%= format_date(note.date) %>
-    </span>
-    <div class="mt-8 prose ">
-      <%= raw(note.body) %>
-    </div>
-  </.list_detail>
-<% end %>
+<.list_detail :if={@note} title={@note.title} back={~p"/notes"}>
+  <h1 class="mb-3 font-bold text-2xl xl:text-3xl"><%= @note.title %></h1>
+  <span class="inline-block leading-snug">
+    <%= format_date(@note.date) %>
+  </span>
+  <div class="mt-8 prose ">
+    <%= raw(@note.body) %>
+  </div>
+</.list_detail>

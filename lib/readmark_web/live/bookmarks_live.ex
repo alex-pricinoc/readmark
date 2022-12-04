@@ -76,7 +76,7 @@ defmodule ReadmarkWeb.BookmarksLive do
     bookmark = Bookmarks.get_bookmark!(id)
 
     socket
-    |> assign(:page_title, bookmark.title)
+    |> assign(:page_title, "Edit bookmark")
     |> assign(:bookmark, bookmark)
   end
 

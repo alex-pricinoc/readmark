@@ -8,17 +8,16 @@
   </div>
 
   <nav class="flex-1 px-3 py-3 space-y-1">
-    <%= for link <- links() do %>
-      <.link
-        patch={link.to}
-        class={
+    <.link
+      :for={link <- links()}
+      patch={link.to}
+      class={
           "flex items-center space-x-3 px-2 py-1.5 font-medium text-sm rounded-md transition #{if @active_tab == link.name, do: "bg-gray-900 text-white", else: "text-gray-700 hover:bg-gray-200"}"
         }
-      >
-        <.icon name={link.icon} class="w-6 h-6" outlined />
-        <span><%= link.label %></span>
-      </.link>
-    <% end %>
+    >
+      <.icon name={link.name} class="w-6 h-6" />
+      <span><%= link.label %></span>
+    </.link>
   </nav>
 </div>
 
@@ -28,3 +27,21 @@
   phx-click={hide_sidebar()}
 >
 </div>
+
+<main class="flex flex-1 bg-white bg-graph-paper w-full">
+  <%= @inner_content %>
+</main>
+
+<.flash kind={:info} title="Success!" flash={@flash} />
+<.flash kind={:error} title="Error!" flash={@flash} />
+<.flash
+  id="disconnected"
+  kind={:error}
+  title="We can't find the internet"
+  close={false}
+  autoshow={false}
+  phx-disconnected={show("#disconnected")}
+  phx-connected={hide("#disconnected")}
+>
+  Attempting to reconnect <Heroicons.arrow_path class="ml-1 w-3 h-3 inline animate-spin" />
+</.flash>

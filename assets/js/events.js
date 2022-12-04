@@ -2,19 +2,8 @@ import topbar from "../vendor/topbar"
 
 export function registerTopbar() {
   topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
-  let topBarScheduled
-
-  window.addEventListener("phx:page-loading-start", () => {
-    if (!topBarScheduled) {
-      topBarScheduled = setTimeout(() => topbar.show(), 200)
-    }
-  })
-
-  window.addEventListener("phx:page-loading-stop", () => {
-    clearTimeout(topBarScheduled)
-    topBarScheduled = false
-    topbar.hide()
-  })
+  window.addEventListener("phx:page-loading-start", (info) => topbar.delayedShow(200))
+  window.addEventListener("phx:page-loading-stop", (info) => topbar.hide())
 }
 
 export function registerGlobalEventHandlers() {
