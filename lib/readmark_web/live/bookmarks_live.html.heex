@@ -99,6 +99,7 @@
     title={@page_title}
     id={@bookmark.id || :new}
     action={@live_action}
+    current_user={@current_user}
     return_to={bookmark_path(@active_bookmark)}
   />
 </.modal>

@@ -1,22 +1,22 @@
 defmodule Readmark.Dump do
   @moduledoc """
-  Module for importing links
+  Module for importing bookmarks.
   """
 
   alias __MODULE__.HTMLParser
   alias Readmark.Bookmarks
 
-  def import(document) do
+  def import(user, document) do
     {:ok, bookmarks} = HTMLParser.parse_document(document)
 
-    Enum.map(bookmarks, &save/1)
+    Enum.map(bookmarks, &save(user, &1))
   end
 
-  defp save({:ok, attrs}) do
-    Bookmarks.create_bookmark(attrs)
+  defp save(user, {:ok, attrs}) do
+    Bookmarks.create_bookmark(user, attrs)
   end
 
-  defp save({:error, msg}) do
+  defp save(_, {:error, msg}) do
     {:error, msg}
   end
 end

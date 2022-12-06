@@ -4,8 +4,8 @@ defmodule Readmark.Bookmarks.Bookmark do
 
   alias Readmark.Bookmarks.Tag
 
-  @params ~w(url title tags inserted_at is_private notes content)a
-  @required ~w(url title)a
+  @params ~w(url title tags inserted_at is_private notes content user_id)a
+  @required ~w(url title user_id)a
 
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "bookmarks" do
@@ -15,6 +15,8 @@ defmodule Readmark.Bookmarks.Bookmark do
     field :notes, :string, default: ""
     field :is_private, :boolean, default: false
     field :content, :string
+
+    belongs_to :user, User
 
     timestamps()
   end
@@ -26,5 +28,6 @@ defmodule Readmark.Bookmarks.Bookmark do
     |> validate_required(@required)
     |> validate_length(:url, max: 2048)
     |> validate_length(:title, max: 255)
+    |> assoc_constraint(:user)
   end
 end

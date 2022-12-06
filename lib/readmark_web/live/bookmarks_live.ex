@@ -6,12 +6,12 @@ defmodule ReadmarkWeb.BookmarksLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    if connected?(socket), do: Bookmarks.subscribe()
+    if connected?(socket), do: Bookmarks.subscribe(socket.assigns.current_user.id)
 
     assigns = [
       tags: [],
       bookmarks: Bookmarks.list_bookmarks(),
-      reset_counter: 0,
+      bookmarks: Bookmarks.list_bookmarks(socket.assigns.current_user),
       active_bookmark: nil
     ]
 
@@ -25,7 +25,7 @@ defmodule ReadmarkWeb.BookmarksLive do
 
   @impl true
   def handle_event("delete-bookmark", %{"id" => id}, socket) do
-    bookmark = Bookmarks.get_bookmark!(id)
+    bookmark = Bookmarks.get_bookmark!(id, socket.assigns.current_user.id)
     {:ok, _} = Bookmarks.delete_bookmark(bookmark)
 
     socket =
@@ -52,7 +52,7 @@ defmodule ReadmarkWeb.BookmarksLive do
     {:noreply,
      socket
      |> assign(:tags, tags)
-     |> assign(:bookmarks, Bookmarks.list_bookmarks(tags: tags))
+     |> assign(:bookmarks, Bookmarks.list_bookmarks(socket.assigns.current_user, tags: tags))
      |> update(:reset_counter, &(&1 + 1))}
   end
 
@@ -63,7 +63,7 @@ defmodule ReadmarkWeb.BookmarksLive do
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do
-    bookmark = Bookmarks.get_bookmark!(id)
+    bookmark = Bookmarks.get_bookmark!(id, socket.assigns.current_user.id)
 
     if bookmark.content == nil, do: fetch_article(bookmark)
 
@@ -73,7 +73,7 @@ defmodule ReadmarkWeb.BookmarksLive do
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    bookmark = Bookmarks.get_bookmark!(id)
+    bookmark = Bookmarks.get_bookmark!(id, socket.assigns.current_user.id)
 
     socket
     |> assign(:page_title, "Edit bookmark")
@@ -112,8 +112,11 @@ defmodule ReadmarkWeb.BookmarksLive do
   end
 
   defp maybe_update_active_bookmark(:updated, socket, active_bookmark, bookmark)
-       when active_bookmark.id == bookmark.id,
-       do: assign(socket, :active_bookmark, Bookmarks.get_bookmark!(active_bookmark.id))
+       when active_bookmark.id == bookmark.id do
+    user_id = socket.assigns.current_user.id
+
+    assign(socket, :active_bookmark, Bookmarks.get_bookmark!(active_bookmark.id, user_id))
+  end
 
   defp maybe_update_active_bookmark(_, socket, _, _), do: socket
 end
