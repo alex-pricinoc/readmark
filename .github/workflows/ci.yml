@@ -1,21 +1,23 @@
-name: CI
+name: Elixir CI
 
 on:
   pull_request:
-    branches:
-      - "*"
+    branches: ["*"]
   push:
-    branches:
-      - "main"
-      - "develop"
+    branches: ["main", "develop"]
+
+env:
+  MIX_ENV: test
+
+permissions:
+  contents: read
 
 jobs:
   test:
-    name: Test (Elixir ${{matrix.elixir}} | Erlang/OTP ${{matrix.otp}})
-    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:14-alpine
+        ports: ["5432:5432"]
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -23,60 +25,71 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
 
+    runs-on: ubuntu-latest
+    name: Test on OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
     strategy:
       matrix:
+        otp: [25.x]
+        elixir: [1.14.x]
         include:
-          - otp: 25.x
-            elixir: 1.14.x
-            coverage: false
+          - coverage: false
             lint: true
 
-    env:
-      GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      MIX_ENV: test
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Install OTP and Elixir
-        uses: erlef/setup-elixir@v1
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
         with:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
 
-      - name: Cache deps and build
-        uses: actions/cache@v2
-        id: mix-cache
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache deps
+        uses: actions/cache@v3
+        id: cache-deps
+        env:
+          cache-name: cache-elixir-deps
         with:
-          path: |
-            deps
-            _build
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          path: deps
+          key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
+            ${{ runner.os }}-mix-${{ env.cache-name }}-
+
+      - name: Cache compiled build
+        id: cache-build
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-compiled-build
+        with:
+          path: _build
+          key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{ env.cache-name }}-
             ${{ runner.os }}-mix-
 
-      - name: Install dependencies
-        run: mix deps.get --only test
-
-      - name: Run "mix format"
-        run: mix format --check-formatted
-        if: ${{matrix.lint}}
+      - name: Fetch dependencies
+        run: mix deps.get
 
       - name: Check no unused dependencies
-        run: mix deps.get && mix deps.unlock --check-unused
+        run: mix deps.unlock --check-unused
         if: ${{matrix.lint}}
 
-      - name: Compile dependencies
-        run: mix deps.compile
+      - name: Check retired dependencies
+        run: mix hex.audit
+        if: ${{matrix.lint}}
 
-      - name: Compile with --warnings-as-errors
+      - name: Compiles without warnings
         run: mix compile --warnings-as-errors
         if: ${{matrix.lint}}
 
+      - name: Check Formatting
+        run: mix format --check-formatted
+        if: ${{matrix.lint}}
+
       - name: Run tests
-        run: mix test --trace
+        run: mix test
         if: ${{!matrix.coverage}}
 
       - name: Run tests with coverage
