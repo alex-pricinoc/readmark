@@ -1,5 +1,5 @@
 defmodule ReadmarkWeb.NotesLive do
-  use ReadmarkWeb, :live_view
+  use ReadmarkWeb, :app_view
 
   alias Readmark.Notes
 
