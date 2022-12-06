@@ -1,13 +1,151 @@
-<div class="bg-white flex-1 px-4 w-full">
-  <header class="h-20 flex items-center">
+<div class="bg-white flex-1 px-4">
+  <header class="h-20 flex items-center border-b mb-8">
     <.show_sidebar_button class="mr-3 lg:hidden" />
     <h1 class="font-semibold">
       Settings
     </h1>
+    <.icon_button label="Log out" href={~p"/users/log_out"} method="delete" class="ml-auto">
+      <Heroicons.arrow_right_on_rectangle class="h-5 w-5" />
+    </.icon_button>
   </header>
-  <.tab_list id="my-tabs">
-    <:tab title="Import" current>
-      <.live_component id={:new} module={UploadFormComponent} />
-    </:tab>
-  </.tab_list>
+  <section class="py-4 md:py-6 flex flex-col md:flex-row md:gap-24">
+    <h2 class="font-medium mb-4">Account</h2>
+    <div class="grid grid-cols-2 md:grid-cols-[10rem_auto_15rem] gap-4 text-sm">
+      <label class="hidden md:block col-start-1 row-start-1 font-medium">Display Name</label>
+      <span class="col-start-1 row-start-1 md:col-start-2">
+        <%= @current_user.display_name %>
+      </span>
+      <label class="hidden md:block col-start-1 row-start-2 font-medium">Email</label>
+      <span class="col-start-1 row-start-2 md:col-start-2"><%= @current_user.email %></span>
+      <label class="hidden md:block col-start-1 row-start-3 font-medium">Password</label>
+      <span class="col-start-1 row-start-3 md:col-start-2">
+        <%= for _ <- 1..12, do: raw("&bull;") %>
+      </span>
+      <.link
+        class="col-start-2 md:col-start-3 row-start-1 text-primary-500 text-xs font-medium text-end"
+        patch={~p"/settings/change_display_name"}
+      >
+        Change Display Name
+      </.link>
+      <.link
+        class="col-start-2 md:col-start-3 row-start-2 text-primary-500 text-xs font-medium text-end"
+        patch={~p"/settings/change_email"}
+      >
+        Change Email
+      </.link>
+
+      <.link
+        class="col-start-2 md:col-start-3 row-start-3 text-primary-500 text-xs font-medium text-end"
+        patch={~p"/settings/change_password"}
+      >
+        Change Password
+      </.link>
+    </div>
+  </section>
+  <section class="py-4 md:py-6 md:flex md:gap-24">
+    <h2 class="font-medium mb-4">Import</h2>
+    <.live_component id={:import} module={UploadFormComponent} current_user={@current_user} />
+  </section>
 </div>
+
+<.modal
+  :if={@live_action == :change_email}
+  id="change-email-modal"
+  show
+  on_cancel={JS.patch(~p"/settings")}
+>
+  <.header>Change Email</.header>
+
+  <.simple_form
+    :let={f}
+    id="email_form"
+    for={@email_changeset}
+    phx-submit="update_email"
+    phx-change="validate_email"
+  >
+    <.error :if={@email_changeset.action == :insert}>
+      Oops, something went wrong! Please check the errors below.
+    </.error>
+
+    <.input field={{f, :email}} type="email" label="Email" required />
+
+    <.input
+      field={{f, :current_password}}
+      name="current_password"
+      id="current_password_for_email"
+      type="password"
+      label="Current password"
+      value={@email_form_current_password}
+      required
+    />
+    <:actions>
+      <.button phx-disable-with="Changing...">Change Email</.button>
+    </:actions>
+  </.simple_form>
+</.modal>
+
+<.modal
+  :if={@live_action == :change_password}
+  id="change-password-modal"
+  show
+  on_cancel={JS.patch(~p"/settings")}
+>
+  <.header>Change Password</.header>
+
+  <.simple_form
+    :let={f}
+    id="password_form"
+    for={@password_changeset}
+    action={~p"/users/log_in?_action=password_updated"}
+    method="post"
+    phx-change="validate_password"
+    phx-submit="update_password"
+    phx-trigger-action={@trigger_submit}
+  >
+    <.error :if={@password_changeset.action == :insert}>
+      Oops, something went wrong! Please check the errors below.
+    </.error>
+
+    <.input field={{f, :email}} type="hidden" value={@current_email} />
+
+    <.input field={{f, :password}} type="password" label="New password" required />
+    <.input field={{f, :password_confirmation}} type="password" label="Confirm new password" />
+    <.input
+      field={{f, :current_password}}
+      name="current_password"
+      type="password"
+      label="Current password"
+      id="current_password_for_password"
+      value={@current_password}
+      required
+    />
+    <:actions>
+      <.button phx-disable-with="Changing...">Change Password</.button>
+    </:actions>
+  </.simple_form>
+</.modal>
+
+<.modal
+  :if={@live_action == :change_display_name}
+  id="change-display-name-modal"
+  show
+  on_cancel={JS.patch(~p"/settings")}
+>
+  <.header>Change Display Name</.header>
+  <.simple_form
+    :let={f}
+    id="display_name_form"
+    for={@display_name_changeset}
+    phx-submit="update_display_name"
+    phx-change="validate_display_name"
+  >
+    <.error :if={@email_changeset.action == :insert}>
+      Oops, something went wrong! Please check the errors below.
+    </.error>
+    <.input field={{f, :display_name}} label="Display name" required />
+
+    <:actions>
+      <.button phx-disable-with="Updating...">Update</.button>
+    </:actions>
+  </.simple_form>
+</.modal>
