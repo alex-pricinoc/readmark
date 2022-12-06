@@ -1,9 +1,10 @@
 defmodule ReadmarkWeb.SettingsLive do
-  use ReadmarkWeb, :live_view
+  use ReadmarkWeb, :app_view
 
   alias Readmark.Accounts
   alias ReadmarkWeb.SettingsLive.UploadFormComponent
 
+  # TODO: Move account settings to a live component
   @impl true
   def mount(%{"token" => token}, _session, socket) do
     socket =

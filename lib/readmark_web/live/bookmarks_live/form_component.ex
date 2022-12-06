@@ -32,7 +32,7 @@ defmodule ReadmarkWeb.BookmarksLive.FormComponent do
       {:ok, _bookmark} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Bookmark updated successfully")
+         |> put_flash(:info, "Bookmark updated successfully!")
          |> push_patch(to: socket.assigns.return_to)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -45,7 +45,7 @@ defmodule ReadmarkWeb.BookmarksLive.FormComponent do
       {:ok, _bookmark} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Bookmark created successfully")
+         |> put_flash(:info, "Bookmark created successfully!")
          |> push_patch(to: socket.assigns.return_to)}
 
       {:error, %Ecto.Changeset{} = changeset} ->

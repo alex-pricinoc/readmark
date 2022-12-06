@@ -192,6 +192,7 @@ defmodule ReadmarkWeb.CoreComponents do
   slot :inner_block, required: true
   slot :actions, doc: "the slot for form actions, such as a submit button"
 
+  # TODO: redesign the form for authentication routes, unify with the bookmarks form
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
@@ -236,7 +237,7 @@ defmodule ReadmarkWeb.CoreComponents do
   end
 
   attr :class, :string, default: nil
-  attr :rest, :global, include: ~w(patch phx-click)
+  attr :rest, :global, include: ~w(patch phx-click method href)
   attr :label, :string, required: true
 
   slot :inner_block, required: true
@@ -582,7 +583,7 @@ defmodule ReadmarkWeb.CoreComponents do
 
   attr :class, :string
   attr :items, :list
-  attr :reset_counter, :integer, default: 0
+  attr :version, :integer, default: 0
   slot :header, required: true
   slot :inner_block, required: true
 
@@ -599,7 +600,7 @@ defmodule ReadmarkWeb.CoreComponents do
         </div>
       </header>
       <%= unless @items == [] do %>
-        <ul class="md:p-2 -space-y-0.5" id={"list-items-#{@reset_counter}"} phx-update="prepend">
+        <ul class="md:p-2" id={"list-items-#{@version}"} phx-update="prepend">
           <li
             :for={item <- @items}
             id={item.id}
@@ -740,6 +741,7 @@ defmodule ReadmarkWeb.CoreComponents do
     |> JS.focus_first(to: "##{id}-content")
   end
 
+  # FIXME: JS.hide causes the topbar to show when closing the modal
   def hide_modal(js \\ %JS{}, id) do
     js
     |> JS.hide(
