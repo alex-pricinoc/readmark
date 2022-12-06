@@ -24,7 +24,7 @@ defmodule ReadmarkWeb.SettingsLive.UploadFormComponent do
   def handle_event("save", _params, socket) do
     [imported] =
       consume_uploaded_entries(socket, :bookmarks, fn %{path: path}, _entries ->
-        bookmarks = Dump.import(File.read!(path))
+        bookmarks = Dump.import(socket.assigns.current_user, File.read!(path))
         {:ok, bookmarks}
       end)
 

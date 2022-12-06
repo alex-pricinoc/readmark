@@ -41,7 +41,7 @@ defmodule ReadmarkWeb.BookmarksLive.FormComponent do
   end
 
   defp save_bookmark(socket, :new, bookmark_params) do
-    case Bookmarks.create_bookmark(bookmark_params) do
+    case Bookmarks.create_bookmark(socket.assigns.current_user, bookmark_params) do
       {:ok, _bookmark} ->
         {:noreply,
          socket

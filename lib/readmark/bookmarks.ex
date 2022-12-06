@@ -7,6 +7,7 @@ defmodule Readmark.Bookmarks do
   alias Readmark.Repo
 
   alias Readmark.Bookmarks.Bookmark
+  alias Readmark.Accounts.User
 
   @doc """
   Returns the list of bookmarks.
@@ -17,15 +18,24 @@ defmodule Readmark.Bookmarks do
       [%Bookmark{}, ...]
 
   """
-  def list_bookmarks(params \\ []) do
+  def list_bookmarks(params) when is_list(params) do
     Bookmark
     |> order_by(desc: :inserted_at)
     |> where(^filter_where(params))
     |> Repo.all()
   end
 
+  def list_bookmarks(%User{} = user, params \\ []) do
+    params = Keyword.put(params, :user_id, user.id)
+
+    list_bookmarks(params)
+  end
+
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn
+      {:user_id, id}, dynamic ->
+        dynamic([l], ^dynamic and l.user_id == ^id)
+
       {:tags, tags}, dynamic when tags != [] ->
         dynamic(
           [b],
@@ -43,20 +53,20 @@ defmodule Readmark.Bookmarks do
   end
 
   @doc """
-  Gets a single bookmark.
+  Gets a single bookmark by id and user_id.
 
   Raises `Ecto.NoResultsError` if the Bookmark does not exist.
 
   ## Examples
 
-      iex> get_bookmark!(123)
+      iex> get_bookmark!(123, 456)
       %Bookmark{}
 
-      iex> get_bookmark!(456)
+      iex> get_bookmark!(456, 789)
       ** (Ecto.NoResultsError)
 
   """
-  def get_bookmark!(id), do: Repo.get!(Bookmark, id)
+  def get_bookmark!(id, user_id), do: Repo.get_by!(Bookmark, id: id, user_id: user_id)
 
   @doc """
   Creates a bookmark.
@@ -70,8 +80,8 @@ defmodule Readmark.Bookmarks do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_bookmark(attrs \\ %{}) do
-    %Bookmark{}
+  def create_bookmark(%User{} = user, attrs \\ %{}) do
+    %Bookmark{user_id: user.id}
     |> Bookmark.changeset(attrs)
     |> Repo.insert()
     |> broadcast!({:bookmark, :created})
@@ -127,17 +137,18 @@ defmodule Readmark.Bookmarks do
     Bookmark.changeset(bookmark, attrs)
   end
 
-  @topic "bookmarks"
   @pubsub Readmark.PubSub
 
-  def subscribe do
-    Phoenix.PubSub.subscribe(@pubsub, @topic)
+  def subscribe(user_id) do
+    Phoenix.PubSub.subscribe(@pubsub, topic(user_id))
   end
+
+  defp topic(user_id), do: "bookmarks:#{user_id}"
 
   defp broadcast!({:error, _reason} = error, _event), do: error
 
   defp broadcast!({:ok, bookmark}, event) do
-    Phoenix.PubSub.broadcast!(@pubsub, @topic, {event, bookmark})
+    Phoenix.PubSub.broadcast!(@pubsub, topic(bookmark.user_id), {event, bookmark})
     {:ok, bookmark}
   end
 end
