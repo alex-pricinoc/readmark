@@ -110,6 +110,31 @@ defmodule ReadmarkWeb.SettingsLive do
         {:noreply, assign(socket, :password_changeset, changeset)}
     end
   end
+
+  @impl true
+  def handle_event("validate_display_name", %{"user" => user_params}, socket) do
+    display_name_changeset =
+      Accounts.change_user_display_name(socket.assigns.current_user, user_params)
+
+    {:noreply,
+     socket
+     |> assign(:display_name_changeset, Map.put(display_name_changeset, :action, :validate))}
+  end
+
+  @impl true
+  def handle_event("update_display_name", %{"user" => user_params}, socket) do
+    case Accounts.update_user_display_name(socket.assigns.current_user, user_params) do
+      {:ok, _user} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Updated successfully!")
+         |> push_navigate(to: ~p"/settings")}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :display_name_changeset, changeset)}
+    end
+  end
+
   defp apply_action(socket, :index, _params) do
     socket
     |> assign(:page_title, "Settings")
@@ -118,6 +143,11 @@ defmodule ReadmarkWeb.SettingsLive do
   defp apply_action(socket, :change_email, _params) do
     socket
     |> assign(:page_title, "Change Email")
+  end
+
+  defp apply_action(socket, :change_display_name, _params) do
+    socket
+    |> assign(:page_title, "Change Display Name")
   end
 
   defp apply_action(socket, :change_password, _params) do
