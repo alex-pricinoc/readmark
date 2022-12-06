@@ -10,9 +10,9 @@ defmodule ReadmarkWeb.BookmarksLive do
 
     assigns = [
       tags: [],
-      bookmarks: Bookmarks.list_bookmarks(),
+      active_bookmark: nil,
       bookmarks: Bookmarks.list_bookmarks(socket.assigns.current_user),
-      active_bookmark: nil
+      version: 0
     ]
 
     {:ok, assign(socket, assigns), temporary_assigns: [bookmarks: []]}
@@ -53,7 +53,7 @@ defmodule ReadmarkWeb.BookmarksLive do
      socket
      |> assign(:tags, tags)
      |> assign(:bookmarks, Bookmarks.list_bookmarks(socket.assigns.current_user, tags: tags))
-     |> update(:reset_counter, &(&1 + 1))}
+     |> update(:version, &(&1 + 1))}
   end
 
   defp apply_action(socket, :index, _params) do

@@ -34,7 +34,9 @@
   }
 }
 
-.phx-click-loading {
+
+/* TODO */
+/*.phx-click-loading {
   opacity: 0.5;
   transition: opacity 1s ease-out;
 }
@@ -42,3 +44,4 @@
 .phx-loading {
   cursor: wait;
 }
+*/

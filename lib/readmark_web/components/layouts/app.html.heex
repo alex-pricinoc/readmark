@@ -12,7 +12,7 @@
   <nav class="flex-1 px-3 py-3 space-y-1">
     <.link
       :for={link <- links()}
-      patch={link.to}
+      navigate={link.to}
       class={
           "flex items-center space-x-3 px-2 py-1.5 font-medium text-sm rounded-md transition #{if @active_tab == link.name, do: "bg-gray-900 text-white", else: "text-gray-700 hover:bg-gray-200"}"
         }

@@ -14,6 +14,6 @@ defmodule Readmark.Repo.Migrations.CreateBookmarks do
       timestamps()
     end
 
-    create index(:bookmarks, [:url])
+    create index(:bookmarks, [:id])
   end
 end

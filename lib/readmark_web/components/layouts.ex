@@ -6,7 +6,7 @@ defmodule ReadmarkWeb.Layouts do
 
   defp links do
     [
-      %{name: :home, label: "Home", to: "/"},
+      %{name: :home, label: "Home", to: ~p"/"},
       %{name: :notes, label: "Notes", to: ~p"/notes"},
       %{name: :bookmarks, label: "Bookmarks", to: ~p"/bookmarks"},
       %{name: :settings, label: "Settings", to: ~p"/settings"}
