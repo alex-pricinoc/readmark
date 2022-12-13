@@ -34,3 +34,6 @@ npm-debug.log
 
 # Elixir Language Server
 .elixir_ls
+
+# Ignore secrets
+/config/*.secret.exs
