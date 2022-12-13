@@ -23,17 +23,18 @@ defmodule ReadmarkWeb.SettingsLive do
   def mount(_params, _session, socket) do
     user = socket.assigns.current_user
 
-    socket =
-      socket
-      |> assign(:current_password, nil)
-      |> assign(:email_form_current_password, nil)
-      |> assign(:current_email, user.email)
-      |> assign(:email_changeset, Accounts.change_user_email(user))
-      |> assign(:password_changeset, Accounts.change_user_password(user))
-      |> assign(:display_name_changeset, Accounts.change_user_display_name(user))
-      |> assign(:trigger_submit, false)
+    assigns = [
+      current_password: nil,
+      email_form_current_password: nil,
+      current_email: user.email,
+      email_changeset: Accounts.change_user_email(user),
+      password_changeset: Accounts.change_user_password(user),
+      display_name_changeset: Accounts.change_user_display_name(user),
+      kindle_email_changeset: Accounts.change_user_kindle_email(user),
+      trigger_submit: false
+    ]
 
-    {:ok, socket}
+    {:ok, assign(socket, assigns)}
   end
 
   @impl true
@@ -118,8 +119,7 @@ defmodule ReadmarkWeb.SettingsLive do
       Accounts.change_user_display_name(socket.assigns.current_user, user_params)
 
     {:noreply,
-     socket
-     |> assign(:display_name_changeset, Map.put(display_name_changeset, :action, :validate))}
+     assign(socket, :display_name_changeset, Map.put(display_name_changeset, :action, :validate))}
   end
 
   @impl true
@@ -133,6 +133,30 @@ defmodule ReadmarkWeb.SettingsLive do
 
       {:error, changeset} ->
         {:noreply, assign(socket, :display_name_changeset, changeset)}
+    end
+  end
+
+  @impl true
+  def handle_event("validate_kindle_email", %{"user" => user_params}, socket) do
+    kindle_email_changeset =
+      Accounts.change_user_kindle_email(socket.assigns.current_user, user_params)
+
+    {:noreply,
+     socket
+     |> assign(:kindle_email_changeset, Map.put(kindle_email_changeset, :action, :validate))}
+  end
+
+  @impl true
+  def handle_event("update_kindle_email", %{"user" => user_params}, socket) do
+    case Accounts.update_user_kindle_email(socket.assigns.current_user, user_params) do
+      {:ok, _user} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Updated successfully!")
+         |> push_navigate(to: ~p"/settings")}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :kindle_email_changeset, changeset)}
     end
   end
 

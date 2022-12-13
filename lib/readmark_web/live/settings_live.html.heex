@@ -8,44 +8,125 @@
       <Heroicons.arrow_right_on_rectangle class="h-5 w-5" />
     </.icon_button>
   </header>
-  <section class="py-4 md:py-6 flex flex-col md:flex-row md:gap-24">
-    <h2 class="font-medium mb-4">Account</h2>
-    <div class="grid grid-cols-2 md:grid-cols-[10rem_auto_15rem] gap-4 text-sm">
-      <label class="hidden md:block col-start-1 row-start-1 font-medium">Display Name</label>
-      <span class="col-start-1 row-start-1 md:col-start-2">
-        <%= @current_user.display_name %>
-      </span>
-      <label class="hidden md:block col-start-1 row-start-2 font-medium">Email</label>
-      <span class="col-start-1 row-start-2 md:col-start-2"><%= @current_user.email %></span>
-      <label class="hidden md:block col-start-1 row-start-3 font-medium">Password</label>
-      <span class="col-start-1 row-start-3 md:col-start-2">
-        <%= for _ <- 1..12, do: raw("&bull;") %>
-      </span>
-      <.link
-        class="col-start-2 md:col-start-3 row-start-1 text-primary-500 text-xs font-medium text-end"
-        patch={~p"/settings/change_display_name"}
-      >
-        Change Display Name
-      </.link>
-      <.link
-        class="col-start-2 md:col-start-3 row-start-2 text-primary-500 text-xs font-medium text-end"
-        patch={~p"/settings/change_email"}
-      >
-        Change Email
-      </.link>
+  <div class="max-w-full md:max-w-3xl space-y-6 pb-8">
+    <!-- Account settings -->
+    <section class="grid sm:grid-cols-[10rem_auto] gap-4">
+      <h2 class="font-medium">Account</h2>
+      <div class="grid grid-cols-2 md:grid-cols-[10rem_auto_15rem] gap-2 sm:gap-4 text-sm">
+        <label class="hidden md:block col-start-1 row-start-1 font-medium">Display Name</label>
+        <span class="col-start-1 row-start-1 md:col-start-2">
+          <%= @current_user.display_name %>
+        </span>
+        <label class="hidden md:block col-start-1 row-start-2 font-medium">Email</label>
+        <span class="col-start-1 row-start-2 md:col-start-2"><%= @current_user.email %></span>
+        <label class="hidden md:block col-start-1 row-start-3 font-medium">Password</label>
+        <span class="col-start-1 row-start-3 md:col-start-2">
+          <%= for _ <- 1..12, do: raw("&bull;") %>
+        </span>
+        <.link
+          class="col-start-2 md:col-start-3 row-start-1 text-primary-500 text-xs font-medium text-end"
+          patch={~p"/settings/change_display_name"}
+        >
+          Change Display Name
+        </.link>
+        <.link
+          class="col-start-2 md:col-start-3 row-start-2 text-primary-500 text-xs font-medium text-end"
+          patch={~p"/settings/change_email"}
+        >
+          Change Email
+        </.link>
 
-      <.link
-        class="col-start-2 md:col-start-3 row-start-3 text-primary-500 text-xs font-medium text-end"
-        patch={~p"/settings/change_password"}
-      >
-        Change Password
-      </.link>
-    </div>
-  </section>
-  <section class="py-4 md:py-6 md:flex md:gap-24">
-    <h2 class="font-medium mb-4">Import</h2>
-    <.live_component id={:import} module={UploadFormComponent} current_user={@current_user} />
-  </section>
+        <.link
+          class="col-start-2 md:col-start-3 row-start-3 text-primary-500 text-xs font-medium text-end"
+          patch={~p"/settings/change_password"}
+        >
+          Change Password
+        </.link>
+      </div>
+    </section>
+    <!-- Kindle preferences -->
+    <section class="grid sm:grid-cols-[10rem_auto] gap-4">
+      <h2 class="font-medium">Kindle</h2>
+      <div class="text-sm sm:col-start-2">
+        <%= if @current_user.kindle_email == nil do %>
+          <h3 class="font-medium mb-4">Setup your Kindle</h3>
+          <ol :if={@current_user.kindle_email == nil} class="list-decimal list-inside">
+            <li>
+              Go to
+              <.link
+                class="text-primary-500 font-medium"
+                href="https://www.amazon.com/gp/digital/fiona/manage?&#pdocSettings"
+              >
+                Kindle Personal Document Settings
+              </.link>
+            </li>
+            <li>
+              Add the following email to your Approved Personal Document E-mail List:
+              <div class="relative w-fit group">
+                <input
+                  type="text"
+                  id="approved-email"
+                  value="alex-pricinoc@icloud.com"
+                  readonly
+                  class="ml-5 block rounded-md font-semibold bg-primary-50 py-[1px] px-[8px] text-primary-500 sm:leading-6 w-fit text-sm border-primary-300 focus:border-primary-400 focus:outline-none"
+                />
+                <button
+                  class="absolute top-1/2 -translate-y-1/2 right-[1em] text-primary-300 hover:text-primary-700 invisible group-hover:visible"
+                  type="button"
+                  aria-label="copy email"
+                  phx-click={JS.dispatch("js:clipcopy", to: "#approved-email")}
+                >
+                  <Heroicons.clipboard_document class="h-4 w-4" />
+                </button>
+              </div>
+            </li>
+            <li>
+              Find the email for your Kindle under Send-to-Kindle Email Settings, and add it below:
+            </li>
+          </ol>
+        <% end %>
+        <.form
+          :let={f}
+          id="kindle_email_form"
+          for={@kindle_email_changeset}
+          phx-submit="update_kindle_email"
+          phx-change="validate_kindle_email"
+          class="space-y-4 max-w-full sm:max-w-sm"
+        >
+          <.error :if={@email_changeset.action == :insert}>
+            Oops, something went wrong! Please check the errors below.
+          </.error>
+          <.input
+            field={{f, :kindle_email}}
+            label="Your kindle Email"
+            placeholder="Send-to-Kindle Email"
+            required
+          />
+          <.button
+            type="submit"
+            phx-disable-with="Saving..."
+            class={"self-start #{if @kindle_email_changeset.valid? and @kindle_email_changeset.action == :validate, do: "block", else: "hidden"}"}
+          >
+            Save preferences
+          </.button>
+        </.form>
+      </div>
+      <hr class="sm:col-start-2" />
+      <div :if={@current_user.kindle_email} class="text-sm sm:col-start-2">
+        <h2 class="font-medium mb-4">Send currently reading articles to Kindle</h2>
+        <.button phx-click="send-articles" type="button">
+          Send and Archive
+        </.button>
+      </div>
+    </section>
+    <!-- Import component -->
+    <section class="grid sm:grid-cols-[10rem_auto] gap-4">
+      <h2 class="font-medium">Import</h2>
+      <div class="max-w-fullsm:max-w-sm">
+        <.live_component id={:import} module={UploadFormComponent} current_user={@current_user} />
+      </div>
+    </section>
+  </div>
 </div>
 
 <.modal
@@ -145,7 +226,7 @@
     <.input field={{f, :display_name}} label="Display name" required />
 
     <:actions>
-      <.button phx-disable-with="Updating...">Update</.button>
+      <.button phx-disable-with="Saving...">Save</.button>
     </:actions>
   </.simple_form>
 </.modal>

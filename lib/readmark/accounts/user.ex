@@ -10,6 +10,7 @@ defmodule Readmark.Accounts.User do
     field :confirmed_at, :naive_datetime
 
     field :display_name, :string
+    field :kindle_email, :string
 
     timestamps()
   end
@@ -164,5 +165,25 @@ defmodule Readmark.Accounts.User do
     |> cast(attrs, [:display_name])
     |> validate_length(:display_name, max: 160)
     |> validate_required([:display_name])
+  end
+
+  @doc """
+  A user changeset for changing the kindle email.
+  """
+  def kindle_email_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:kindle_email])
+    |> validate_kindle_email()
+  end
+
+  @kindle_email_regex ~r/^[^\s]+(@kindle\.com|@free\.kindle\.com|@kindle\.cn)$/
+
+  defp validate_kindle_email(changeset) do
+    changeset
+    |> validate_required([:kindle_email])
+    |> validate_format(:kindle_email, @kindle_email_regex,
+      message: "must be a valid kindle email with no spaces"
+    )
+    |> validate_length(:kindle_email, max: 160)
   end
 end
