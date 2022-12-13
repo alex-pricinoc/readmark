@@ -13,7 +13,7 @@ defmodule Readmark.Bookmarks.Bookmark do
     field :title, :string
     field :tags, Tag, default: []
     field :notes, :string, default: ""
-    field :is_private, :boolean, default: false
+    field :is_private, :boolean, default: true
     field :content, :string
 
     belongs_to :user, User
