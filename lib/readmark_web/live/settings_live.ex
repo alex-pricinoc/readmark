@@ -3,6 +3,8 @@ defmodule ReadmarkWeb.SettingsLive do
 
   alias Readmark.Accounts
   alias ReadmarkWeb.SettingsLive.UploadFormComponent
+  alias Readmark.{Bookmarks, Epub}
+  alias Accounts.EpubSender
 
   # TODO: Move account settings to a live component
   @impl true
@@ -158,6 +160,22 @@ defmodule ReadmarkWeb.SettingsLive do
       {:error, changeset} ->
         {:noreply, assign(socket, :kindle_email_changeset, changeset)}
     end
+  end
+
+  @impl true
+  def handle_event("send-articles", _params, socket) do
+    current_user = socket.assigns.current_user
+    bookmarks = Bookmarks.list_reading_bookmarks(current_user)
+    epub = Enum.flat_map(bookmarks, & &1.articles) |> Epub.build()
+
+    {:ok, _mail} = EpubSender.deliver_epub(current_user.kindle_email, epub)
+
+    Enum.map(bookmarks, &Bookmarks.update_bookmark(&1, %{folder: :archive}))
+    File.rm!(epub)
+
+    info = "Your articles have been sent. You should receive them in a few minutes."
+
+    {:noreply, socket |> put_flash(:info, info)}
   end
 
   defp apply_action(socket, :index, _params) do
