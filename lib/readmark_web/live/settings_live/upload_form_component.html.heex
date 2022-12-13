@@ -5,20 +5,30 @@
     phx-target={@myself}
     phx-change="validate"
     phx-submit="save"
-    class="max-w-full sm:max-w-sm"
+    class="space-y-4"
   >
     <div
-      class="mb-5 border-dashed border-gray-300 border-2 rounded-md px-4 sm:px-6 py-5"
+      class="border-dashed border-gray-300 border-2 rounded-md px-4 sm:px-6 py-5"
       phx-drop-target={@uploads.bookmarks.ref}
     >
       <.live_file_input
         upload={@uploads.bookmarks}
-        class="cursor-pointer rounded-md text-sm font-medium text-primary-600 hover:text-primary-500"
+        class="w-full cursor-pointer rounded-md text-sm font-medium text-primary-600 hover:text-primary-500"
       />
     </div>
 
-    <.button type="submit" phx-disable-with="Saving..." class="self-start">
-      Save
+    <%= for entry <- @uploads.bookmarks.entries do %>
+      <%= for err <- upload_errors(@uploads.bookmarks, entry) do %>
+        <p class="text-red-700"><%= error_to_string(err) %></p>
+      <% end %>
+    <% end %>
+
+    <.button
+      type="submit"
+      phx-disable-with="Saving..."
+      class={"self-start #{if valid?(@uploads.bookmarks), do: "block", else: "hidden"}"}
+    >
+      Upload
     </.button>
   </.form>
 

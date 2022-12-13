@@ -9,7 +9,7 @@ defmodule Readmark.Repo.Migrations.CreateBookmarks do
       add :tags, {:array, :string}
 
       add :notes, :text
-      add :is_private, :boolean, default: false
+      add :is_private, :boolean, default: true
 
       timestamps()
     end

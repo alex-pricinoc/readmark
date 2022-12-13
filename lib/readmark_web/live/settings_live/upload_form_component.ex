@@ -11,7 +11,8 @@ defmodule ReadmarkWeb.SettingsLive.UploadFormComponent do
      |> assign(imported: [])
      |> allow_upload(:bookmarks,
        accept: ~w(.html),
-       auto_upload: true
+       auto_upload: true,
+       max_entries: 1
      )}
   end
 
@@ -30,4 +31,12 @@ defmodule ReadmarkWeb.SettingsLive.UploadFormComponent do
 
     {:noreply, update(socket, :imported, &(&1 ++ imported))}
   end
+
+  defp valid?(%{entries: [_ | _], errors: []}), do: true
+  defp valid?(_), do: false
+
+  defp error_to_string(:too_large), do: "Too large"
+  defp error_to_string(:too_many_files), do: "You have selected too many files"
+  defp error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
+  defp error_to_string(_), do: "Something went wrong"
 end
