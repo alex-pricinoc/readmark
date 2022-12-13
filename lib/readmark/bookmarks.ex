@@ -34,9 +34,12 @@ defmodule Readmark.Bookmarks do
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn
       {:user_id, id}, dynamic ->
-        dynamic([l], ^dynamic and l.user_id == ^id)
+        dynamic([b], ^dynamic and b.user_id == ^id)
 
-      {:tags, tags}, dynamic when tags != [] ->
+      {:folder, folder}, dynamic ->
+        dynamic([b], ^dynamic and b.folder == ^folder)
+
+      {:tags, tags}, dynamic when not is_nil(tags) and tags != [] ->
         dynamic(
           [b],
           ^dynamic and
