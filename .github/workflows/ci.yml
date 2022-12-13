@@ -76,6 +76,9 @@ jobs:
         run: mix deps.unlock --check-unused
         if: ${{matrix.lint}}
 
+      - name: Check for compile-time dependencies
+        run: mix xref graph --label compile-connected --fail-above 0
+
       - name: Check retired dependencies
         run: mix hex.audit
         if: ${{matrix.lint}}
