@@ -1,0 +1,19 @@
+<div id="list-detail" class="flex flex-col flex-1 overflow-y-auto" phx-hook="Open">
+  <header class="z-10 sticky h-20 -top-8 flex shrink-0 items-center bg-white/90 backdrop-blur transition-shadow open:shadow-md">
+    <div class="sticky top-0 h-12 px-4 flex flex-1 items-center">
+      <.icon_button patch={@back} class="mr-3 md:hidden" label="Go back">
+        <Heroicons.arrow_left class="h-5 w-5" />
+      </.icon_button>
+      <h1 class="grow ml-3 text-md font-bold line-clamp-1 opacity-0 transition-all translate-y-2 open:opacity-100 open:translate-y-0">
+        <%= @title %>
+      </h1>
+
+      <%= for action <- @action do %>
+        <%= render_slot(action) %>
+      <% end %>
+    </div>
+  </header>
+  <div class="px-4 sm:px-10 py-3 sm:py-6 flex-1 bg-white">
+    <%= render_slot(@inner_block) %>
+  </div>
+</div>

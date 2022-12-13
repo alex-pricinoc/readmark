@@ -95,7 +95,7 @@ defmodule ReadmarkWeb do
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components and translation
-      import ReadmarkWeb.CoreComponents
+      import ReadmarkWeb.{CoreComponents, FormComponents}
       import ReadmarkWeb.Gettext
 
       # Shortcut for generating JS commands
