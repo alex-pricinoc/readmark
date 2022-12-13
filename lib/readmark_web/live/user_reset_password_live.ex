@@ -5,7 +5,7 @@ defmodule ReadmarkWeb.UserResetPasswordLive do
 
   def render(assigns) do
     ~H"""
-    <div>
+    <div class="max-w-sm px-2">
       <.header>Reset Password</.header>
 
       <.simple_form

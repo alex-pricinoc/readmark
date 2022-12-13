@@ -5,7 +5,7 @@ defmodule ReadmarkWeb.UserConfirmationInstructionsLive do
 
   def render(assigns) do
     ~H"""
-    <div>
+    <div class="max-w-sm px-2">
       <.header>Resend confirmation instructions</.header>
 
       <.simple_form :let={f} for={:user} id="resend_confirmation_form" phx-submit="send_instructions">

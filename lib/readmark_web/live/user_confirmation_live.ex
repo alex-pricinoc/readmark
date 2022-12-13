@@ -3,10 +3,10 @@ defmodule ReadmarkWeb.UserConfirmationLive do
 
   alias Readmark.Accounts
 
-  # TODO: add a user confirmation reminder (flash) in settings
+  # TODO: add a user confirmation reminder (flash) when logging in
   def render(%{live_action: :edit} = assigns) do
     ~H"""
-    <div>
+    <div class="max-w-sm px-2">
       <.header>Confirm Account</.header>
 
       <.simple_form :let={f} for={:user} id="confirmation_form" phx-submit="confirm_account">
@@ -34,15 +34,10 @@ defmodule ReadmarkWeb.UserConfirmationLive do
   def handle_event("confirm_account", %{"user" => %{"token" => token}}, socket) do
     case Accounts.confirm_user(token) do
       {:ok, _} ->
-        socket = put_flash(socket, :info, "User confirmed successfully.")
-
-        case socket.assigns do
-          %{current_user: _user} ->
-            {:noreply, redirect(socket, to: ~p"/")}
-
-          _ ->
-            {:noreply, redirect(socket, to: ~p"/users/log_in")}
-        end
+        {:noreply,
+         socket
+         |> put_flash(:info, "User confirmed successfully.")
+         |> redirect(to: ~p"/")}
 
       :error ->
         # If there is a current user and the account was already confirmed,
@@ -57,7 +52,7 @@ defmodule ReadmarkWeb.UserConfirmationLive do
             {:noreply,
              socket
              |> put_flash(:error, "User confirmation link is invalid or it has expired.")
-             |> redirect(to: ~p"/users/log_in")}
+             |> redirect(to: ~p"/")}
         end
     end
   end

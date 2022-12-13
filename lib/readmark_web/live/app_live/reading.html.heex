@@ -1,0 +1,86 @@
+<.list
+  :let={bookmark}
+  items={@bookmarks}
+  version={@version}
+  id="bookmarks-list"
+  title={@active_tab}
+  item_hidden={fn b -> deleted?(b) || b.folder != :reading end}
+  item_click={&JS.patch(~p"/reading/#{&1}")}
+  show={@active_bookmark == nil}
+>
+  <:action>
+    <.icon_button label="Add bookmark" patch={~p"/reading/new"}>
+      <Heroicons.plus class="h-5 w-5" />
+    </.icon_button>
+  </:action>
+
+  <.link
+    patch={~p"/reading/#{bookmark}"}
+    class="relative w-fit max-w-full font-medium line-clamp-3 hover:text-primary-700"
+  >
+    <%= bookmark.title %>
+  </.link>
+
+  <a
+    href={bookmark.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="relative w-fit max-w-full line-clamp-1 text-gray-500 hover:text-primary-700"
+  >
+    <%= get_domain(bookmark.url) %>
+  </a>
+
+  <div class="relative w-fit">
+    <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
+    <.link
+      patch={~p"/reading/#{bookmark}/edit"}
+      class="text-sm text-gray-400 hover:text-gray-900"
+    >
+      edit
+    </.link>
+    <.link
+      phx-click="archive-bookmark"
+      phx-value-id={bookmark.id}
+      class="text-sm text-gray-400 hover:text-gray-900"
+    >
+      archive
+    </.link>
+  </div>
+</.list>
+
+<.list_detail :if={@active_bookmark != nil} title={@active_bookmark.title} back={~p"/reading"}>
+  <a
+    href={@active_bookmark.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block mb-3 font-bold text-2xl xl:text-3xl"
+  >
+    <%= @active_bookmark.title %>
+  </a>
+
+  <a href={@active_bookmark.url} target="_blank" rel="noopener noreferrer" class="text-gray-600">
+    <%= get_domain(@active_bookmark.url) %>
+  </a>
+
+  <div :if={article = get_article(@active_bookmark)} class="mt-8 prose overflow-hidden">
+    <%= raw(article.article_html || article.text) %>
+  </div>
+</.list_detail>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="boomark-modal"
+  show
+  on_cancel={JS.patch(bookmark_path(@active_bookmark))}
+>
+  <.live_component
+    module={ReadmarkWeb.BookmarksLive.FormComponent}
+    bookmark={@bookmark}
+    title={@page_title}
+    id={@bookmark.id || :new}
+    action={@live_action}
+    current_user={@current_user}
+    folder={:reading}
+    return_to={bookmark_path(@active_bookmark)}
+  />
+</.modal>

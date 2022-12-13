@@ -66,7 +66,7 @@ defmodule Readmark.Workers.ArticleCrawler do
     bookmark_article_changeset = Bookmark.article_changeset(bookmark, article)
 
     case Repo.update(bookmark_article_changeset) do
-      {:ok, bookmark} = result ->
+      {:ok, _bookmark} = result ->
         Bookmarks.broadcast!(result, {:bookmark, :updated})
 
         :ok

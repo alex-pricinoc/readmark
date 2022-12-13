@@ -65,6 +65,9 @@ config :readmark, ReadmarkWeb.Endpoint,
     ]
   ]
 
+config :phoenix_live_reload,
+  backend: :fs_poll
+
 # Enable dev routes for dashboard and mailbox
 config :readmark, dev_routes: true
 
@@ -80,3 +83,5 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+import_config "dev.secret.exs"

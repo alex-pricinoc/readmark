@@ -22,7 +22,7 @@ defmodule ReadmarkWeb.UserForgotPasswordLiveTest do
       result =
         conn
         |> live(~p"/users/reset_password")
-        |> follow_redirect(conn, ~p"/")
+        |> follow_redirect(conn, ~p"/reading")
 
       assert {:ok, conn} = result
       refute Phoenix.Flash.get(conn.assigns.flash, :error)

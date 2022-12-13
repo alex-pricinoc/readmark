@@ -1,0 +1,72 @@
+<.list
+  :let={bookmark}
+  items={@bookmarks}
+  version={@version}
+  id="bookmarks-list"
+  title={@active_tab}
+  item_hidden={fn b -> deleted?(b) || b.folder != :bookmarks end}
+  show={@active_bookmark == nil}
+>
+  <:action>
+    <.icon_button label="Add bookmark" patch={~p"/bookmarks/new"}>
+      <Heroicons.plus class="h-5 w-5" />
+    </.icon_button>
+  </:action>
+  <a
+    href={bookmark.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="relative w-fit max-w-full font-medium line-clamp-2 hover:text-primary-700"
+  >
+    <%= bookmark.title %>
+  </a>
+
+  <div :if={bookmark.tags != []} class="leading-none">
+    <.link
+      :for={tag <- bookmark.tags}
+      class={[
+        "relative text-sm hover:text-orange-600",
+        "#{if tag in @tags, do: "text-orange-600 hover:text-gray-900"}"
+      ]}
+      phx-click="select-tag"
+      phx-value-name={tag}
+    >
+      <%= tag %>
+    </.link>
+  </div>
+
+  <div class="relative w-fit">
+    <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
+    <.link
+      patch={~p"/bookmarks/#{bookmark}/edit"}
+      class="text-sm text-gray-400 hover:text-gray-900"
+    >
+      edit
+    </.link>
+ <.link
+   phx-click="archive-bookmark"
+   phx-value-id={bookmark.id}
+   class="text-sm text-gray-400 hover:text-gray-900"
+ >
+   archive
+ </.link>
+  </div>
+</.list>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="boomark-modal"
+  show
+  on_cancel={JS.patch(bookmark_path(@active_bookmark))}
+>
+  <.live_component
+    module={ReadmarkWeb.BookmarksLive.FormComponent}
+    bookmark={@bookmark}
+    title={@page_title}
+    id={@bookmark.id || :new}
+    action={@live_action}
+    current_user={@current_user}
+    folder={:bookmarks}
+    return_to={bookmark_path(@active_bookmark)}
+  />
+</.modal>

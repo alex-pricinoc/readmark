@@ -1,19 +1,15 @@
-<.list :let={note} items={@notes} class={if assigns[:note], do: "hidden"}>
-  <:header>
-    <.show_sidebar_button class="mr-3 lg:hidden" />
-    <h1 class="font-semibold capitalize">
-      <%= @active_tab %>
-    </h1>
-  </:header>
-  <.link
-    class="px-3 py-1.5 flex flex-col md:rounded-md hover:bg-gray-100"
-    patch={~p"/notes/#{note}"}
-  >
-    <span class="font-medium text-sm line-clamp-1"><%= note.title %></span>
-    <span class="text-gray-600 text-sm line-clamp-1">
-      <%= format_date(note.date) %>
-    </span>
-  </.link>
+<.list
+  :let={note}
+  id="notes-list"
+  title={@active_tab}
+  show={@note == nil}
+  items={@notes}
+  item_click={&JS.patch(~p"/notes/#{&1}")}
+>
+  <span class="font-medium text-sm line-clamp-1"><%= note.title %></span>
+  <span class="text-gray-600 text-sm line-clamp-1">
+    <%= format_date(note.date) %>
+  </span>
 </.list>
 
 <.list_detail :if={@note} title={@note.title} back={~p"/notes"}>
