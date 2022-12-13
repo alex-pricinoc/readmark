@@ -1,7 +1,7 @@
 import Flash from "./flash"
-import Reveal from "./reveal"
+import Open from "./open"
 
 export default {
   Flash,
-  Reveal
+  Open
 }
