@@ -56,6 +56,24 @@ defmodule Readmark.Bookmarks do
   end
 
   @doc """
+  Returns the list of currently reading bookmarks which a user can send to his kindle.
+
+  """
+  def list_reading_bookmarks(%User{} = user) do
+    reading_bookmarks_query()
+    |> order_by(desc: :inserted_at)
+    |> where(^filter_where(folder: :reading, user_id: user.id))
+    |> Repo.all()
+  end
+
+  defp reading_bookmarks_query() do
+    from b in Bookmark,
+      as: :bookmark,
+      where: exists(from ba in BookmarkArticle, where: parent_as(:bookmark).id == ba.bookmark_id),
+      preload: :articles
+  end
+
+  @doc """
   Gets a single bookmark by id and user_id.
 
   Raises `Ecto.NoResultsError` if the Bookmark does not exist.
@@ -69,7 +87,8 @@ defmodule Readmark.Bookmarks do
       ** (Ecto.NoResultsError)
 
   """
-  def get_bookmark!(id, user_id), do: Repo.get_by!(Bookmark, id: id, user_id: user_id)
+  def get_bookmark!(id, user_id),
+    do: Repo.get_by!(Bookmark, id: id, user_id: user_id) |> Repo.preload(:articles)
 
   @doc """
   Creates a bookmark.
@@ -148,9 +167,9 @@ defmodule Readmark.Bookmarks do
 
   defp topic(user_id), do: "bookmarks:#{user_id}"
 
-  defp broadcast!({:error, _reason} = error, _event), do: error
+  def broadcast!({:error, _reason} = error, _event), do: error
 
-  defp broadcast!({:ok, bookmark}, event) do
+  def broadcast!({:ok, bookmark}, event) do
     Phoenix.PubSub.broadcast!(@pubsub, topic(bookmark.user_id), {event, bookmark})
     {:ok, bookmark}
   end
