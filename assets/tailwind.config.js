@@ -35,7 +35,7 @@ module.exports = {
     plugin(({ addVariant }) =>
       addVariant("phx-change-loading", ["&.phx-change-loading", ".phx-change-loading &"])
     ),
-    plugin(({ addVariant }) => addVariant("reveal", ["&.reveal", ".reveal &"]))
+    plugin(({ addVariant }) => addVariant("open", ["&.open", ".open &"]))
   ],
   future: {
     hoverOnlyWhenSupported: true
