@@ -8,6 +8,7 @@ defmodule Readmark.Repo.Migrations.AddUserIdToBookmarks do
       add :user_id, references(:users, on_delete: :nothing), primary_key: true
     end
 
+    create unique_index(:bookmarks, [:id])
     create index(:bookmarks, [:user_id])
     create index(:bookmarks, [:id, :user_id])
   end
