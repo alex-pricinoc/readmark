@@ -3,12 +3,14 @@ defmodule Readmark.Accounts.UserNotifier do
 
   alias Readmark.Mailer
 
+  @from_email Application.compile_env!(:readmark, :from_email)
+
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do
     email =
       new()
       |> to(recipient)
-      |> from({"Readmark", "contact@example.com"})
+      |> from(@from_email)
       |> subject(subject)
       |> text_body(body)
 
