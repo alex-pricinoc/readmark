@@ -32,10 +32,7 @@
 
   <div class="relative w-fit">
     <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
-    <.link
-      patch={~p"/reading/#{bookmark}/edit"}
-      class="text-sm text-gray-400 hover:text-gray-900"
-    >
+    <.link patch={~p"/reading/#{bookmark}/edit"} class="text-sm text-gray-400 hover:text-gray-900">
       edit
     </.link>
     <.link
