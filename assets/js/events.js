@@ -20,4 +20,15 @@ export function registerGlobalEventHandlers() {
     let link = document.getElementById(select.value)
     liveSocket.execJS(link, link.getAttribute("phx-click"))
   })
+
+  window.addEventListener("js:clipcopy", (event) => {
+    if ("clipboard" in navigator) {
+      const text = event.target.textContent || event.target.value
+      navigator.clipboard.writeText(text)
+    } else {
+      alert(
+        "Sorry, your browser does not support clipboard copy.\nThis generally requires a secure origin — either HTTPS or localhost."
+      )
+    }
+  })
 }

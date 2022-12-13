@@ -238,6 +238,29 @@ defmodule Readmark.Accounts do
     |> Repo.update()
   end
 
+  @doc """
+  Returns an `%Ecto.Changeset{}` for changing the user kindle email.
+
+  ## Examples
+
+      iex> change_user_kindle_email(user)
+      %Ecto.Changeset{data: %User{}}
+
+  """
+  def change_user_kindle_email(user, attrs \\ %{}) do
+    User.kindle_email_changeset(user, attrs)
+  end
+
+  @doc """
+  Updates the user kindle email.
+
+  """
+  def update_user_kindle_email(user, attrs) do
+    user
+    |> User.kindle_email_changeset(attrs)
+    |> Repo.update()
+  end
+
   ## Session
 
   @doc """
