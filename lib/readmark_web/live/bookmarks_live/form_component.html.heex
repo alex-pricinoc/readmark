@@ -21,7 +21,13 @@
         field={{f, :tags}}
         value={list_input_value(f, :tags)}
         label="Tags"
-        placeholder="tag_1 tag_2"
+        placeholder="tag1 tag2..."
+      />
+      <.input
+        field={{f, :folder}}
+        type="select"
+        options={select_options(Bookmarks.Bookmark, :folder)}
+        label="Folder"
       />
     </fieldset>
 

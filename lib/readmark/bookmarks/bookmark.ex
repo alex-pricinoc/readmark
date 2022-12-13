@@ -3,7 +3,7 @@ defmodule Readmark.Bookmarks.Bookmark do
 
   alias Readmark.Bookmarks.{Tag, BookmarkArticle, Article}
 
-  @params ~w(url title tags inserted_at is_private notes content user_id)a
+  @params ~w(url title tags inserted_at is_private notes user_id folder)a
   @required ~w(url title user_id)a
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -13,7 +13,7 @@ defmodule Readmark.Bookmarks.Bookmark do
     field :tags, Tag, default: []
     field :notes, :string, default: ""
     field :is_private, :boolean, default: true
-    field :content, :string
+    field :folder, Ecto.Enum, values: [:reading, :bookmarks, :archive], default: :bookmarks
 
     belongs_to :user, User
 

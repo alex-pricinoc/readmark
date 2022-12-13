@@ -59,7 +59,8 @@ defmodule Readmark.MixProject do
       {:excoveralls, "~> 0.10", only: :test},
       {:heroicons, "~> 0.5"},
       {:earmark, "~> 1.4"},
-      {:readability, "~> 0.9"}
+      {:readability, "~> 0.9"},
+      {:oban, "~> 2.13"}
     ]
   end
 

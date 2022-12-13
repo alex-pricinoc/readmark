@@ -2,10 +2,11 @@ defmodule ReadmarkWeb.BookmarksLive.FormComponent do
   use ReadmarkWeb, :live_component
 
   alias Readmark.Bookmarks
+  alias Readmark.Workers.ArticleCrawler
 
   @impl true
-  def update(%{bookmark: bookmark} = assigns, socket) do
-    changeset = Bookmarks.change_bookmark(bookmark)
+  def update(%{bookmark: bookmark, folder: folder} = assigns, socket) do
+    changeset = Bookmarks.change_bookmark(bookmark, %{folder: folder})
 
     {:ok,
      socket
@@ -29,7 +30,9 @@ defmodule ReadmarkWeb.BookmarksLive.FormComponent do
 
   defp save_bookmark(socket, :edit, bookmark_params) do
     case Bookmarks.update_bookmark(socket.assigns.bookmark, bookmark_params) do
-      {:ok, _bookmark} ->
+      {:ok, bookmark} ->
+        ArticleCrawler.fetch_article(bookmark)
+
         {:noreply,
          socket
          |> put_flash(:info, "Bookmark updated successfully!")
@@ -42,7 +45,9 @@ defmodule ReadmarkWeb.BookmarksLive.FormComponent do
 
   defp save_bookmark(socket, :new, bookmark_params) do
     case Bookmarks.create_bookmark(socket.assigns.current_user, bookmark_params) do
-      {:ok, _bookmark} ->
+      {:ok, bookmark} ->
+        ArticleCrawler.fetch_article(bookmark)
+
         {:noreply,
          socket
          |> put_flash(:info, "Bookmark created successfully!")
