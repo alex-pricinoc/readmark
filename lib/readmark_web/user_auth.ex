@@ -81,7 +81,7 @@ defmodule ReadmarkWeb.UserAuth do
     conn
     |> renew_session()
     |> delete_resp_cookie(@remember_me_cookie)
-    |> redirect(to: ~p"/users/log_in")
+    |> redirect(to: ~p"/")
   end
 
   @doc """
@@ -227,5 +227,5 @@ defmodule ReadmarkWeb.UserAuth do
 
   defp maybe_store_return_to(conn), do: conn
 
-  defp signed_in_path(_conn), do: ~p"/"
+  defp signed_in_path(_conn), do: ~p"/reading"
 end

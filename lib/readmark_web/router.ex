@@ -44,6 +44,8 @@ defmodule ReadmarkWeb.Router do
   scope "/", ReadmarkWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
+    get "/", PageController, :home
+
     live_session :redirect_if_user_is_authenticated,
       on_mount: [{ReadmarkWeb.UserAuth, :redirect_if_user_is_authenticated}] do
       live "/users/register", UserRegistrationLive, :new
@@ -60,14 +62,21 @@ defmodule ReadmarkWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [{ReadmarkWeb.UserAuth, :ensure_authenticated}, ReadmarkWeb.Sidebar] do
-      live "/", HomeLive, :index
       live "/notes", NotesLive, :index
       live "/notes/:id", NotesLive, :show
 
-      live "/bookmarks", BookmarksLive, :index
-      live "/bookmarks/new", BookmarksLive, :new
-      live "/bookmarks/:id", BookmarksLive, :show
-      live "/bookmarks/:id/edit", BookmarksLive, :edit
+      @folders [
+        {:reading, AppLive.Reading},
+        {:bookmarks, AppLive.Bookmarks},
+        {:archive, AppLive.Archive}
+      ]
+
+      for {folder, module} <- @folders do
+        live "/#{folder}", module, :index
+        live "/#{folder}/new", module, :new
+        live "/#{folder}/:id", module, :show
+        live "/#{folder}/:id/edit", module, :edit
+      end
 
       live "/settings", SettingsLive, :index
       live "/settings/confirm_email/:token", SettingsLive, :confirm_email

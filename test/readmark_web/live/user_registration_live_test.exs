@@ -17,7 +17,7 @@ defmodule ReadmarkWeb.UserRegistrationLiveTest do
         conn
         |> log_in_user(user_fixture())
         |> live(~p"/users/register")
-        |> follow_redirect(conn, "/")
+        |> follow_redirect(conn, "/reading")
 
       assert {:ok, _conn} = result
     end
@@ -45,15 +45,14 @@ defmodule ReadmarkWeb.UserRegistrationLiveTest do
       render_submit(form)
       conn = follow_trigger_action(form, conn)
 
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/reading"
 
       # Now do a logged in request and assert on the menu
-      conn = get(conn, "/")
+      conn = get(conn, "/reading")
       response = html_response(conn, 200)
-      # assert response =~ email
+      assert response =~ "readmark"
       assert response =~ "Bookmarks"
       assert response =~ "Settings"
-      assert response =~ "readmark"
     end
 
     test "renders errors for duplicated email", %{conn: conn} do

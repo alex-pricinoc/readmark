@@ -47,7 +47,7 @@ defmodule ReadmarkWeb.UserConfirmationLiveTest do
         lv
         |> form("#confirmation_form")
         |> render_submit()
-        |> follow_redirect(conn, "/users/log_in")
+        |> follow_redirect(conn, ~p"/")
 
       assert {:ok, conn} = result
 
@@ -55,14 +55,18 @@ defmodule ReadmarkWeb.UserConfirmationLiveTest do
                "User confirmation link is invalid or it has expired"
 
       # when logged in
-      conn = log_in_user(build_conn(), user)
-      {:ok, lv, _html} = live(conn, ~p"/users/confirm/#{token}")
+      conn = build_conn()
+
+      {:ok, lv, _html} =
+        conn
+        |> log_in_user(user)
+        |> live(~p"/users/confirm/#{token}")
 
       result =
         lv
         |> form("#confirmation_form")
         |> render_submit()
-        |> follow_redirect(conn, "/")
+        |> follow_redirect(conn, ~p"/")
 
       assert {:ok, conn} = result
       refute Phoenix.Flash.get(conn.assigns.flash, :error)
@@ -75,7 +79,7 @@ defmodule ReadmarkWeb.UserConfirmationLiveTest do
         lv
         |> form("#confirmation_form")
         |> render_submit()
-        |> follow_redirect(conn, ~p"/users/log_in")
+        |> follow_redirect(conn, ~p"/")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "User confirmation link is invalid or it has expired"

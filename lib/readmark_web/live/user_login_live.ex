@@ -3,7 +3,7 @@ defmodule ReadmarkWeb.UserLoginLive do
 
   def render(assigns) do
     ~H"""
-    <div class="max-w-sm">
+    <div class="max-w-sm px-2">
       <.header class="text-center">
         Sign in to account
         <:subtitle>
