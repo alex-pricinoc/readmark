@@ -6,7 +6,7 @@ defmodule Readmark.Bookmarks do
   import Ecto.Query, warn: false
   alias Readmark.Repo
 
-  alias Readmark.Bookmarks.Bookmark
+  alias Readmark.Bookmarks.{Bookmark, BookmarkArticle}
   alias Readmark.Accounts.User
 
   @doc """

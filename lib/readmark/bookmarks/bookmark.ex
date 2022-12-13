@@ -1,8 +1,7 @@
 defmodule Readmark.Bookmarks.Bookmark do
   use Readmark.Schema
-  import Ecto.Changeset
 
-  alias Readmark.Bookmarks.Tag
+  alias Readmark.Bookmarks.{Tag, BookmarkArticle, Article}
 
   @params ~w(url title tags inserted_at is_private notes content user_id)a
   @required ~w(url title user_id)a
@@ -18,6 +17,10 @@ defmodule Readmark.Bookmarks.Bookmark do
 
     belongs_to :user, User
 
+    many_to_many :articles, Article,
+      join_through: BookmarkArticle,
+      join_keys: [bookmark_id: :id, article_id: :url]
+
     timestamps()
   end
 
@@ -29,5 +32,12 @@ defmodule Readmark.Bookmarks.Bookmark do
     |> validate_length(:url, max: 2048)
     |> validate_length(:title, max: 255)
     |> assoc_constraint(:user)
+  end
+
+  @doc false
+  def article_changeset(bookmark, article) do
+    bookmark
+    |> change
+    |> put_assoc(:articles, [article | bookmark.articles])
   end
 end
