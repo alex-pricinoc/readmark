@@ -69,15 +69,12 @@ jobs:
             ${{ runner.os }}-mix-${{ env.cache-name }}-
             ${{ runner.os }}-mix-
 
-      - name: Fetch dependencies
+      - name: Install dependencies
         run: mix deps.get
 
       - name: Check no unused dependencies
         run: mix deps.unlock --check-unused
         if: ${{matrix.lint}}
-
-      - name: Check for compile-time dependencies
-        run: mix xref graph --label compile-connected --fail-above 0
 
       - name: Check retired dependencies
         run: mix hex.audit
@@ -90,6 +87,9 @@ jobs:
       - name: Check Formatting
         run: mix format --check-formatted
         if: ${{matrix.lint}}
+
+      - name: Check for compile-time dependencies
+        run: mix xref graph --label compile-connected --fail-above 0
 
       - name: Run tests
         run: mix test

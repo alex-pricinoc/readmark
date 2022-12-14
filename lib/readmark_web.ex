@@ -40,8 +40,7 @@ defmodule ReadmarkWeb do
     quote do
       use Phoenix.Controller,
         namespace: ReadmarkWeb,
-        formats: [:html, :json],
-        layouts: [html: ReadmarkWeb.Layouts]
+        formats: [:html, :json]
 
       import Plug.Conn
       import ReadmarkWeb.Gettext
