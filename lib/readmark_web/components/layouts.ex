@@ -1,6 +1,5 @@
 defmodule ReadmarkWeb.Layouts do
   use ReadmarkWeb, :html
-  use ReadmarkWeb, :verified_routes
 
   embed_templates "layouts/*"
 
