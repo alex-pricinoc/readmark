@@ -3,6 +3,8 @@ defmodule Readmark.Bookmarks.Bookmark do
 
   alias Readmark.Bookmarks.{Tag, BookmarkArticle, Article}
 
+  @type t :: Ecto.Schema.t()
+
   @params ~w(url title tags inserted_at is_private notes user_id folder)a
   @required ~w(url title user_id)a
 
