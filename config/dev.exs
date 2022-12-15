@@ -65,9 +65,6 @@ config :readmark, ReadmarkWeb.Endpoint,
     ]
   ]
 
-config :phoenix_live_reload,
-  backend: :fs_poll
-
 # Enable dev routes for dashboard and mailbox
 config :readmark, dev_routes: true
 

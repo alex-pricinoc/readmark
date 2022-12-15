@@ -56,7 +56,7 @@ defmodule Readmark.Bookmarks do
   end
 
   @doc """
-  Returns the list of currently reading bookmarks which a user can send to his kindle.
+  Returns the list of currently reading bookmarks can be sent to kindle.
 
   """
   def list_reading_bookmarks(%User{} = user) do

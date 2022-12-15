@@ -180,7 +180,6 @@ defmodule Readmark.Accounts.User do
 
   defp validate_kindle_email(changeset) do
     changeset
-    |> validate_required([:kindle_email])
     |> validate_format(:kindle_email, @kindle_email_regex,
       message: "must be a valid kindle email with no spaces"
     )

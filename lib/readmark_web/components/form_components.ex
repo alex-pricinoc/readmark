@@ -74,7 +74,6 @@ defmodule ReadmarkWeb.FormComponents do
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
   attr :rest, :global, include: ~w(autocomplete disabled form max maxlength min minlength
                                    pattern placeholder readonly required size step)
-  slot :inner_block
 
   def input(%{field: {f, field}} = assigns) do
     assigns

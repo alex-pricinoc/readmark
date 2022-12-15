@@ -86,7 +86,7 @@ defmodule Readmark.Dump.HTMLParser do
   end
 
   defp inserted_at(_) do
-    DateTime.now!("Etc/UTC")
+    DateTime.utc_now()
   end
 
   defp is_private(%{"private" => value}) when value not in ~w(1 true yes), do: false
