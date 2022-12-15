@@ -24,6 +24,7 @@ defmodule ReadmarkWeb.SettingsLive do
   @impl true
   def mount(_params, _session, socket) do
     user = socket.assigns.current_user
+    from_email = Application.get_env(:readmark, :from_email, "contact@example.com")
 
     assigns = [
       current_password: nil,
@@ -33,7 +34,8 @@ defmodule ReadmarkWeb.SettingsLive do
       password_changeset: Accounts.change_user_password(user),
       display_name_changeset: Accounts.change_user_display_name(user),
       kindle_email_changeset: Accounts.change_user_kindle_email(user),
-      trigger_submit: false
+      trigger_submit: false,
+      from_email: from_email
     ]
 
     {:ok, assign(socket, assigns)}
