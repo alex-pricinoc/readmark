@@ -53,15 +53,15 @@
           <ol :if={@current_user.kindle_email == nil} class="list-decimal list-inside">
             <li>
               Go to
-              <.link
-                class="text-primary-500 font-medium"
-                href="https://www.amazon.com/gp/digital/fiona/manage?&#pdocSettings"
-              >
-                Kindle Personal Document Settings
+              <.link class="text-primary-500 font-medium" href="https://www.amazon.com/mycd">
+                Manage Your Content and Devices
               </.link>
             </li>
             <li>
-              Add the following email to your Approved Personal Document E-mail List:
+              From <strong>Preferences</strong> scroll down to <strong>Personal Document Settings</strong>
+            </li>
+            <li>
+              Add the following email to your <strong>Approved Personal Document E-mail List:</strong>
               <div class="relative w-fit group">
                 <input
                   type="text"
@@ -81,7 +81,7 @@
               </div>
             </li>
             <li>
-              Find the email for your Kindle under Send-to-Kindle Email Settings, and add it below:
+              Find the email for your Kindle under <strong>Send-to-Kindle Email Settings</strong>, and add it below:
             </li>
           </ol>
         <% end %>
