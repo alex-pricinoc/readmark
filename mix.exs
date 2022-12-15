@@ -62,7 +62,8 @@ defmodule Readmark.MixProject do
       {:readability, "~> 0.9"},
       {:bupe, "~> 0.6.0"},
       {:gen_smtp, "~> 1.2"},
-      {:oban, "~> 2.13"}
+      {:oban, "~> 2.13"},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
     ]
   end
 

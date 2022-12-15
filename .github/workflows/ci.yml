@@ -88,6 +88,9 @@ jobs:
         run: mix format --check-formatted
         if: ${{matrix.lint}}
 
+      - name: Check Credo Warnings
+        run: mix credo --strict --only warning
+
       - name: Check for compile-time dependencies
         run: mix xref graph --label compile-connected --fail-above 0
 
