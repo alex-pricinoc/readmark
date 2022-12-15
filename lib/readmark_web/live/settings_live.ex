@@ -172,8 +172,10 @@ defmodule ReadmarkWeb.SettingsLive do
 
     {:ok, _mail} = EpubSender.deliver_epub(current_user.kindle_email, epub)
 
-    Enum.map(bookmarks, &Bookmarks.update_bookmark(&1, %{folder: :archive}))
     File.rm!(epub)
+
+    _archived =
+      Enum.map(bookmarks, fn b -> {:ok, _} = Bookmarks.update_bookmark(b, %{folder: :archive}) end)
 
     info = "Your articles have been sent. You should receive them in a few minutes."
 

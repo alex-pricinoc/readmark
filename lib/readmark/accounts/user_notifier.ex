@@ -10,7 +10,7 @@ defmodule Readmark.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"Alex from Readmark", from_email})
+      |> from({"Alex from readmark", from_email})
       |> subject(subject)
       |> text_body(body)
 

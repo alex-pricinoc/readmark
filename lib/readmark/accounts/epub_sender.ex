@@ -13,7 +13,7 @@ defmodule Readmark.Accounts.EpubSender do
     email =
       new()
       |> to(kindle_email)
-      |> from({"Alex from Readmark", from_email})
+      |> from({"Alex from readmark", from_email})
       |> attachment(epub)
 
     with {:ok, _metadata} <- Mailer.deliver(email) do
