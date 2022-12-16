@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
       xmlns:epub="http://www.idpf.org/2007/ops">
   <head>
-    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"/>
     <title><%= config.label %></title>
   </head>
   <body>

@@ -58,10 +58,12 @@
               </.link>
             </li>
             <li>
-              From <strong>Preferences</strong> scroll down to <strong>Personal Document Settings</strong>
+              From <strong>Preferences</strong>
+              scroll down to <strong>Personal Document Settings</strong>
             </li>
             <li>
-              Add the following email to your <strong>Approved Personal Document E-mail List:</strong>
+              Add the following email to your
+              <strong>Approved Personal Document E-mail List:</strong>
               <div class="relative w-fit group">
                 <input
                   type="text"
@@ -98,25 +100,28 @@
           </.error>
           <.input
             field={{f, :kindle_email}}
-            label="Your kindle Email"
+            label="Your Kindle Email"
             placeholder="Send-to-Kindle Email"
-            required
           />
           <.button
             type="submit"
             phx-disable-with="Saving..."
             class={"self-start #{if @kindle_email_changeset.valid? and @kindle_email_changeset.action == :validate, do: "block", else: "hidden"}"}
           >
-            Save preferences
+            Save
           </.button>
         </.form>
       </div>
       <hr class="sm:col-start-2" />
       <div :if={@current_user.kindle_email} class="text-sm sm:col-start-2">
-        <h2 class="font-medium mb-4">Send currently reading articles to Kindle</h2>
-        <.button phx-click="send-articles" type="button">
-          Send and Archive
-        </.button>
+        <h2 class="font-medium mb-4">Send currently reading bookmarks to Kindle</h2>
+        <%= if @reading_bookmarks != [] do %>
+          <.button phx-click="send-articles" type="button">
+            Send and Archive
+          </.button>
+        <% else %>
+          <p>Your reading list is empty</p>
+        <% end %>
       </div>
     </section>
     <!-- Import component -->
