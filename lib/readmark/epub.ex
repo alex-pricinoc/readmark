@@ -4,6 +4,7 @@ defmodule Readmark.Epub do
   """
 
   alias Readmark.Bookmarks.Article
+  alias Readmark.Cldr
 
   @doc "Generate epub from articles."
   @spec build(articles :: [Article.t()]) :: [String.t()]
@@ -12,13 +13,19 @@ defmodule Readmark.Epub do
 
     config = %{
       dir: dest,
-      label: "Your digest for today"
+      label: label(articles),
+      output_file: "readmark-#{Date.to_string(DateTime.utc_now())}.epub"
     }
 
     articles
     |> convert_article_pages(config)
     |> to_epub(config)
   end
+
+  def label([article | _rest = []]), do: article.title
+
+  def label(_articles),
+    do: "readmark: #{Cldr.DateTime.to_string!(DateTime.utc_now(), format: "EEEE, MMM. d, y")}"
 
   defp convert_article_pages(articles, config) do
     articles
@@ -38,28 +45,25 @@ defmodule Readmark.Epub do
 
     unless File.exists?(dest), do: File.mkdir_p(dest)
 
-    file_path = Path.join([dest, title_to_filename(title) <> ".xhtml"])
+    file_path = Path.join([dest, Ecto.UUID.generate() <> ".xhtml"])
     File.write!(file_path, content)
-    file_path
+    %BUPE.Item{href: file_path, description: title}
   end
 
-  defp to_epub(files, %{dir: dir, label: label} = _config) do
+  defp to_epub(files, %{dir: dir, label: label, output_file: output_file} = _config) do
     config = %BUPE.Config{
       title: label,
-      pages: files
+      pages: files,
+      creator: "readmark"
     }
 
-    output_file = Path.join([dir, title_to_filename(label) <> ".epub"])
+    output_file = Path.join([dir, output_file])
     BUPE.build(config, output_file)
     delete_generated_files(files)
     Path.relative_to_cwd(output_file)
   end
 
-  defp delete_generated_files(files) do
-    Enum.map(files, &File.rm!(&1))
-  end
-
-  defp title_to_filename(title), do: title |> String.replace(" ", "-") |> String.downcase()
+  defp delete_generated_files(files), do: Enum.map(files, &File.rm!(&1.href))
 
   defp clean_code_block(page) do
     regex = ~r/<pre><code>(.*?)<\/code><\/pre>/s
@@ -75,11 +79,11 @@ defmodule Readmark.Epub do
     ~s(<pre><code>#{code}</code></pre>)
   end
 
-  entities = [{?&, "&amp;"}, {?<, "&lt;"}, {?>, "&gt;"}, {?", "&quot;"}, {?', "&#39;"}]
+  escapes = [{?<, "&lt;"}, {?>, "&gt;"}, {?&, "&amp;"}, {?", "&quot;"}, {?', "&#39;"}]
 
-  for {decoded, encoded} <- entities do
-    defp unescape_html(<<unquote(decoded), rest::binary>>) do
-      [unquote(encoded) | unescape_html(rest)]
+  for {match, insert} <- escapes do
+    defp unescape_html(<<unquote(match), rest::binary>>) do
+      [unquote(insert) | unescape_html(rest)]
     end
   end
 

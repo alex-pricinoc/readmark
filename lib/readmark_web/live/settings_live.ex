@@ -35,6 +35,7 @@ defmodule ReadmarkWeb.SettingsLive do
       display_name_changeset: Accounts.change_user_display_name(user),
       kindle_email_changeset: Accounts.change_user_kindle_email(user),
       trigger_submit: false,
+      reading_bookmarks: Bookmarks.list_reading_bookmarks(user),
       from_email: from_email
     ]
 
@@ -166,16 +167,18 @@ defmodule ReadmarkWeb.SettingsLive do
 
   @impl true
   def handle_event("send-articles", _params, socket) do
-    current_user = socket.assigns.current_user
-    bookmarks = Bookmarks.list_reading_bookmarks(current_user)
+    %{current_user: user, reading_bookmarks: bookmarks} = socket.assigns
+
     epub = Enum.flat_map(bookmarks, & &1.articles) |> Epub.build()
 
-    {:ok, _mail} = EpubSender.deliver_epub(current_user.kindle_email, epub)
+    {:ok, _mail} = EpubSender.deliver_epub(user.kindle_email, epub)
 
     File.rm!(epub)
 
     _archived =
-      Enum.map(bookmarks, fn b -> {:ok, _} = Bookmarks.update_bookmark(b, %{folder: :archive}) end)
+      Enum.map(bookmarks, fn b ->
+        {:ok, _} = Bookmarks.update_bookmark(b, %{folder: :archive})
+      end)
 
     info = "Your articles have been sent. You should receive them in a few minutes."
 
