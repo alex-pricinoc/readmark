@@ -39,4 +39,12 @@ defmodule ReadmarkWeb.UserSessionController do
     |> put_flash(:info, "Logged out successfully.")
     |> UserAuth.log_out_user()
   end
+
+  def delete_account(conn, _params) do
+    Accounts.delete_user!(conn.assigns.current_user)
+
+    conn
+    |> put_flash(:info, "Sorry to see you go.")
+    |> UserAuth.log_out_user()
+  end
 end

@@ -93,6 +93,10 @@ defmodule Readmark.Accounts do
     User.registration_changeset(user, attrs, hash_password: false, validate_email: false)
   end
 
+  def delete_user!(%User{} = user) do
+    Repo.delete!(user)
+  end
+
   ## Settings
 
   @doc """

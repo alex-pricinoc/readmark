@@ -12,20 +12,18 @@ defmodule Readmark.Repo.Migrations.AddArticles do
       timestamps()
     end
 
-    create index(:articles, [:url])
-
-    create table(:bookmark_articles) do
+    create table(:bookmark_articles, primary_key: false) do
       add :bookmark_id,
           references(:bookmarks, column: :id, type: :uuid, on_delete: :delete_all),
-          null: false
+          null: false,
+          primary_key: true
 
       add :article_id,
           references(:articles, column: :url, type: :string, on_delete: :delete_all),
-          null: false
+          null: false,
+          primary_key: true
 
       timestamps()
     end
-
-    create unique_index(:bookmark_articles, [:bookmark_id, :article_id])
   end
 end

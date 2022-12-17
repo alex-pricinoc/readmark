@@ -127,9 +127,21 @@
     <!-- Import component -->
     <section class="grid sm:grid-cols-[10rem_auto] gap-4">
       <h2 class="font-medium">Import</h2>
-      <div class="max-w-fullsm:max-w-sm">
+      <div class="max-w-full sm:max-w-sm">
         <.live_component id={:import} module={UploadFormComponent} current_user={@current_user} />
       </div>
+    </section>
+    <!-- Account deletion -->
+    <section class="grid sm:grid-cols-[10rem_auto] gap-4">
+      <h2 class="font-medium">Delete Account</h2>
+      <.link
+        class="text-red-600 text-sm"
+        href={~p"/users/delete_account"}
+        method="delete"
+        data-confirm={gettext("Are you sure? This action is irreversible.")}
+      >
+        I would like to delete my account
+      </.link>
     </section>
   </div>
 </div>

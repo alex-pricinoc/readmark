@@ -15,12 +15,6 @@ export function registerGlobalEventHandlers() {
     }
   })
 
-  window.addEventListener("js:tab-selected", ({ detail }) => {
-    let select = document.getElementById(detail.id)
-    let link = document.getElementById(select.value)
-    liveSocket.execJS(link, link.getAttribute("phx-click"))
-  })
-
   window.addEventListener("js:clipcopy", (event) => {
     if ("clipboard" in navigator) {
       const text = event.target.textContent || event.target.value
