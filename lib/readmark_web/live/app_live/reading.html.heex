@@ -7,10 +7,11 @@
   item_hidden={fn b -> deleted?(b) || b.folder != :reading end}
   item_click={&JS.patch(~p"/reading/#{&1}")}
   show={@active_bookmark == nil}
+  empty_list_message="Save some articles here to read."
 >
   <:action>
     <.icon_button label="Add bookmark" patch={~p"/reading/new"}>
-      <Heroicons.plus class="h-5 w-5" />
+      <Heroicons.plus class="h-5 w-5" stroke-width="2" />
     </.icon_button>
   </:action>
 

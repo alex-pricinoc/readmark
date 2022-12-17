@@ -3,9 +3,6 @@ defmodule Readmark.Bookmarks.Article do
 
   alias Readmark.Bookmarks.{Bookmark, BookmarkArticle}
 
-  @params ~w(url article_html article_text authors title)a
-  @required ~w(url article_text)a
-
   @primary_key false
   schema "articles" do
     field :url, :string, primary_key: true
@@ -20,6 +17,9 @@ defmodule Readmark.Bookmarks.Article do
 
     timestamps()
   end
+
+  @params ~w(url article_html article_text authors title)a
+  @required ~w(url article_text)a
 
   @doc false
   def changeset(article, attrs) do

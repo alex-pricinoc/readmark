@@ -180,6 +180,7 @@ defmodule ReadmarkWeb.CoreComponents do
   attr :item_hidden, :any, default: false
   attr :item_click, :any, default: false
   attr :items, :list, required: true
+  attr :empty_list_message, :string, default: "No bookmarks added."
 
   slot :action
   slot :inner_block, required: true
@@ -217,7 +218,7 @@ defmodule ReadmarkWeb.CoreComponents do
   def show_sidebar_button(assigns) do
     ~H"""
     <.icon_button label="Open sidebar" phx-click={show_sidebar()} {@rest}>
-      <Heroicons.bars_3 class="h-5 w-5" />
+      <Heroicons.bars_3 class="h-5 w-5" stroke-width="2" />
     </.icon_button>
     """
   end
@@ -227,7 +228,7 @@ defmodule ReadmarkWeb.CoreComponents do
   def close_sidebar_button(assigns) do
     ~H"""
     <.icon_button label="Close sidebar" phx-click={hide_sidebar()} {@rest}>
-      <Heroicons.x_mark class="h-5 w-5" />
+      <Heroicons.x_mark class="h-5 w-5" stroke-width="2" />
     </.icon_button>
     """
   end
