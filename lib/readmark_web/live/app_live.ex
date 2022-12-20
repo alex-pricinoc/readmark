@@ -1,6 +1,7 @@
 defmodule ReadmarkWeb.AppLive do
   defmodule AppLive do
     @callback bookmark_path(bookmark :: Bookmark.t() | nil) :: String.t()
+    @callback assign_title(socket :: Socket.t(), action :: atom()) :: String.t()
   end
 
   defmacro __using__(opts) do
@@ -9,6 +10,7 @@ defmodule ReadmarkWeb.AppLive do
 
       alias Readmark.Bookmarks
       alias Bookmarks.Bookmark
+      alias Readmark.Workers.ArticleCrawler
 
       @behaviour AppLive
 
@@ -75,7 +77,7 @@ defmodule ReadmarkWeb.AppLive do
 
       defp apply_action(socket, :index, _params) do
         socket
-        |> assign(:page_title, "Listing bookmarks")
+        |> assign_title(:index)
         |> assign(:active_bookmark, nil)
       end
 
@@ -83,6 +85,8 @@ defmodule ReadmarkWeb.AppLive do
         bookmark = Bookmarks.get_bookmark(id, socket.assigns.current_user.id)
 
         if bookmark do
+          maybe_fetch_article(bookmark)
+
           socket
           |> assign(:page_title, bookmark.title)
           |> assign(:active_bookmark, bookmark)
@@ -98,7 +102,7 @@ defmodule ReadmarkWeb.AppLive do
 
         if bookmark do
           socket
-          |> assign(:page_title, "Edit bookmark")
+          |> assign_title(:edit)
           |> assign(:bookmark, bookmark)
         else
           socket
@@ -109,7 +113,7 @@ defmodule ReadmarkWeb.AppLive do
 
       defp apply_action(socket, :new, _params) do
         socket
-        |> assign(:page_title, "New bookmark")
+        |> assign_title(:new)
         |> assign(:bookmark, %Bookmark{})
       end
 
@@ -142,6 +146,11 @@ defmodule ReadmarkWeb.AppLive do
 
       defp get_article(%Bookmark{articles: [article | _]}), do: article
       defp get_article(_bookmark), do: nil
+
+      defp maybe_fetch_article(%Bookmark{folder: :reading, articles: []} = bookmark),
+        do: ArticleCrawler.fetch_article(bookmark)
+
+      defp maybe_fetch_article(_bookmark), do: :ok
     end
   end
 end
