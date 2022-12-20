@@ -22,7 +22,7 @@ defmodule Readmark.Epub do
     |> to_epub(config)
   end
 
-  def label([article | _rest = []]), do: article.title
+  def label([article]), do: article.title
 
   def label(_articles),
     do: "readmark: #{Cldr.DateTime.to_string!(DateTime.utc_now(), format: "EEEE, MMM. d, y")}"

@@ -67,21 +67,3 @@
     <%= raw(article.article_html || article.text) %>
   </div>
 </.list_detail>
-
-<.modal
-  :if={@live_action in [:new, :edit]}
-  id="boomark-modal"
-  show
-  on_cancel={JS.patch(bookmark_path(@active_bookmark))}
->
-  <.live_component
-    module={ReadmarkWeb.BookmarksLive.FormComponent}
-    bookmark={@bookmark}
-    title={@page_title}
-    id={@bookmark.id || :new}
-    action={@live_action}
-    current_user={@current_user}
-    folder={:archive}
-    return_to={bookmark_path(@active_bookmark)}
-  />
-</.modal>

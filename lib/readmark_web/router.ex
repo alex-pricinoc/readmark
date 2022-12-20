@@ -65,18 +65,15 @@ defmodule ReadmarkWeb.Router do
       live "/notes", NotesLive, :index
       live "/notes/:id", NotesLive, :show
 
-      @folders [
-        {:reading, AppLive.Reading},
-        {:bookmarks, AppLive.Bookmarks},
-        {:archive, AppLive.Archive}
-      ]
+      live "/reading", AppLive.Reading, :index
+      live "/reading/new", AppLive.Reading, :new
+      live "/reading/:id", AppLive.Reading, :show
 
-      for {folder, module} <- @folders do
-        live "/#{folder}", module, :index
-        live "/#{folder}/new", module, :new
-        live "/#{folder}/:id", module, :show
-        live "/#{folder}/:id/edit", module, :edit
-      end
+      live "/bookmarks", AppLive.Bookmarks, :index
+      live "/bookmarks/new", AppLive.Bookmarks, :new
+      live "/bookmarks/:id/edit", AppLive.Bookmarks, :edit
+
+      live "/archive", AppLive.Archive, :index
 
       live "/settings", SettingsLive, :index
       live "/settings/confirm_email/:token", SettingsLive, :confirm_email
