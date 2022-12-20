@@ -8,22 +8,33 @@
     phx-change="validate"
     phx-submit="save"
   >
+    <.error :if={@changeset.action == :insert}>
+      Oops, something went wrong!
+    </.error>
     <fieldset class="mb-6 space-y-4">
       <.input
         field={{f, :url}}
         type="url"
         label="Url"
         placeholder="www.example.com/article.html"
+        autocomplete="off"
         disabled={@action == :edit}
       />
-      <.input field={{f, :title}} placeholder="Example title" label="Title" />
       <.input
+        :if={@folder == :bookmarks}
+        field={{f, :title}}
+        placeholder="Example title"
+        label="Title"
+      />
+      <.input
+        :if={@folder == :bookmarks}
         field={{f, :tags}}
         value={list_input_value(f, :tags)}
         label="Tags"
         placeholder="tag1 tag2..."
       />
       <.input
+        :if={@action == :edit}
         field={{f, :folder}}
         type="select"
         options={select_options(Bookmarks.Bookmark, :folder)}
