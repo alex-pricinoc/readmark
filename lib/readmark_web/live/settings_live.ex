@@ -204,4 +204,37 @@ defmodule ReadmarkWeb.SettingsLive do
     socket
     |> assign(:page_title, "Change Password")
   end
+
+  defp bookmarklet() do
+    """
+    javascript: if (document.getSelection) {
+      s = document.getSelection()
+    } else {
+      s = ""
+    }
+    document.location =
+      "#{url(~p"/add")}?url=" +
+      encodeURIComponent(location.href) +
+      "&notes=" +
+      encodeURIComponent(s) +
+      "&title=" +
+      encodeURIComponent(document.title)
+    """
+  end
+
+  defp kindle() do
+    """
+    javascript: document.location =
+    "#{url(~p"/send-to-kindle")}?url=" +
+    encodeURIComponent(location.href)
+    """
+  end
+
+  defp reading() do
+    """
+    javascript: document.location =
+    "#{url(~p"/save-to-reading")}?url=" +
+    encodeURIComponent(location.href)
+    """
+  end
 end

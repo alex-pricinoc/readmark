@@ -111,9 +111,12 @@ defmodule ReadmarkWeb.AppLive do
         end
       end
 
-      defp apply_action(socket, :new, _params) do
+      defp apply_action(socket, :new, params) do
+        bookmark_params = Map.take(params, ["url", "title"])
+
         socket
         |> assign_title(:new)
+        |> assign(:bookmark_params, bookmark_params)
         |> assign(:bookmark, %Bookmark{})
       end
 
@@ -147,8 +150,9 @@ defmodule ReadmarkWeb.AppLive do
       defp get_article(%Bookmark{articles: [article | _]}), do: article
       defp get_article(_bookmark), do: nil
 
-      defp maybe_fetch_article(%Bookmark{folder: :reading, articles: []} = bookmark),
-        do: ArticleCrawler.fetch_article(bookmark)
+      defp maybe_fetch_article(%Bookmark{folder: :reading, articles: []} = bookmark) do
+        ArticleCrawler.fetch_article(bookmark)
+      end
 
       defp maybe_fetch_article(_bookmark), do: :ok
     end

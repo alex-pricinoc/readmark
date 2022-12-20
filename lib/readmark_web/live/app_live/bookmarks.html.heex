@@ -66,6 +66,7 @@
     id={@bookmark.id || :new}
     action={@live_action}
     current_user={@current_user}
+    attrs={assigns[:bookmark_params]}
     folder={:bookmarks}
     return_to={bookmark_path(@active_bookmark)}
   />

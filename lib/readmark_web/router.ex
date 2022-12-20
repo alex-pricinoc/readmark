@@ -60,6 +60,10 @@ defmodule ReadmarkWeb.Router do
   scope "/", ReadmarkWeb do
     pipe_through [:browser, :require_authenticated_user]
 
+    get "/add", BookmarkController, :new
+    get "/send-to-kindle", BookmarkController, :kindle
+    get "/save-to-reading", BookmarkController, :reading
+
     live_session :require_authenticated_user,
       on_mount: [{ReadmarkWeb.UserAuth, :ensure_authenticated}, ReadmarkWeb.Sidebar] do
       live "/notes", NotesLive, :index

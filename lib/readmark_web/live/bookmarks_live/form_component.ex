@@ -5,7 +5,7 @@ defmodule ReadmarkWeb.BookmarksLive.FormComponent do
 
   @impl true
   def update(%{bookmark: bookmark} = assigns, socket) do
-    changeset = Bookmarks.change_bookmark(bookmark)
+    changeset = Bookmarks.change_bookmark(bookmark, assigns[:attrs] || %{})
 
     {:ok,
      socket

@@ -1,5 +1,5 @@
-<div class="bg-white flex-1 px-4">
-  <header class="h-20 flex items-center border-b mb-8">
+<div class="bg-white flex-1 px-4 overflow-y-auto">
+  <header class="z-10 sticky top-0 h-20 flex items-center border-b mb-8 bg-white">
     <.show_sidebar_button class="mr-3 lg:hidden" />
     <h1 class="font-semibold">
       Settings
@@ -131,6 +131,36 @@
         <.live_component id={:import} module={UploadFormComponent} current_user={@current_user} />
       </div>
     </section>
+    <!-- Bookmarklet -->
+    <section class="grid sm:grid-cols-[10rem_auto] gap-4">
+      <h2 class="font-medium">Bookmarklet</h2>
+      <div class="">
+        <p class="mb-4 text-sm">
+          When you click on this bookmarklet, it will submit the page you're on.
+          To install, drag this button to your browser's toolbar:
+        </p>
+        <div class="space-x-2">
+          <a
+            class="border-2 border-dashed border-gray-400 px-4 py-2 rounded text-sm"
+            href={bookmarklet()}
+          >
+            save to readmark
+          </a>
+          <a
+            class="border-2 border-dashed border-gray-400 px-4 py-2 rounded text-sm"
+            href={kindle()}
+          >
+            send to kindle
+          </a>
+          <a
+            class="border-2 border-dashed border-gray-400 px-4 py-2 rounded text-sm"
+            href={reading()}
+          >
+            add to reading
+          </a>
+        </div>
+      </div>
+    </section>
     <!-- Account deletion -->
     <section class="grid sm:grid-cols-[10rem_auto] gap-4">
       <h2 class="font-medium">Delete Account</h2>
@@ -153,7 +183,6 @@
   on_cancel={JS.patch(~p"/settings")}
 >
   <.header>Change Email</.header>
-
   <.simple_form
     :let={f}
     id="email_form"
@@ -164,9 +193,7 @@
     <.error :if={@email_changeset.action == :insert}>
       Oops, something went wrong! Please check the errors below.
     </.error>
-
     <.input field={{f, :email}} type="email" label="Email" required />
-
     <.input
       field={{f, :current_password}}
       name="current_password"
@@ -203,9 +230,7 @@
     <.error :if={@password_changeset.action == :insert}>
       Oops, something went wrong! Please check the errors below.
     </.error>
-
     <.input field={{f, :email}} type="hidden" value={@current_email} />
-
     <.input field={{f, :password}} type="password" label="New password" required />
     <.input field={{f, :password_confirmation}} type="password" label="Confirm new password" />
     <.input
