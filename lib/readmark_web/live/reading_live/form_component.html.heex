@@ -1,0 +1,30 @@
+<div>
+  <.header class="mb-4 sm:mb-10"><%= @title %></.header>
+  <.form
+    :let={f}
+    for={@changeset}
+    id="bookmark-form"
+    phx-target={@myself}
+    phx-change="validate"
+    phx-submit="save"
+  >
+    <.error :if={@changeset.action == :insert}>
+      Oops, something went wrong! Cannot save article.
+    </.error>
+    <fieldset class="mb-6 space-y-4">
+      <.input field={{f, :folder}} type="hidden" value={:reading} />
+      <.input
+        field={{f, :url}}
+        type="url"
+        label="Url"
+        placeholder="www.example.com/article.html"
+        autocomplete="off"
+        phx-debounce="300"
+        required
+      />
+    </fieldset>
+    <.button type="submit" phx-disable-with="Saving..." loading={@loading}>
+      Save
+    </.button>
+  </.form>
+</div>

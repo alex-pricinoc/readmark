@@ -19,7 +19,7 @@ defmodule Readmark.Bookmarks.Article do
   end
 
   @params ~w(url article_html article_text authors title)a
-  @required ~w(url article_text)a
+  @required ~w(url article_text title)a
 
   @doc false
   def changeset(article, attrs) do
@@ -28,5 +28,6 @@ defmodule Readmark.Bookmarks.Article do
     |> validate_length(:url, max: 2048)
     |> validate_length(:title, max: 255)
     |> validate_required(@required)
+    |> unique_constraint(:url, name: "articles_pkey")
   end
 end
