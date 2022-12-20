@@ -24,37 +24,49 @@ defmodule ReadmarkWeb.BookmarkController do
   def reading(conn, %{"url" => url}) do
     article = ArticleCrawler.get_or_fetch_article(url)
 
-    bookmark_params = %{
-      "url" => url,
-      "title" => article.title,
-      "articles" => [article],
-      "folder" => "reading"
-    }
+    if article != nil do
+      bookmark_params = %{
+        "url" => url,
+        "title" => article.title,
+        "articles" => [article],
+        "folder" => "reading"
+      }
 
-    case Bookmarks.create_bookmark(conn.assigns.current_user, bookmark_params) do
-      {:ok, bookmark} ->
-        conn
-        |> put_flash(:info, "Link saved successfully!")
-        |> redirect(to: ~p"/reading/#{bookmark}")
+      case Bookmarks.create_bookmark(conn.assigns.current_user, bookmark_params) do
+        {:ok, bookmark} ->
+          conn
+          |> put_flash(:info, "Link saved successfully!")
+          |> redirect(to: ~p"/reading/#{bookmark}")
 
-      {:error, _changeset} ->
-        conn
-        |> put_flash(:error, "Oops, something went wrong! Cannot save article.")
-        |> redirect(to: ~p"/reading")
+        {:error, _changeset} ->
+          conn
+          |> put_flash(:error, "Oops, something went wrong! Cannot save article.")
+          |> redirect(to: ~p"/reading")
+      end
+    else
+      conn
+      |> put_flash(:error, "Oops, something went wrong! Cannot fetch article contents.")
+      |> redirect(to: ~p"/")
     end
   end
 
   def kindle(conn, %{"url" => url}) do
     article = ArticleCrawler.get_or_fetch_article(url)
 
-    epub = Epub.build([article])
+    if article != nil do
+      epub = Epub.build([article])
 
-    {:ok, _mail} = EpubSender.deliver_epub(conn.assigns.current_user.kindle_email, epub)
+      {:ok, _mail} = EpubSender.deliver_epub(conn.assigns.current_user.kindle_email, epub)
 
-    File.rm!(epub)
+      File.rm!(epub)
 
-    conn
-    |> put_flash(:info, "Your article has been sent. You should receive it in a few minutes.")
-    |> redirect(to: ~p"/")
+      conn
+      |> put_flash(:info, "Your article has been sent. You should receive it in a few minutes.")
+      |> redirect(to: ~p"/")
+    else
+      conn
+      |> put_flash(:error, "Oops, something went wrong! Cannot fetch article contents.")
+      |> redirect(to: ~p"/")
+    end
   end
 end
