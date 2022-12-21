@@ -1,4 +1,4 @@
-# fly.toml file generated for readmark on 2022-12-14T18:03:41Z
+# fly.toml file generated for readmark on 2022-12-20T20:43:14Z
 
 app = "readmark"
 kill_signal = "SIGTERM"
