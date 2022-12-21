@@ -57,7 +57,7 @@ defmodule ReadmarkWeb.AppLive do
 
       @impl true
       def handle_event("archive-bookmark", %{"id" => id}, socket) do
-        bookmark = Bookmarks.get_bookmark(id, socket.assigns.current_user.id)
+        bookmark = Bookmarks.get_bookmark!(id, socket.assigns.current_user.id)
 
         new_folder = if bookmark.folder != :archive, do: :archive, else: :bookmarks
 
@@ -68,7 +68,7 @@ defmodule ReadmarkWeb.AppLive do
 
       @impl true
       def handle_event("delete-bookmark", %{"id" => id}, socket) do
-        bookmark = Bookmarks.get_bookmark(id, socket.assigns.current_user.id)
+        bookmark = Bookmarks.get_bookmark!(id, socket.assigns.current_user.id)
 
         {:ok, _} = Bookmarks.delete_bookmark(bookmark)
 
@@ -82,38 +82,27 @@ defmodule ReadmarkWeb.AppLive do
       end
 
       defp apply_action(socket, :show, %{"id" => id}) do
-        bookmark = Bookmarks.get_bookmark(id, socket.assigns.current_user.id)
+        bookmark = Bookmarks.get_bookmark!(id, socket.assigns.current_user.id)
 
-        if bookmark do
-          maybe_fetch_article(bookmark)
+        maybe_fetch_article(bookmark)
 
-          socket
-          |> assign(:page_title, bookmark.title)
-          |> assign(:active_bookmark, bookmark)
-        else
-          socket
-          |> put_flash(:error, "Couldn't find link")
-          |> push_redirect(to: apply(__MODULE__, :bookmark_path, [nil]))
-        end
+        socket
+        |> assign(:page_title, bookmark.title)
+        |> assign(:active_bookmark, bookmark)
       end
 
       defp apply_action(socket, :edit, %{"id" => id}) do
-        bookmark = Bookmarks.get_bookmark(id, socket.assigns.current_user.id)
+        bookmark = Bookmarks.get_bookmark!(id, socket.assigns.current_user.id)
 
-        if bookmark do
-          socket
-          |> assign_title(:edit)
-          |> assign(:bookmark, bookmark)
-        else
-          socket
-          |> put_flash(:error, "Couldn't find link")
-          |> push_redirect(to: apply(__MODULE__, :bookmark_path, [nil]))
-        end
+        socket
+        |> assign_title(:edit)
+        |> assign(:bookmark, bookmark)
       end
 
-      defp apply_action(socket, :new, _params) do
+      defp apply_action(socket, :new, bookmark_params) do
         socket
         |> assign_title(:new)
+        |> assign(:bookmark_params, bookmark_params)
         |> assign(:bookmark, %Bookmark{})
       end
 
@@ -135,11 +124,7 @@ defmodule ReadmarkWeb.AppLive do
            when active_bookmark.id == bookmark.id do
         user_id = socket.assigns.current_user.id
 
-        if bookmark = Bookmarks.get_bookmark(active_bookmark.id, user_id) do
-          assign(socket, :active_bookmark, bookmark)
-        else
-          socket
-        end
+        assign(socket, :active_bookmark, Bookmarks.get_bookmark!(active_bookmark.id, user_id))
       end
 
       defp maybe_update_active_bookmark(_, socket, _, _), do: socket
@@ -147,8 +132,9 @@ defmodule ReadmarkWeb.AppLive do
       defp get_article(%Bookmark{articles: [article | _]}), do: article
       defp get_article(_bookmark), do: nil
 
-      defp maybe_fetch_article(%Bookmark{folder: :reading, articles: []} = bookmark),
-        do: ArticleCrawler.fetch_article(bookmark)
+      defp maybe_fetch_article(%Bookmark{folder: :reading, articles: []} = bookmark) do
+        ArticleCrawler.fetch_article(bookmark)
+      end
 
       defp maybe_fetch_article(_bookmark), do: :ok
     end

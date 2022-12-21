@@ -81,18 +81,27 @@ defmodule ReadmarkWeb.Router do
       live "/settings/change_display_name", SettingsLive, :change_display_name
       live "/settings/change_password", SettingsLive, :change_password
     end
+
+    delete "/users/delete_account", UserSessionController, :delete_account
   end
 
   scope "/", ReadmarkWeb do
     pipe_through [:browser]
 
     delete "/users/log_out", UserSessionController, :delete
-    delete "/users/delete_account", UserSessionController, :delete_account
 
     live_session :current_user,
       on_mount: [{ReadmarkWeb.UserAuth, :mount_current_user}] do
       live "/users/confirm/:token", UserConfirmationLive, :edit
       live "/users/confirm", UserConfirmationInstructionsLive, :new
     end
+  end
+
+  scope "/_/v1/", ReadmarkWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    get "/post", BookmarkController, :post
+    get "/kindle", BookmarkController, :kindle
+    get "/reading", BookmarkController, :reading
   end
 end

@@ -76,19 +76,19 @@ defmodule Readmark.Bookmarks do
   @doc """
   Gets a single bookmark by id and user_id.
 
-  Returns nil if the Bookmark does not exist.
+  Raises `Ecto.NoResultsError` if the Bookmark does not exist.
 
   ## Examples
 
-      iex> get_bookmark(123, 456)
+      iex> get_bookmark!(123, 456)
       %Bookmark{}
 
-      iex> get_bookmark(456, 789)
-      nil
+      iex> get_bookmark!(456, 789)
+      ** (Ecto.NoResultsError)
 
   """
-  def get_bookmark(id, user_id),
-    do: Repo.get_by(Bookmark, id: id, user_id: user_id) |> Repo.preload(:articles)
+  def get_bookmark!(id, user_id),
+    do: Repo.get_by!(Bookmark, id: id, user_id: user_id) |> Repo.preload(:articles)
 
   @doc """
   Creates a bookmark.

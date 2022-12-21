@@ -24,7 +24,7 @@ defmodule Readmark.Bookmarks.Bookmark do
     timestamps()
   end
 
-  @params ~w(url title tags inserted_at is_private notes user_id folder)a
+  @params ~w(url title tags inserted_at is_private user_id folder)a
   @required ~w(url title user_id)a
 
   @doc false
