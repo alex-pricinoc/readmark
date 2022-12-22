@@ -16,7 +16,10 @@
     href={bookmark.url}
     target="_blank"
     rel="noopener noreferrer"
-    class="relative w-fit max-w-full font-medium line-clamp-1 hover:text-primary-700"
+    class={[
+      "relative w-fit max-w-full font-medium hover:text-primary-700",
+      if(bookmark.tags != [], do: "line-clamp-1", else: "line-clamp-2")
+    ]}
   >
     <%= bookmark.title %>
   </a>

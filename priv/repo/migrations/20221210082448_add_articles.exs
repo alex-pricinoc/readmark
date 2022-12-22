@@ -14,7 +14,7 @@ defmodule Readmark.Repo.Migrations.AddArticles do
 
     create table(:bookmark_articles, primary_key: false) do
       add :bookmark_id,
-          references(:bookmarks, column: :id, type: :uuid, on_delete: :delete_all),
+          references(:bookmarks, column: :id, type: :id, on_delete: :delete_all),
           null: false,
           primary_key: true
 

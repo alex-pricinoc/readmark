@@ -9,7 +9,7 @@ defmodule ReadmarkWeb.UserConfirmationInstructionsLive do
       <.header>Resend confirmation instructions</.header>
 
       <.simple_form :let={f} for={:user} id="resend_confirmation_form" phx-submit="send_instructions">
-        <.input field={{f, :email}} type="email" label="Email" required />
+        <.input field={{f, :email}} type="email" label="Email" required value={@email} />
         <:actions>
           <.button phx-disable-with="Sending...">Resend confirmation instructions</.button>
         </:actions>
@@ -24,8 +24,8 @@ defmodule ReadmarkWeb.UserConfirmationInstructionsLive do
     """
   end
 
-  def mount(_params, _session, socket) do
-    {:ok, socket}
+  def mount(params, _session, socket) do
+    {:ok, assign(socket, :email, params["email"])}
   end
 
   def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do

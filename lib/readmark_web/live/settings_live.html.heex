@@ -147,6 +147,7 @@
             save to readmark
           </a>
           <a
+            :if={@current_user.kindle_email}
             class="border-2 border-dashed border-gray-400 px-4 py-2 rounded text-sm"
             href={kindle()}
           >
@@ -272,3 +273,14 @@
     </:actions>
   </.simple_form>
 </.modal>
+
+<.flash
+  :if={@current_user.confirmed_at == nil}
+  id="confirm-email"
+  title="Your account is not confirmed"
+  kind={:info}
+>
+  <.link navigate={~p"/users/confirm?email=#{@current_user.email}"} class="font-medium">
+    Confirm email
+  </.link>
+</.flash>

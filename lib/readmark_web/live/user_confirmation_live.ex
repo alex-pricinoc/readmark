@@ -3,7 +3,6 @@ defmodule ReadmarkWeb.UserConfirmationLive do
 
   alias Readmark.Accounts
 
-  # TODO: add a user confirmation reminder (flash) when logging in
   def render(%{live_action: :edit} = assigns) do
     ~H"""
     <div class="max-w-sm px-2">
