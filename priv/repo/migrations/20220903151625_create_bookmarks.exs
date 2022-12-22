@@ -2,8 +2,7 @@ defmodule Readmark.Repo.Migrations.CreateBookmarks do
   use Ecto.Migration
 
   def change do
-    create table(:bookmarks, primary_key: false) do
-      add :id, :uuid, primary_key: true
+    create table(:bookmarks) do
       add :url, :text, null: false
       add :title, :text, null: false
       add :tags, {:array, :string}

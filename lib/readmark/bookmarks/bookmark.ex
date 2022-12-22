@@ -2,10 +2,10 @@ defmodule Readmark.Bookmarks.Bookmark do
   use Readmark.Schema
 
   alias Readmark.Bookmarks.{Tag, BookmarkArticle, Article}
+  alias Readmark.Accounts.User
 
   @type t :: Ecto.Schema.t()
 
-  @primary_key {:id, :binary_id, autogenerate: true}
   schema "bookmarks" do
     field :url, :string
     field :title, :string

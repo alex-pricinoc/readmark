@@ -15,7 +15,10 @@
       navigate={link.to}
       class={[
         "flex items-center space-x-3 px-2 py-1.5 font-medium text-sm rounded-lg transition-colors duration-75",
-        "#{if @active_tab == link.name, do: "bg-gray-900 text-white", else: "text-gray-700 hover:bg-zinc-100"}"
+        if(@active_tab == link.name,
+          do: "bg-gray-900 text-white",
+          else: "text-gray-700 hover:bg-zinc-100"
+        )
       ]}
     >
       <.icon name={link.name} class="w-6 h-6" />

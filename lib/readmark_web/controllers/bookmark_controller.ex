@@ -51,13 +51,13 @@ defmodule ReadmarkWeb.BookmarkController do
     end
   end
 
-  def kindle(conn, %{"url" => url}, current_user) do
+  def kindle(conn, %{"url" => url}, %{kindle_email: email}) when not is_nil(email) do
     article = ArticleCrawler.get_or_fetch_article(url)
 
     if article != nil do
       epub = Epub.build([article])
 
-      {:ok, _mail} = EpubSender.deliver_epub(current_user.kindle_email, epub)
+      {:ok, _mail} = EpubSender.deliver_epub(email, epub)
 
       File.rm!(epub)
 
