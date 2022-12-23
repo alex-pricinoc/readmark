@@ -207,7 +207,7 @@ defmodule ReadmarkWeb.SettingsLive do
 
   defp bookmarklet() do
     """
-    javascript: location.href =
+    javascript: document.location =
       "#{url(~p"/_/v1/post")}?url=" +
       encodeURIComponent(window.location.href) +
       "&title=" +

@@ -69,6 +69,9 @@ jobs:
             ${{ runner.os }}-mix-${{ env.cache-name }}-
             ${{ runner.os }}-mix-
 
+      - name: Install vips
+        run: sudo apt-get install --no-install-recommends -y libvips-dev
+
       - name: Install dependencies
         run: mix deps.get
 

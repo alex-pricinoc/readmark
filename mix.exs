@@ -66,7 +66,8 @@ defmodule Readmark.MixProject do
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:ex_cldr, "~> 2.34"},
       {:ex_cldr_calendars, "~> 1.17"},
-      {:ex_cldr_dates_times, "~> 2.10"}
+      {:ex_cldr_dates_times, "~> 2.10"},
+      {:image, "~> 0.18.1"}
     ]
   end
 
