@@ -3,29 +3,22 @@ defmodule Readmark.Epub do
   Module for creating EPUB files
   """
 
+  alias __MODULE__.Utils
   alias Readmark.Bookmarks.Article
   alias Readmark.Cldr
 
   @doc "Generate epub from articles."
   @spec build(articles :: [Article.t()]) :: [String.t()]
   def build(articles) do
-    dest = Path.join([:code.priv_dir(:readmark), "static", "books"])
-
     config = %{
-      dir: dest,
-      label: label(articles),
-      output_file: "readmark-#{Date.to_string(DateTime.utc_now())}.epub"
+      dir: Path.join([:code.priv_dir(:readmark), "static", "books"]),
+      label: Cldr.DateTime.to_string!(DateTime.utc_now(), format: "EEEE, MMM. d, y")
     }
 
     articles
     |> convert_article_pages(config)
     |> to_epub(config)
   end
-
-  def label([article]), do: article.title
-
-  def label(_articles),
-    do: "readmark: #{Cldr.DateTime.to_string!(DateTime.utc_now(), format: "EEEE, MMM. d, y")}"
 
   defp convert_article_pages(articles, config) do
     articles
@@ -50,16 +43,25 @@ defmodule Readmark.Epub do
     %BUPE.Item{href: file_path, description: title}
   end
 
-  defp to_epub(files, %{dir: dir, label: label, output_file: output_file} = _config) do
+  defp to_epub(files, %{dir: dir, label: label} = _config) do
+    id = BUPE.Util.uuid4()
+
+    cover_name = "cover-#{id}.jpg"
+    cover = BUPE.Item.from_string(Path.join([dir, cover_name]))
+    Utils.build_cover(label, cover.href)
+
     config = %BUPE.Config{
-      title: label,
+      title: "readmark: " <> label,
       pages: files,
-      creator: "readmark"
+      creator: "readmark",
+      images: [cover],
+      logo: cover_name,
+      cover: true
     }
 
-    output_file = Path.join([dir, output_file])
+    output_file = Path.join([dir, "readmark-#{id}.epub"])
     BUPE.build(config, output_file)
-    delete_generated_files(files)
+    delete_generated_files([cover | files])
     Path.relative_to_cwd(output_file)
   end
 

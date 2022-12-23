@@ -22,10 +22,11 @@ FROM ${BUILDER_IMAGE} as builder
 
 # install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git \
+    && apt-get install --no-install-recommends -y libvips-dev pkg-config \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # prepare build dir
-WORKDIR /app
+WORKDIR "/app"
 
 # install hex + rebar
 RUN mix local.hex --force && \
@@ -68,7 +69,8 @@ RUN mix release
 FROM ${RUNNER_IMAGE}
 
 RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales \
-  && apt-get clean && rm -f /var/lib/apt/lists/*_*
+    && apt-get install --no-install-recommends -y libvips-dev pkg-config \
+    && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
@@ -85,6 +87,8 @@ ENV MIX_ENV="prod"
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/readmark ./
+
+COPY priv/static/fonts ../usr/local/share/fonts/
 
 USER nobody
 
