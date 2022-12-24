@@ -1,5 +1,6 @@
 defmodule Readmark.Epub.Utils do
   @moduledoc false
+
   alias Vix.Vips.Image, as: Vimage
 
   # @doc "Generates a random alphanumeric id."
@@ -22,7 +23,7 @@ defmodule Readmark.Epub.Utils do
   def build_cover(text, path) do
     image = Image.new!(@width, @height)
     title = title()
-    text = text(text)
+    text = text(image, text)
 
     image
     |> Image.compose!(title, title_location(image, title))
@@ -39,10 +40,10 @@ defmodule Readmark.Epub.Utils do
     )
   end
 
-  defp text(text) do
+  defp text(image, text) do
     Image.Text.simple_text!(text,
       autofit: true,
-      width: text_box_width(),
+      width: text_box_width(image),
       font: "sans",
       font_size: 100,
       height: 100,
@@ -69,7 +70,7 @@ defmodule Readmark.Epub.Utils do
     [x: x, y: y]
   end
 
-  defp text_box_width(margin \\ 32) do
-    @width - 2 * margin
+  defp text_box_width(image, margin \\ 32) do
+    Image.width(image) - 2 * margin
   end
 end
