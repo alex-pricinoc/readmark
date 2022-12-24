@@ -12,6 +12,10 @@ defmodule Readmark.Dump do
     Enum.map(bookmarks, &save(user, &1))
   end
 
+  def export(user) do
+    Bookmarks.list_bookmarks(user)
+  end
+
   defp save(user, {:ok, attrs}) do
     Bookmarks.create_bookmark(user, attrs)
   end

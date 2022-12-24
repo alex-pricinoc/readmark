@@ -131,6 +131,19 @@
         <.live_component id={:import} module={UploadFormComponent} current_user={@current_user} />
       </div>
     </section>
+    <section class="grid sm:grid-cols-[10rem_auto] gap-4">
+      <h2 class="font-medium">Export</h2>
+      <div class="text-sm">
+        <p class="mb-4">Generate a list of your saved articles.</p>
+        <.link
+          class="text-primary-500 font-medium"
+          href={~p"/settings/export"}
+          download="bookmarks.html"
+        >
+          Download .HTML file
+        </.link>
+      </div>
+    </section>
     <!-- Bookmarklets -->
     <section class="grid sm:grid-cols-[10rem_auto] gap-4">
       <h2 class="font-medium">Bookmarklets</h2>

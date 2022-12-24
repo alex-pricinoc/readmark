@@ -4,6 +4,7 @@ defmodule ReadmarkWeb.BookmarkController do
   alias Readmark.{Bookmarks, Epub}
   alias Readmark.Workers.ArticleCrawler
   alias Readmark.Accounts.EpubSender
+  alias Readmark.Dump
 
   def action(conn, _) do
     args = [conn, conn.params, conn.assigns.current_user]
@@ -67,5 +68,15 @@ defmodule ReadmarkWeb.BookmarkController do
       |> put_flash(:error, "Oops, something went wrong! Cannot fetch article contents.")
       |> redirect(to: ~p"/reading")
     end
+  end
+
+  def export(conn, _params, current_user) do
+    bookmarks = render_to_string("bookmarks", "netscape", bookmarks: Dump.export(current_user))
+
+    send_download(conn, {:binary, bookmarks}, filename: "bookmarks.html", content_type: "html")
+  end
+
+  defp render_to_string(template, format, assigns) do
+    Phoenix.Template.render_to_string(ReadmarkWeb.BookmarkHTML, template, format, assigns)
   end
 end

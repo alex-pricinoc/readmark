@@ -1,0 +1,10 @@
+<!DOCTYPE NETSCAPE-Bookmark-file-1>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<TITLE>Bookmarks</TITLE>
+<H1>Bookmarks</H1>
+<DL><p>
+<%= for bookmark <- @bookmarks do %>
+<DT><A HREF="<%= "#{bookmark.url}" %>" ADD_DATE="<%= "#{DateTime.to_unix(bookmark.inserted_at, :second)}" %>" PRIVATE="<%= "#{bookmark.is_private}" %>" TAGS="<%= "#{Enum.join(bookmark.tags, ",")}" %>"><%= "#{bookmark.title}" %></A>
+<DD><%= "#{bookmark.notes}" %>
+<% end %>
+</DL><p>
