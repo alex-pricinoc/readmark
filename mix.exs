@@ -67,7 +67,8 @@ defmodule Readmark.MixProject do
       {:ex_cldr, "~> 2.34"},
       {:ex_cldr_calendars, "~> 1.17"},
       {:ex_cldr_dates_times, "~> 2.10"},
-      {:image, "~> 0.18.1"}
+      {:image, "~> 0.18.1"},
+      {:quarto, path: "vendor/quarto"}
     ]
   end
 
