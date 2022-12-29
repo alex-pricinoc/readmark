@@ -1,9 +1,9 @@
 <.list
   :let={bookmark}
   items={@bookmarks}
-  version={@version}
   id="bookmarks-list"
   title={@active_tab}
+  phx_update={@phx_update}
   item_hidden={fn b -> deleted?(b) || b.folder != :reading end}
   item_click={&JS.patch(~p"/reading/#{&1}")}
   show={@active_bookmark == nil}
