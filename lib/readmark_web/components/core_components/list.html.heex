@@ -2,6 +2,7 @@
   id={@id}
   class={"grow overflow-y-auto md:grow-0 md:block border-r bg-white md:w-80 xl:w-96 #{if not @show, do: "hidden"}"}
   phx-hook="Open"
+  data-scroll-area
 >
   <header class="z-10 sticky h-20 -top-8 flex items-center bg-white/90 backdrop-blur transition-shadow open:shadow-md">
     <div class="sticky top-0 h-12 px-4 flex flex-1 items-center overflow-hidden">
@@ -17,9 +18,9 @@
     </div>
   </header>
   <ul
-    id={"list-items-#{@version}"}
+    id={"#{@id}-items"}
     class="md:p-2 relative divide-y md:divide-y-0 divide-zinc-100 text-sm leading-relaxed"
-    phx-update="prepend"
+    phx-update={@phx_update}
   >
     <li
       :for={item <- @items}
@@ -34,6 +35,7 @@
       <%= render_slot(@inner_block, item) %>
     </li>
   </ul>
+  <div id="infinite-scroll-marker" phx-hook="InfiniteScroll"></div>
   <p :if={@items == []} class="mt-24 text-center text-sm text-gray-600">
     <%= @empty_list_message %>
   </p>

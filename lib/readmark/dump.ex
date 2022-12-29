@@ -7,9 +7,9 @@ defmodule Readmark.Dump do
   alias Readmark.Bookmarks
 
   def import(user, document) do
-    {:ok, bookmarks} = HTMLParser.parse_document(document)
-
-    Enum.map(bookmarks, &save(user, &1))
+    document
+    |> HTMLParser.parse_document()
+    |> Enum.map(&save(user, &1))
   end
 
   def export(user) do

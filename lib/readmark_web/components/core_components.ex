@@ -180,11 +180,11 @@ defmodule ReadmarkWeb.CoreComponents do
 
   attr :id, :string, required: true
   attr :show, :boolean, default: true
-  attr :version, :integer, default: 0
   attr :title, :string, required: true
   attr :item_hidden, :any, default: false
   attr :item_click, :any, default: false
   attr :items, :list, required: true
+  attr :phx_update, :string, default: "replace"
   attr :empty_list_message, :string, default: "No bookmarks added."
 
   slot :action

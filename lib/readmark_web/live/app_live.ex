@@ -22,11 +22,15 @@ defmodule ReadmarkWeb.AppLive do
 
         if connected?(socket), do: Bookmarks.subscribe(user.id)
 
+        %{entries: bookmarks, metadata: metatada} =
+          Bookmarks.list_bookmarks(user, folder: @folder)
+
         assigns = [
           tags: [],
-          version: 0,
           folder: @folder,
-          bookmarks: Bookmarks.list_bookmarks(user, folder: @folder),
+          phx_update: "replace",
+          bookmarks: bookmarks,
+          page_meta: metatada,
           active_bookmark: nil
         ]
 
@@ -46,13 +50,13 @@ defmodule ReadmarkWeb.AppLive do
             else: List.insert_at(tags, 0, tag)
         end
 
+        user = socket.assigns.current_user
         tags = toggle_tag.(socket.assigns.tags, tag)
 
         {:noreply,
          socket
          |> assign(:tags, tags)
-         |> list_bookmarks()
-         |> update(:version, &(&1 + 1))}
+         |> replace_bookmarks(Bookmarks.list_bookmarks(user, folder: @folder, tags: tags))}
       end
 
       @impl true
@@ -73,6 +77,18 @@ defmodule ReadmarkWeb.AppLive do
         {:ok, _} = Bookmarks.delete_bookmark(bookmark)
 
         {:noreply, socket}
+      end
+
+      @impl true
+      def handle_event("load-more", _params, socket) do
+        %{current_user: user, tags: tags, page_meta: page_meta} = socket.assigns
+
+        params = [folder: @folder, tags: tags]
+
+        %{entries: bookmarks, metadata: metadata} =
+          Bookmarks.list_bookmarks(user, params, after: page_meta.after)
+
+        {:noreply, socket |> append_bookmarks(bookmarks) |> assign(:page_meta, metadata)}
       end
 
       defp apply_action(socket, :index, _params) do
@@ -111,13 +127,7 @@ defmodule ReadmarkWeb.AppLive do
         socket =
           maybe_update_active_bookmark(action, socket, socket.assigns.active_bookmark, bookmark)
 
-        {:noreply, update(socket, :bookmarks, fn bookmarks -> [bookmark | bookmarks] end)}
-      end
-
-      defp list_bookmarks(socket) do
-        %{current_user: user, tags: tags} = socket.assigns
-
-        assign(socket, :bookmarks, Bookmarks.list_bookmarks(user, folder: @folder, tags: tags))
+        {:noreply, prepend_bookmark(socket, bookmark)}
       end
 
       defp maybe_update_active_bookmark(:updated, socket, active_bookmark, bookmark)
@@ -137,6 +147,24 @@ defmodule ReadmarkWeb.AppLive do
       end
 
       defp maybe_fetch_article(_bookmark), do: :ok
+
+      defp replace_bookmarks(socket, bookmarks) do
+        socket
+        |> assign(:phx_update, "replace")
+        |> assign(:bookmarks, bookmarks)
+      end
+
+      defp prepend_bookmark(socket, bookmark) do
+        socket
+        |> assign(:phx_update, "prepend")
+        |> update(:bookmarks, fn bookmarks -> [bookmark | bookmarks] end)
+      end
+
+      defp append_bookmarks(socket, bookmarks) do
+        socket
+        |> assign(:phx_update, "append")
+        |> assign(:bookmarks, bookmarks)
+      end
     end
   end
 end

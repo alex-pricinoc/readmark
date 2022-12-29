@@ -4,14 +4,11 @@ defmodule Readmark.Dump.HTMLParser do
   """
 
   def parse_document(html) do
-    bookmarks =
-      html
-      |> Floki.parse_document!()
-      |> parse_tree([])
-      |> Enum.chunk_while([], &get_notes/2, &remaining/1)
-      |> Enum.map(&parse_bookmark/1)
-
-    {:ok, bookmarks}
+    html
+    |> Floki.parse_document!()
+    |> parse_tree([])
+    |> Enum.chunk_while([], &get_notes/2, &remaining/1)
+    |> Enum.map(&parse_bookmark/1)
   end
 
   defp parse_tree([item | rest], acc) do

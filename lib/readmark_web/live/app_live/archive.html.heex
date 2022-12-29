@@ -1,8 +1,8 @@
 <.list
   :let={bookmark}
-  items={@bookmarks}
-  version={@version}
   id="bookmarks-list"
+  items={@bookmarks}
+  phx_update={@phx_update}
   title={@active_tab}
   item_hidden={fn b -> deleted?(b) || b.folder != :archive end}
   show={@active_bookmark == nil}

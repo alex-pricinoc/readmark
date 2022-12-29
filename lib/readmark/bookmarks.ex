@@ -10,25 +10,20 @@ defmodule Readmark.Bookmarks do
   alias Readmark.Accounts.User
 
   @doc """
-  Returns the list of bookmarks.
-
-  ## Examples
-
-      iex> list_bookmarks()
-      [%Bookmark{}, ...]
-
+  Returns all Bookmarks belonging to the given user.
   """
-  def list_bookmarks(params) when is_list(params) do
+  def list_bookmarks(%User{} = user, params \\ [], opts \\ []) do
+    params = Keyword.put(params, :user_id, user.id)
+
+    params
+    |> all_query()
+    |> Repo.paginate(opts)
+  end
+
+  defp all_query(params) when is_list(params) do
     Bookmark
     |> order_by(desc: :inserted_at)
     |> where(^filter_where(params))
-    |> Repo.all()
-  end
-
-  def list_bookmarks(%User{} = user, params \\ []) do
-    params = Keyword.put(params, :user_id, user.id)
-
-    list_bookmarks(params)
   end
 
   defp filter_where(params) do
