@@ -16,20 +16,6 @@
     <%= bookmark.title %>
   </a>
 
-  <div :if={bookmark.tags != []} class="leading-none">
-    <.link
-      :for={tag <- bookmark.tags}
-      class={[
-        "relative text-sm hover:text-orange-600",
-        "#{if tag in @tags, do: "text-orange-600 hover:text-gray-900"}"
-      ]}
-      phx-click="select-tag"
-      phx-value-name={tag}
-    >
-      <%= tag %>
-    </.link>
-  </div>
-
   <div class="relative w-fit">
     <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
     <.link

@@ -59,8 +59,7 @@ config :readmark, ReadmarkWeb.Endpoint,
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/readmark_web/(live|views)/.*(ex)$",
-      ~r"lib/readmark_web/templates/.*(eex)$",
+      ~r"lib/readmark_web/(controllers|live|views)/.*(ex)$",
       ~r"notes/*/.*(md)$"
     ]
   ]

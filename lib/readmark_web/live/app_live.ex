@@ -53,10 +53,14 @@ defmodule ReadmarkWeb.AppLive do
         user = socket.assigns.current_user
         tags = toggle_tag.(socket.assigns.tags, tag)
 
+        %{entries: bookmarks, metadata: metadata} =
+          Bookmarks.list_bookmarks(user, folder: @folder, tags: tags)
+
         {:noreply,
          socket
          |> assign(:tags, tags)
-         |> replace_bookmarks(Bookmarks.list_bookmarks(user, folder: @folder, tags: tags))}
+         |> assign(:page_meta, metadata)
+         |> replace_bookmarks(bookmarks)}
       end
 
       @impl true
@@ -85,10 +89,17 @@ defmodule ReadmarkWeb.AppLive do
 
         params = [folder: @folder, tags: tags]
 
-        %{entries: bookmarks, metadata: metadata} =
-          Bookmarks.list_bookmarks(user, params, after: page_meta.after)
+        socket =
+          if after_cursor = page_meta.after do
+            %{entries: bookmarks, metadata: metadata} =
+              Bookmarks.list_bookmarks(user, params, after: after_cursor)
 
-        {:noreply, socket |> append_bookmarks(bookmarks) |> assign(:page_meta, metadata)}
+            socket |> append_bookmarks(bookmarks) |> assign(:page_meta, metadata)
+          else
+            socket
+          end
+
+        {:noreply, socket}
       end
 
       defp apply_action(socket, :index, _params) do

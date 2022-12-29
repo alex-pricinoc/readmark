@@ -1,6 +1,8 @@
 defmodule ReadmarkWeb.BookmarkController do
   use ReadmarkWeb, :controller
 
+  import Phoenix.Template
+
   alias Readmark.{Bookmarks, Epub}
   alias Readmark.Workers.ArticleCrawler
   alias Readmark.Accounts.EpubSender
@@ -71,12 +73,11 @@ defmodule ReadmarkWeb.BookmarkController do
   end
 
   def export(conn, _params, current_user) do
-    bookmarks = render_to_string("bookmarks", "netscape", bookmarks: Dump.export(current_user))
+    bookmarks =
+      render_to_string(ReadmarkWeb.BookmarkHTML, "bookmarks", "netscape",
+        bookmarks: Dump.export(current_user)
+      )
 
     send_download(conn, {:binary, bookmarks}, filename: "bookmarks.html", content_type: "html")
-  end
-
-  defp render_to_string(template, format, assigns) do
-    Phoenix.Template.render_to_string(ReadmarkWeb.BookmarkHTML, template, format, assigns)
   end
 end
