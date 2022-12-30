@@ -70,7 +70,7 @@ jobs:
             ${{ runner.os }}-mix-
 
       - name: Install vips
-        run: sudo apt-get install --no-install-recommends -y libvips-dev
+        run: sudo apt-get install --no-install-recommends -y libvips-tools
 
       - name: Install dependencies
         run: mix deps.get

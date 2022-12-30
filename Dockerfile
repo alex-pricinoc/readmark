@@ -11,7 +11,7 @@
 #   - https://pkgs.org/ - resource for finding needed packages
 #   - Ex: hexpm/elixir:1.14.0-erlang-25.0.4-debian-bullseye-20220801-slim
 #
-ARG ELIXIR_VERSION=1.14.0
+ARG ELIXIR_VERSION=1.14.2
 ARG OTP_VERSION=25.0.4
 ARG DEBIAN_VERSION=bullseye-20220801-slim
 
@@ -21,8 +21,9 @@ ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 FROM ${BUILDER_IMAGE} as builder
 
 # install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git \
-    && apt-get install --no-install-recommends -y libvips-dev pkg-config \
+RUN apt-get update -y \
+    && apt-get install -y build-essential git \
+    && apt-get install -y --no-install-recommends libvips-dev pkg-config \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # prepare build dir
@@ -37,6 +38,7 @@ ENV MIX_ENV="prod"
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
+COPY vendor vendor
 RUN mix deps.get --only $MIX_ENV
 RUN mkdir config
 
@@ -51,6 +53,7 @@ COPY priv priv
 COPY lib lib
 
 COPY assets assets
+COPY priv/static/fonts ../usr/local/share/fonts/
 
 # compile assets
 RUN mix assets.deploy
@@ -68,8 +71,9 @@ RUN mix release
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
 
-RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales \
-    && apt-get install --no-install-recommends -y libvips-dev pkg-config \
+RUN apt-get update -y \
+    && apt-get install -y libstdc++6 openssl libncurses5 locales \
+    && apt-get install --no-install-recommends -y libvips-tools \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Set the locale
@@ -78,6 +82,8 @@ RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
+ENV ECTO_IPV6 true
+ENV ERL_AFLAGS "-proto_dist inet6_tcp"
 
 WORKDIR "/app"
 RUN chown nobody /app
@@ -88,12 +94,6 @@ ENV MIX_ENV="prod"
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/readmark ./
 
-COPY priv/static/fonts ../usr/local/share/fonts/
-
 USER nobody
 
 CMD ["/app/bin/server"]
-
-# Appended by flyctl
-ENV ECTO_IPV6 true
-ENV ERL_AFLAGS "-proto_dist inet6_tcp"
