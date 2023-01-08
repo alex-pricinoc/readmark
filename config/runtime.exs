@@ -103,9 +103,9 @@ if config_env() == :prod do
   #
   config :readmark, Readmark.Mailer,
     adapter: Swoosh.Adapters.SMTP,
-    relay: System.get_env("SMTP_DOMAIN"),
-    username: System.get_env("SMTP_USERNAME"),
-    password: System.get_env("SMTP_PASSWORD"),
+    relay: System.fetch_env!("SMTP_DOMAIN"),
+    username: System.fetch_env!("SMTP_USERNAME"),
+    password: System.fetch_env!("SMTP_PASSWORD"),
     port: 587,
     retries: 1,
     tls: :always,
