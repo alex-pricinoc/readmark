@@ -6,19 +6,20 @@
 #
 # This file is based on these images:
 #
-#   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
-#   - https://hub.docker.com/_/debian?tab=tags&page=1&name=bullseye-20220801-slim - for the release image
-#   - https://pkgs.org/ - resource for finding needed packages
-#   - Ex: hexpm/elixir:1.14.0-erlang-25.0.4-debian-bullseye-20220801-slim
+# - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
+# - https://hub.docker.com/_/debian?tab=tags&page=1&name=bullseye-20220801-slim - for the release image
+# - https://pkgs.org/ - resource for finding needed packages
+# - Ex: hexpm/elixir:1.14.0-erlang-25.0.4-debian-bullseye-20220801-slim
 #
 ARG ELIXIR_VERSION=1.14.2
 ARG OTP_VERSION=25.0.4
+ARG GO_VERSION=1.19.4
 ARG DEBIAN_VERSION=bullseye-20220801-slim
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
-FROM ${BUILDER_IMAGE} as builder
+FROM ${BUILDER_IMAGE} AS builder
 
 # install build dependencies
 RUN apt-get update -y \
@@ -27,7 +28,7 @@ RUN apt-get update -y \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # prepare build dir
-WORKDIR "/app"
+WORKDIR /app
 
 # install hex + rebar
 RUN mix local.hex --force && \
@@ -53,7 +54,6 @@ COPY priv priv
 COPY lib lib
 
 COPY assets assets
-COPY priv/static/fonts ../usr/local/share/fonts/
 
 # compile assets
 RUN mix assets.deploy
@@ -67,6 +67,16 @@ COPY config/runtime.exs config/
 COPY rel rel
 RUN mix release
 
+# Compile Go deps
+FROM golang:${GO_VERSION} AS go-builder
+
+WORKDIR /app
+
+COPY go_src ./go_src
+
+COPY Makefile ./
+RUN make go_build
+
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
@@ -79,13 +89,13 @@ RUN apt-get update -y \
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-ENV ECTO_IPV6 true
-ENV ERL_AFLAGS "-proto_dist inet6_tcp"
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+ENV ECTO_IPV6=true
+ENV ERL_AFLAGS="-proto_dist inet6_tcp"
 
-WORKDIR "/app"
+WORKDIR /app
 RUN chown nobody /app
 
 # set runner ENV
@@ -93,6 +103,11 @@ ENV MIX_ENV="prod"
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/readmark ./
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+COPY --from=go-builder /app/priv/go ./priv/go
+
+COPY priv/static/fonts ../usr/local/share/fonts/
 
 USER nobody
 

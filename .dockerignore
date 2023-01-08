@@ -1,7 +1,5 @@
-# flyctl launch added from .elixir_ls/.gitignore
-.elixir_ls/**/*
+.elixir_ls
 
-# flyctl launch added from .gitignore
 # The directory Mix will write compiled artifacts to.
 _build
 
