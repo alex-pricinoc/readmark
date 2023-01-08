@@ -3,13 +3,15 @@ defmodule ReadmarkWeb.Router do
 
   import ReadmarkWeb.UserAuth
 
+  @content_security_policy Application.compile_env!(:readmark, :content_security_policy)
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
     plug :put_root_layout, {ReadmarkWeb.Layouts, :root}
     plug :protect_from_forgery
-    plug :put_secure_browser_headers
+    plug :put_secure_browser_headers, %{"content-security-policy" => @content_security_policy}
     plug :fetch_current_user
   end
 
