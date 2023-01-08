@@ -3,5 +3,12 @@
     {
       "path": "."
     }
+  ],
+  "build_systems": [
+    {
+      "name": "Execute SQL",
+      "shell_cmd": "psql -U postgres -h localhost -d readmark_dev -f $file -o psql_out.txt",
+      "selector": "source.sql",
+    }
   ]
 }
