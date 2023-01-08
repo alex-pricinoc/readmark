@@ -4,7 +4,7 @@ defmodule Readmark.Workers.ArticleCrawler do
   require Logger
 
   alias Readmark.Repo
-  alias Readmark.Bookmarks
+  alias Readmark.{Bookmarks, Readability}
   alias Bookmarks.{Bookmark, Article}
 
   @impl Oban.Worker
@@ -12,14 +12,15 @@ defmodule Readmark.Workers.ArticleCrawler do
     bookmark = Repo.get!(Bookmark, bookmark_id) |> Repo.preload(:articles)
 
     with %Article{} = article <- get_or_fetch_article(bookmark.url),
-         {:ok, bookmark} <- Bookmarks.update_bookmark(bookmark, %{"articles" => [article]}) do
-      {:ok, bookmark}
+         {:ok, _} <- Bookmarks.update_bookmark(bookmark, %{"articles" => [article]}) do
+      :ok
     else
       {:error, error} ->
         Logger.error("Unable to save bookmark #{inspect(error)}")
         {:error, error}
 
       error ->
+        Logger.error("Unable to save bookmark #{inspect(error)}")
         {:error, error}
     end
   end
@@ -37,12 +38,12 @@ defmodule Readmark.Workers.ArticleCrawler do
   Returns an `Article` struct or `nil`.
   """
   def get_or_fetch_article(url) do
-    Repo.get(Article, url) || maybe_insert_article(summarize(url))
+    Repo.get(Article, url) || maybe_insert_article(Readability.summarize(url))
   end
 
-  defp maybe_insert_article(attrs) do
+  defp maybe_insert_article({:ok, %Readability.Summary{} = summary}) do
     %Article{}
-    |> Article.changeset(attrs)
+    |> Article.changeset(attrs_from_summary(summary))
     |> Repo.insert()
     |> case do
       {:ok, article} ->
@@ -50,33 +51,21 @@ defmodule Readmark.Workers.ArticleCrawler do
 
       {:error, error} ->
         Logger.error("Unable to insert article: #{inspect(error)}")
-        Repo.get(Article, attrs.url)
+        Repo.get(Article, summary.url)
     end
   end
 
-  defp summarize(url) do
-    summary =
-      try do
-        Readability.summarize(url)
-      rescue
-        e ->
-          Logger.error(Exception.format(:error, e, __STACKTRACE__))
-          %Readability.Summary{article_text: "Unable to save article"}
-      end
+  defp maybe_insert_article({:error, error}) do
+    Logger.error("Unable to summarize article: #{inspect(error)}")
+    nil
+  end
 
-    %Readability.Summary{
-      title: title,
-      authors: authors,
-      article_html: html,
-      article_text: text
-    } = summary
-
+  defp attrs_from_summary(summary) do
     %{
-      url: url,
-      authors: authors,
-      article_html: html,
-      article_text: text,
-      title: title
+      url: summary.url,
+      article_html: summary.content,
+      article_text: summary.text_content,
+      title: summary.title
     }
   end
 end
