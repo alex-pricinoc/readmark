@@ -169,11 +169,11 @@ defmodule ReadmarkWeb.SettingsLive do
   def handle_event("send-articles", _params, socket) do
     %{current_user: user, reading_bookmarks: bookmarks} = socket.assigns
 
-    epub = Enum.flat_map(bookmarks, & &1.articles) |> Epub.build()
+    {epub, delete_gen_files} = Enum.flat_map(bookmarks, & &1.articles) |> Epub.build()
 
     {:ok, _mail} = EpubSender.deliver_epub(user.kindle_email, epub)
 
-    File.rm!(epub)
+    delete_gen_files.()
 
     _archived =
       Enum.map(bookmarks, fn b ->
