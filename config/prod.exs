@@ -17,5 +17,10 @@ config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Readmark.Finch
 # Do not print debug messages in production
 config :logger, level: :info
 
+# Configure Content Security Policy (CSP)
+config :readmark,
+       :content_security_policy,
+       "default-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' wss:; img-src 'self' https: data:; font-src 'self' data:;"
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

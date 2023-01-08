@@ -30,8 +30,8 @@ jobs:
     name: Test on OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
     strategy:
       matrix:
-        otp: [25.x]
-        elixir: [1.14.x]
+        otp: [25.0.4]
+        elixir: [1.14.2]
         include:
           - coverage: false
             lint: true
@@ -69,35 +69,19 @@ jobs:
             ${{ runner.os }}-mix-${{ env.cache-name }}-
             ${{ runner.os }}-mix-
 
-      - name: Install build dependencies
+      - name: Install additional dependencies
         run: |
           sudo apt-get update -y -q
           sudo apt-get install -y -q --no-install-recommends libvips-dev pkg-config
+          curl -fsSL https://dprint.dev/install.sh | sh
+          echo "$HOME/.dprint/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: mix deps.get
 
-      - name: Check no unused dependencies
-        run: mix deps.unlock --check-unused
+      - name: Run code quality checks
+        run: make lint
         if: ${{matrix.lint}}
-
-      - name: Check retired dependencies
-        run: mix hex.audit
-        if: ${{matrix.lint}}
-
-      - name: Compiles without warnings
-        run: mix compile --warnings-as-errors
-        if: ${{matrix.lint}}
-
-      - name: Check Formatting
-        run: mix format --check-formatted
-        if: ${{matrix.lint}}
-
-      - name: Check Credo Warnings
-        run: mix credo --strict --only warning
-
-      - name: Check for compile-time dependencies
-        run: mix xref graph --label compile-connected --fail-above 0
 
       - name: Run tests
         run: mix test
