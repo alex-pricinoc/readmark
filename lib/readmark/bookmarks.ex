@@ -51,13 +51,14 @@ defmodule Readmark.Bookmarks do
   end
 
   @doc """
-  Returns the list of currently reading bookmarks of a user.
+  Returns the latest 10 currently reading bookmarks of a user.
 
   """
   def list_reading_bookmarks(%User{} = user) do
     reading_bookmarks_query()
     |> order_by(desc: :inserted_at)
     |> where(^filter_where(folder: :reading, user_id: user.id))
+    |> limit(10)
     |> Repo.all()
   end
 
