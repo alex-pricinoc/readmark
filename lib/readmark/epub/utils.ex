@@ -3,17 +3,17 @@ defmodule Readmark.Epub.Utils do
 
   alias Vix.Vips.Image, as: Vimage
 
-  # @doc "Generates a random alphanumeric id."
-  # def gen_reference() do
-  #   min = String.to_integer("100000", 36)
-  #   max = String.to_integer("ZZZZZZ", 36)
+  @doc "Generates a random alphanumeric id."
+  def gen_reference() do
+    min = String.to_integer("100000", 36)
+    max = String.to_integer("ZZZZZZ", 36)
 
-  #   max
-  #   |> Kernel.-(min)
-  #   |> :rand.uniform()
-  #   |> Kernel.+(min)
-  #   |> Integer.to_string(36)
-  # end
+    max
+    |> Kernel.-(min)
+    |> :rand.uniform()
+    |> Kernel.+(min)
+    |> Integer.to_string(36)
+  end
 
   @width 640
   @height 960
@@ -64,7 +64,8 @@ defmodule Readmark.Epub.Utils do
     x = ((Image.width(image) - Image.width(text)) / 2) |> round()
 
     y =
-      (Image.height(image) - Image.height(text) - Image.height(image) * @text_distance_from_bottom)
+      (Image.height(image) - Image.height(text) -
+         Image.height(image) * @text_distance_from_bottom)
       |> round()
 
     [x: x, y: y]
