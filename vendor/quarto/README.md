@@ -1,6 +1,6 @@
 # Quarto
 
-## [![Hex pm](http://img.shields.io/hexpm/v/quarto.svg?style=flat)](https://hex.pm/packages/quarto) [![Hex Docs](https://img.shields.io/badge/hex-docs-9768d1.svg)](https://hexdocs.pm/quarto) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)![.github/workflows/elixir.yml](https://github.com/maartenvanvliet/quarto/workflows/.github/workflows/elixir.yml/badge.svg)
+## [![Hex pm](http://img.shields.io/hexpm/v/quarto.svg?style=flat)](https://hex.pm/packages/quarto) [![Hex Docs](https://img.shields.io/badge/hex-docs-9768d1.svg)](https://hexdocs.pm/quarto) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![.github/workflows/elixir.yml](https://github.com/maartenvanvliet/quarto/workflows/.github/workflows/elixir.yml/badge.svg)
 
 ---
 
@@ -30,10 +30,10 @@ end
 You can add `Quarto` to your `Ecto.Repo`.
 
 ```elixir
-  defmodule MyApp.Repo do
-    use Ecto.Repo, otp_app: :my_app
-    use Quarto, limit: 10
-  end
+defmodule MyApp.Repo do
+  use Ecto.Repo, otp_app: :my_app
+  use Quarto, limit: 10
+end
 ```
 
 It adds the `paginate/3` function to your repository which you can use to paginate through a resultset. See `Quarto.paginate/4` on the options that can be passed to `use Quarto`.
@@ -143,7 +143,6 @@ coalesce = fn field, position, value ->
 end
 
 Quarto.Post |> order_by({:asc, :title}) |> order_by({:asc, :position}) |> MyApp.Repo.paginate(limit: 4, coalesce: coalesce)
-
 ```
 
 The field with the name

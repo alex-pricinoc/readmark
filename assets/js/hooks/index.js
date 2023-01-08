@@ -1,6 +1,6 @@
 import Flash from "./flash"
-import Open from "./open"
 import InfiniteScroll from "./infinite-scroll"
+import Open from "./open"
 
 export default {
   Flash,

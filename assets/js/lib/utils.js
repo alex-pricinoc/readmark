@@ -1,7 +1,7 @@
-export function throttle(func, limit = 50) {
+export function throttle(func, limit = 75) {
   let inThrottle
 
-  return function () {
+  return function() {
     let context = this,
       args = arguments
 
