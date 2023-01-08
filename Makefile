@@ -23,27 +23,27 @@ format f:
 start server:
 	mix phx.server
 
-check lint: check.compiles check.format check.deps check.code-analysis
+check lint: check.compile check.format check.deps check.code-analysis
 
-check.compiles:
+check.compile:
 	mix compile --warnings-as-errors
 
 check.format:
 	mix format --check-formatted
 	dprint check
 
-check.code-analysis:
-	mix credo --strict --only warning
-# 	mix sobelow --config --exit
-
 check.deps:
 	mix deps.unlock --check-unused
-	mix hex.audit
 	mix deps.audit
+	mix hex.audit
 	mix xref graph --label compile-connected --fail-above 0
 
 check.deps.outdated:
 	mix hex.outdated
+
+check.code-analysis:
+	mix credo --strict --only warning
+	mix sobelow --config --exit
 
 .PHONY: test
 test:
