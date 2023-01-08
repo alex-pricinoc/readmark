@@ -11,7 +11,7 @@ defmodule Readmark.Epub do
 
   @doc "Generate epub from articles."
   @spec build(articles :: [Article.t()]) :: {path :: String.t(), remove_generated_files :: fun()}
-  def build(articles) do
+  def build(articles) when is_list(articles) do
     config = %{
       dir: dest_folder(),
       label: book_label()
@@ -20,6 +20,10 @@ defmodule Readmark.Epub do
     articles
     |> convert_article_pages(config)
     |> to_epub(config)
+  end
+
+  def build(%Article{} = article) do
+    build([article])
   end
 
   defp convert_article_pages(articles, config) do
