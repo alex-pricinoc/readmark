@@ -69,6 +69,13 @@ jobs:
             ${{ runner.os }}-mix-${{ env.cache-name }}-
             ${{ runner.os }}-mix-
 
+      # Conditionally bust the cache when job is re-run.
+      - name: Clean to rule out incremental build as a source of flakiness
+        if: github.run_attempt != '1'
+        run: |
+          mix deps.clean --all
+          mix clean
+
       - name: Install additional dependencies
         run: |
           sudo apt-get update -y -q
