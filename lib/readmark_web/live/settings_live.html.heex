@@ -114,7 +114,7 @@
       </div>
       <hr class="sm:col-start-2" />
       <div :if={@current_user.kindle_email} class="text-sm sm:col-start-2">
-        <h2 class="font-medium mb-4">Send latest 10 currently reading articles to Kindle</h2>
+        <h2 class="font-medium mb-4">Send the latest 10 reading articles to Kindle</h2>
         <%= if @reading_bookmarks != [] do %>
           <.button phx-click="send-articles" type="button">
             Send and Archive

@@ -58,11 +58,11 @@ defmodule ReadmarkWeb.BookmarkController do
     article = ArticleCrawler.get_or_fetch_article(url)
 
     if article != nil do
-      epub = Epub.build([article])
+      {epub, delete_gen_files} = Epub.build(article)
 
       {:ok, _mail} = EpubSender.deliver_epub(email, epub)
 
-      File.rm!(epub)
+      delete_gen_files.()
 
       redirect(conn, external: url)
     else
