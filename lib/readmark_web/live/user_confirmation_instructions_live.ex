@@ -11,11 +11,13 @@ defmodule ReadmarkWeb.UserConfirmationInstructionsLive do
       <.simple_form :let={f} for={:user} id="resend_confirmation_form" phx-submit="send_instructions">
         <.input field={{f, :email}} type="email" label="Email" required value={@email} />
         <:actions>
-          <.button phx-disable-with="Sending...">Resend confirmation instructions</.button>
+          <.button phx-disable-with="Sending..." class="w-full">
+            Resend confirmation instructions
+          </.button>
         </:actions>
       </.simple_form>
 
-      <p class="text-sm mt-2">
+      <p class="text-center text-sm mt-4">
         <.link href={~p"/users/register"}>Register</.link>
         |
         <.link href={~p"/users/log_in"}>Log in</.link>

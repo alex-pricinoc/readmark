@@ -11,11 +11,11 @@ defmodule ReadmarkWeb.UserConfirmationLive do
       <.simple_form :let={f} for={:user} id="confirmation_form" phx-submit="confirm_account">
         <.input field={{f, :token}} type="hidden" value={@token} />
         <:actions>
-          <.button phx-disable-with="Confirming...">Confirm my account</.button>
+          <.button phx-disable-with="Confirming..." class="w-full">Confirm my account</.button>
         </:actions>
       </.simple_form>
 
-      <p class="text-sm mt-2">
+      <p class="text-center text-sm mt-4">
         <.link href={~p"/users/register"}>Register</.link>
         |
         <.link href={~p"/users/log_in"}>Log in</.link>
