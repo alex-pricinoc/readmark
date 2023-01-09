@@ -1,11 +1,11 @@
 name: Build and push image
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - main
-  pull_request:
-    types: [synchronize, opened]
+    branches: [develop]
+    paths:
+      - "**/build-push.yml"
   schedule:
     - cron: "54 07 12 * *" # on 12th day of every month at 07:54
 
@@ -13,6 +13,7 @@ jobs:
   build-push:
     runs-on: ubuntu-latest
     name: Build and push latest builder image with Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
+
     strategy:
       fail-fast: false
       matrix:
@@ -21,8 +22,8 @@ jobs:
             otp: 25.0.4
             alpine-version: 3.16.1
             aliases: |
-              ghcr.io/alex-pricinoc/readmark-builder:1.14.2-25.0.4
-              ghcr.io/alex-pricinoc/readmark-builder:1.14-25.0
+              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:1.14.2-25.0.4
+              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:1.14-25.0
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -54,10 +55,9 @@ jobs:
         with:
           context: .
           file: build.Dockerfile
-          pull: true
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: |
-            ghcr.io/alex-pricinoc/readmark-builder:${{ matrix.elixir }}-${{ matrix.otp }}-${{ matrix.alpine-version }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ matrix.elixir }}-${{ matrix.otp }}-${{ matrix.alpine-version }}
             ${{ matrix.aliases }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache

@@ -4,11 +4,10 @@ on:
   pull_request:
     branches: ["*"]
   push:
-    branches: ["main", "develop"]
+    branches: [main, develop]
 
 env:
   MIX_ENV: test
-  # MIX_HOME: /root/.mix
   POSTGRES_HOST: postgres
 
 jobs:
@@ -28,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Test on Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
     container:
-      image: ghcr.io/alex-pricinoc/readmark-builder:${{matrix.elixir}}-${{matrix.otp}}
+      image: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{matrix.elixir}}-${{matrix.otp}}
       credentials:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
