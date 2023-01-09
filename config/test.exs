@@ -11,7 +11,7 @@ config :bcrypt_elixir, :log_rounds, 1
 config :readmark, Readmark.Repo,
   username: "postgres",
   password: "postgres",
-  hostname: "localhost",
+  hostname: System.get_env("POSTGRES_HOST", "localhost"),
   database: "readmark_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10

@@ -25,7 +25,7 @@ FROM golang:${GO_VERSION} AS go-builder
 WORKDIR /app
 
 COPY go_src ./go_src
-COPY Makefile ./
+COPY Makefile .
 
 RUN make go_build
 
@@ -41,8 +41,7 @@ RUN apt-get update -y \
 WORKDIR /app
 
 # install hex + rebar
-RUN mix local.hex --force && \
-    mix local.rebar --force
+RUN mix local.hex --force && mix local.rebar --force
 
 # set build ENV
 ENV MIX_ENV="prod"

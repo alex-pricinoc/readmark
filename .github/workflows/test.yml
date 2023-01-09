@@ -8,9 +8,8 @@ on:
 
 env:
   MIX_ENV: test
-
-permissions:
-  contents: read
+  MIX_HOME: /root/.mix
+  POSTGRES_HOST: postgres
 
 jobs:
   test:
@@ -27,22 +26,22 @@ jobs:
           --health-retries 5
 
     runs-on: ubuntu-latest
-    name: Test on OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    name: Test on Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
+    container:
+      image: ghcr.io/alex-pricinoc/readmark-builder:${{matrix.elixir}}-${{matrix.otp}}-slim
+      credentials:
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
     strategy:
       matrix:
-        otp: [25.0.4]
         elixir: [1.14.2]
+        otp: [25.0.4]
         include:
           - coverage: false
             lint: true
 
     steps:
-      - name: Set up Elixir
-        uses: erlef/setup-beam@v1
-        with:
-          otp-version: ${{matrix.otp}}
-          elixir-version: ${{matrix.elixir}}
-
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -70,18 +69,11 @@ jobs:
             ${{ runner.os }}-mix-
 
       # Conditionally bust the cache when job is re-run.
-      - name: Clean to rule out incremental build as a source of flakiness
-        if: github.run_attempt != '1'
-        run: |
-          mix deps.clean --all
-          mix clean
-
-      - name: Install additional dependencies
-        run: |
-          sudo apt-get update -y -q
-          sudo apt-get install -y -q --no-install-recommends libvips-dev pkg-config
-          curl -fsSL https://dprint.dev/install.sh | sh
-          echo "$HOME/.dprint/bin" >> $GITHUB_PATH
+      # - name: Clean to rule out incremental build as a source of flakiness
+      #   if: github.run_attempt != '1'
+      #   run: |
+      #     mix deps.clean --all
+      #     mix clean
 
       - name: Install dependencies
         run: mix deps.get

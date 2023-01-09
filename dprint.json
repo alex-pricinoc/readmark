@@ -9,7 +9,7 @@
   "toml": {},
   "dockerfile": {},
   "includes": [
-    "**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,toml}",
+    "**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,toml,Dockerfile}",
     "Dockerfile"
   ],
   "excludes": [
