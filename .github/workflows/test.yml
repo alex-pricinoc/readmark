@@ -8,7 +8,7 @@ on:
 
 env:
   MIX_ENV: test
-  MIX_HOME: /root/.mix
+  # MIX_HOME: /root/.mix
   POSTGRES_HOST: postgres
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Test on Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
     container:
-      image: ghcr.io/alex-pricinoc/readmark-builder:${{matrix.elixir}}-${{matrix.otp}}-slim
+      image: ghcr.io/alex-pricinoc/readmark-builder:${{matrix.elixir}}-${{matrix.otp}}
       credentials:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -67,6 +67,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mix-${{ env.cache-name }}-
             ${{ runner.os }}-mix-
+
+      - name: Get dprint cache
+        uses: actions/cache@v3
+        id: dprint-cache
+        with:
+          path: ~/.cache/dprint
+          key: ${{ runner.os }}-node-${{ hashFiles('**/dprint.json') }}
 
       # Conditionally bust the cache when job is re-run.
       # - name: Clean to rule out incremental build as a source of flakiness
