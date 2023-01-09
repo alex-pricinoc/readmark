@@ -1,13 +1,17 @@
 name: Build and push image
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - main
-  pull_request:
-    types: [synchronize, opened]
+    branches: [develop]
+    paths:
+      - "**/build-push.yml"
   schedule:
     - cron: "54 07 12 * *" # on 12th day of every month at 07:54
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-push:
@@ -21,8 +25,8 @@ jobs:
             otp: 25.0.4
             alpine-version: 3.16.1
             aliases: |
-              ghcr.io/alex-pricinoc/readmark-builder:1.14.2-25.0.4
-              ghcr.io/alex-pricinoc/readmark-builder:1.14-25.0
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:1.14.2-25.0.4
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:1.14-25.0
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -44,7 +48,7 @@ jobs:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -54,10 +58,9 @@ jobs:
         with:
           context: .
           file: build.Dockerfile
-          pull: true
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: |
-            ghcr.io/alex-pricinoc/readmark-builder:${{ matrix.elixir }}-${{ matrix.otp }}-${{ matrix.alpine-version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.elixir }}-${{ matrix.otp }}-${{ matrix.alpine-version }}
             ${{ matrix.aliases }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
