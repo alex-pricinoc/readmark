@@ -12,12 +12,21 @@
 # - Ex: hexpm/elixir:1.14.0-erlang-25.0.4-debian-bullseye-20220801-slim
 #
 ARG ELIXIR_VERSION=1.14.2
-ARG OTP_VERSION=25.0.4
 ARG GO_VERSION=1.19.4
+ARG OTP_VERSION=25.0.4
 ARG DEBIAN_VERSION=bullseye-20220801-slim
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
+
+# Compile Go deps
+FROM golang:${GO_VERSION} AS go-builder
+
+WORKDIR /app
+
+COPY go_src ./go_src
+COPY Makefile ./
+RUN make go_build
 
 FROM ${BUILDER_IMAGE} AS builder
 
@@ -50,6 +59,7 @@ COPY config/config.exs config/${MIX_ENV}.exs config/
 RUN mix deps.compile
 
 COPY priv priv
+COPY --from=go-builder /app/priv/go ./priv/go
 
 COPY lib lib
 
@@ -66,16 +76,6 @@ COPY config/runtime.exs config/
 
 COPY rel rel
 RUN mix release
-
-# Compile Go deps
-FROM golang:${GO_VERSION} AS go-builder
-
-WORKDIR /app
-
-COPY go_src ./go_src
-
-COPY Makefile ./
-RUN make go_build
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
@@ -105,8 +105,6 @@ ENV MIX_ENV="prod"
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/readmark ./
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
-COPY --from=go-builder /app/priv/go ./priv/go
 
 COPY priv/static/fonts ../usr/local/share/fonts/
 
