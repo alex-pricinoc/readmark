@@ -26,6 +26,7 @@ WORKDIR /app
 
 COPY go_src ./go_src
 COPY Makefile ./
+
 RUN make go_build
 
 FROM ${BUILDER_IMAGE} AS builder
