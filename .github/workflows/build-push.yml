@@ -22,8 +22,8 @@ jobs:
             otp: 25.0.4
             alpine-version: 3.16.1
             aliases: |
-              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-builder:1.14.2-25.0.4
-              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-builder:1.14-25.0
+              ghcr.io/${{ github.repository }}-builder:1.14.2-25.0.4
+              ghcr.io/${{ github.repository }}-builder:1.14-25.0
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -57,7 +57,7 @@ jobs:
           file: build.Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-builder:${{ matrix.elixir }}-${{ matrix.otp }}-${{ matrix.alpine-version }}
+            ghcr.io/${{ github.repository }}-builder:${{ matrix.elixir }}-${{ matrix.otp }}-${{ matrix.alpine-version }}
             ${{ matrix.aliases }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache

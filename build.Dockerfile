@@ -19,8 +19,7 @@ RUN echo "${DPRINT_SHA256}  /tmp/dprint.zip" | sha256sum -c -s && \
     chmod +x /usr/bin/dprint && \
     rm /tmp/dprint.zip
 
-RUN apk update && \
-  apk add git gcc musl-dev make tar vips-dev && \
-  rm -rf /var/cache/apk/*
+RUN apk add --no-cache \
+  git gcc musl-dev make tar vips-dev
 
 CMD ["iex"]
