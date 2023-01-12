@@ -85,6 +85,5 @@ release:
     - curl -L https://fly.io/install.sh | sh
   script:
     - /root/.fly/bin/flyctl deploy --detach
-  when: manual
   only:
     - develop
