@@ -4,7 +4,7 @@ defmodule ReadmarkWeb.BookmarkController do
   import Phoenix.Template
 
   alias Readmark.{Bookmarks, Epub}
-  alias Readmark.Workers.ArticleCrawler
+  alias Readmark.ArticleFetcher
   alias Readmark.Accounts.EpubSender
   alias Readmark.Dump
 
@@ -27,7 +27,7 @@ defmodule ReadmarkWeb.BookmarkController do
   end
 
   def reading(conn, %{"url" => url}, current_user) do
-    article = ArticleCrawler.get_or_fetch_article(url)
+    article = ArticleFetcher.get_or_fetch_article(url)
 
     if article != nil do
       bookmark_params = %{
@@ -55,7 +55,7 @@ defmodule ReadmarkWeb.BookmarkController do
   end
 
   def kindle(conn, %{"url" => url}, %{kindle_email: email}) when not is_nil(email) do
-    article = ArticleCrawler.get_or_fetch_article(url)
+    article = ArticleFetcher.get_or_fetch_article(url)
 
     if article != nil do
       {epub, delete_gen_files} = Epub.build(article)

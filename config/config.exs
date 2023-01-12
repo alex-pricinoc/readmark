@@ -63,12 +63,6 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-# Oban
-config :readmark, Oban,
-  repo: Readmark.Repo,
-  plugins: [Oban.Plugins.Pruner],
-  queues: [default: 10]
-
 # Configure Content Security Policy (CSP)
 # override this in prod.exs
 config :readmark,

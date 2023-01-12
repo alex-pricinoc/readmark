@@ -3,8 +3,6 @@ defmodule Readmark.Accounts.EpubSender do
 
   alias Readmark.Mailer
 
-  # TODO: move to a Oban Worker
-
   @doc "Deliver epub to kindle."
   @spec deliver_epub(String.t(), String.t()) :: {:ok, String.t()}
   def deliver_epub(kindle_email, epub) do

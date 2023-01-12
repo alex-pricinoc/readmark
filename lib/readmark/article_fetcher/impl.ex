@@ -1,18 +1,15 @@
-defmodule Readmark.Workers.ArticleCrawler do
-  use Oban.Worker, max_attempts: 1
-
+defmodule Readmark.ArticleFetcher.Impl do
   require Logger
 
   alias Readmark.Repo
   alias Readmark.{Bookmarks, Readability}
-  alias Bookmarks.{Bookmark, Article}
+  alias Bookmarks.Article
 
-  @impl Oban.Worker
-  def perform(%{args: %{"bookmark_id" => bookmark_id}}) do
-    bookmark = Repo.get!(Bookmark, bookmark_id) |> Repo.preload(:articles)
+  def fetch_bookmark_article(bookmark) do
+    bookmark = Repo.preload(bookmark, :articles)
 
     with %Article{} = article <- get_or_fetch_article(bookmark.url),
-         {:ok, _} <- Bookmarks.update_bookmark(bookmark, %{"articles" => [article]}) do
+         {:ok, _bookmark} <- Bookmarks.update_bookmark(bookmark, %{"articles" => [article]}) do
       :ok
     else
       {:error, error} ->
@@ -25,20 +22,12 @@ defmodule Readmark.Workers.ArticleCrawler do
     end
   end
 
-  @doc "Fetches the article for a given bookmark and updates it."
-  def fetch_article(%Bookmark{id: id}) do
-    %{bookmark_id: id}
-    |> new()
-    |> Oban.insert()
+  def get_or_fetch_article(url) do
+    Repo.get(Article, url) || maybe_insert_article(summarize(url))
   end
 
-  @doc """
-  Retrieves an existing article from the db or fetches and inserts a new one.
-
-  Returns an `Article` struct or `nil`.
-  """
-  def get_or_fetch_article(url) do
-    Repo.get(Article, url) || maybe_insert_article(Readability.summarize(url))
+  defp summarize(url) do
+    Task.await(Task.async(fn -> Readability.summarize(url) end))
   end
 
   defp maybe_insert_article({:ok, %Readability.Summary{} = summary}) do

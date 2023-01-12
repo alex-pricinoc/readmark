@@ -2,7 +2,6 @@ defmodule Readmark.Accounts.UserNotifier do
   import Swoosh.Email
 
   alias Readmark.Mailer
-  # TODO: Use an Oban Worker
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do

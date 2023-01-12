@@ -2,7 +2,7 @@ defmodule ReadmarkWeb.ReadingLive.FormComponent do
   use ReadmarkWeb, :live_component
 
   alias Readmark.Bookmarks
-  alias Readmark.Workers.ArticleCrawler
+  alias Readmark.ArticleFetcher
 
   @impl true
   def update(%{action: {:article, article}}, socket) do
@@ -71,7 +71,7 @@ defmodule ReadmarkWeb.ReadingLive.FormComponent do
     Task.Supervisor.start_child(Readmark.TaskSupervisor, fn ->
       send_update(pid, __MODULE__,
         id: socket.assigns.id,
-        action: {:article, ArticleCrawler.get_or_fetch_article(url)}
+        action: {:article, ArticleFetcher.get_or_fetch_article(url)}
       )
     end)
 
