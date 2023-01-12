@@ -1,11 +1,11 @@
 name: Build and push image
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - main
-  pull_request:
-    types: [synchronize, opened]
+    branches: [develop]
+    paths:
+      - "**/build-push.yml"
   schedule:
     - cron: "54 07 12 * *" # on 12th day of every month at 07:54
 
@@ -13,16 +13,17 @@ jobs:
   build-push:
     runs-on: ubuntu-latest
     name: Build and push latest builder image with Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
+
     strategy:
       fail-fast: false
       matrix:
         include:
           - elixir: 1.14.2
             otp: 25.0.4
-            debian-version: bullseye-20220801-slim
+            alpine-version: 3.16.1
             aliases: |
-              ghcr.io/alex-pricinoc/readmark-builder:1.14.2-25.0.4-slim
-              ghcr.io/alex-pricinoc/readmark-builder:1.14-25.0-slim
+              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-builder:1.14.2-25.0.4
+              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-builder:1.14-25.0
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -34,11 +35,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-dev-${{ matrix.debian-version }}-${{ matrix.otp }}-${{ matrix.elixir }}
+          key: ${{ runner.os }}-buildx-dev-${{ matrix.alpine-version }}-${{ matrix.otp }}-${{ matrix.elixir }}
           restore-keys: |
-            ${{ runner.os }}-buildx-dev-${{ matrix.debian-version }}-${{ matrix.otp }}-${{ matrix.elixir }}
-            ${{ runner.os }}-buildx-dev-${{ matrix.debian-version }}-${{ matrix.otp }}
-            ${{ runner.os }}-buildx-dev-${{ matrix.debian-version }}
+            ${{ runner.os }}-buildx-dev-${{ matrix.alpine-version }}-${{ matrix.otp }}-${{ matrix.elixir }}
+            ${{ runner.os }}-buildx-dev-${{ matrix.alpine-version }}-${{ matrix.otp }}
+            ${{ runner.os }}-buildx-dev-${{ matrix.alpine-version }}
             ${{ runner.os }}-buildx-dev
 
       - name: Login to GitHub Container Registry
@@ -54,14 +55,13 @@ jobs:
         with:
           context: .
           file: build.Dockerfile
-          pull: true
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: |
-            ghcr.io/alex-pricinoc/readmark-builder:${{ matrix.elixir }}-${{ matrix.otp }}-${{ matrix.debian-version }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-builder:${{ matrix.elixir }}-${{ matrix.otp }}-${{ matrix.alpine-version }}
             ${{ matrix.aliases }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
             ELIXIR_VERSION=${{ matrix.elixir }}
             OTP_VERSION=${{ matrix.otp }}
-            DEBIAN_VERSION=${{ matrix.debian-version }}
+            ALPINE_VERSION=${{ matrix.alpine-version }}
