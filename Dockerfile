@@ -16,8 +16,8 @@ ARG GO_VERSION=1.19.4
 ARG OTP_VERSION=25.0.4
 ARG DEBIAN_VERSION=bullseye-20220801-slim
 
-ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
-ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
+ARG BUILDER_IMAGE="docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
+ARG RUNNER_IMAGE="docker.io/debian:${DEBIAN_VERSION}"
 
 # Compile Go deps
 FROM golang:${GO_VERSION} AS go-builder
@@ -25,17 +25,22 @@ FROM golang:${GO_VERSION} AS go-builder
 WORKDIR /app
 
 COPY go_src ./go_src
-COPY Makefile .
+COPY Makefile ./
 
 RUN make go_build
 
 FROM ${BUILDER_IMAGE} AS builder
 
 # install build dependencies
-RUN apt-get update -y \
-    && apt-get install -y build-essential git \
-    && apt-get install -y --no-install-recommends libvips-dev pkg-config \
-    && apt-get clean && rm -f /var/lib/apt/lists/*_*
+RUN apt-get update -y && \
+  apt-get install -y --no-install-recommends \
+    git \
+    build-essential \
+    pkg-config \
+    libvips-dev \
+    && \
+  apt-get clean && \
+  rm -f /var/lib/apt/lists/*_*
 
 # prepare build dir
 WORKDIR /app
@@ -81,19 +86,25 @@ RUN mix release
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
 
-RUN apt-get update -y \
-    && apt-get install -y libstdc++6 openssl libncurses5 locales \
-    && apt-get install --no-install-recommends -y libvips-tools \
-    && apt-get clean && rm -f /var/lib/apt/lists/*_*
+RUN apt-get update -y && \
+  apt-get install -y --no-install-recommends \
+    locales \
+    libstdc++6 \
+    libncurses5 \
+    libvips-tools \
+    openssl \
+    && \
+  apt-get clean && \
+  rm -f /var/lib/apt/lists/*_*
 
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8
-ENV ECTO_IPV6=true
-ENV ERL_AFLAGS="-proto_dist inet6_tcp"
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8 \
+    ECTO_IPV6=true \
+    ERL_AFLAGS="-proto_dist inet6_tcp"
 
 WORKDIR /app
 RUN chown nobody /app

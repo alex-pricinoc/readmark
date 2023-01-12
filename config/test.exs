@@ -10,8 +10,8 @@ config :bcrypt_elixir, :log_rounds, 1
 # Run `mix help test` for more information.
 config :readmark, Readmark.Repo,
   username: System.get_env("POSTGRES_USER", "postgres"),
-  password: System.get_env("POSTGRES_PASS", "postgres"),
   hostname: System.get_env("POSTGRES_HOST", "localhost"),
+  password: System.get_env("POSTGRES_PASSWORD", "postgres"),
   database: "readmark_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
