@@ -10,6 +10,11 @@ variables:
   MIX_HOME: $CI_PROJECT_DIR/.mix
   LATEST_IMAGE: $CI_REGISTRY_IMAGE:latest
 
+workflow:
+  name: "Pipeline for branch: $CI_COMMIT_BRANCH"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+
 build image:
   stage: image
   # tags: [podman]
@@ -73,19 +78,17 @@ test:elixir:
     POSTGRES_HOST: postgres
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
-  rules:
-    - changes:
-        - "**/*.{heex,ex,exs}"
-        - mix.lock
   script:
     - make test
 
 release:
   stage: release
+  image: alpine:latest
+  # tags: [podman]
   before_script:
-    - apt-get update -qq && apt-get install -y curl
+    - apk add --no-cache curl
     - curl -L https://fly.io/install.sh | sh
   script:
-    - flyctl deploy --remote-only
-  only:
-    - tags
+    - /root/.fly/bin/flyctl deploy --detach
+  rules:
+    - when: manual

@@ -115,8 +115,6 @@ ENV MIX_ENV="prod"
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/readmark ./
 
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
 COPY priv/static/fonts ../usr/local/share/fonts/
 
 USER nobody
