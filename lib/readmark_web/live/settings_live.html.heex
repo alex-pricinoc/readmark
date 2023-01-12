@@ -111,10 +111,16 @@
             Save
           </.button>
         </.form>
+        <p :if={@current_user.kindle_email == nil} class="mt-2">
+          <strong>Important:</strong>
+          Some Kindle devices can receive documents over the mobile network (3G/4G) as well as Wi-Fi. On these devices, Amazon may charge you a fee after delivering the document over the mobile network.
+          <br />
+          To avoid such charges and only deliver documents over Wi-Fi, use an email ending with '@free.kindle.com'.
+        </p>
       </div>
       <hr class="sm:col-start-2" />
       <div :if={@current_user.kindle_email} class="text-sm sm:col-start-2">
-        <h2 class="font-medium mb-4">Send the latest 10 reading articles to Kindle</h2>
+        <h2 class="font-medium mb-4">Send up to 10 reading articles to Kindle</h2>
         <%= if @reading_bookmarks != [] do %>
           <.button
             phx-click="send-articles"
