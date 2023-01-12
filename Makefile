@@ -56,6 +56,9 @@ clean:
 	mix clean
 	rm -rf priv/go
 
+clean.deps.unused:
+	mix deps.clean --unlock --unused
+
 versions:
 	@echo "Tool Versions"
 	@cat .tool-versions
