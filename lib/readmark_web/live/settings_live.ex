@@ -169,20 +169,35 @@ defmodule ReadmarkWeb.SettingsLive do
   def handle_event("send-articles", _params, socket) do
     %{current_user: user, reading_bookmarks: bookmarks} = socket.assigns
 
-    {epub, delete_gen_files} = Enum.flat_map(bookmarks, & &1.articles) |> Epub.build()
+    {:noreply, deliver_articles(socket, user, bookmarks)}
+  end
 
-    {:ok, _mail} = EpubSender.deliver_epub(user.kindle_email, epub)
-
-    delete_gen_files.()
-
-    _archived =
-      Enum.map(bookmarks, fn b ->
-        {:ok, _} = Bookmarks.update_bookmark(b, %{folder: :archive})
-      end)
-
+  @impl true
+  def handle_info(:articles_sent, socket) do
     info = "Your articles have been sent. You should receive them in a few minutes."
 
-    {:noreply, socket |> put_flash(:info, info)}
+    {:noreply, socket |> put_flash(:info, info) |> assign(:articles_sending?, false)}
+  end
+
+  defp deliver_articles(socket, user, bookmarks) do
+    pid = self()
+
+    Task.Supervisor.start_child(Readmark.TaskSupervisor, fn ->
+      {epub, delete_gen_files} = Enum.flat_map(bookmarks, & &1.articles) |> Epub.build()
+
+      {:ok, _mail} = EpubSender.deliver_epub(user.kindle_email, epub)
+
+      delete_gen_files.()
+
+      _archived =
+        Enum.map(bookmarks, fn b ->
+          {:ok, _} = Bookmarks.update_bookmark(b, %{folder: :archive})
+        end)
+
+      send(pid, :articles_sent)
+    end)
+
+    assign(socket, :articles_sending?, true)
   end
 
   defp apply_action(socket, :index, _params) do

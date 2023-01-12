@@ -61,7 +61,6 @@ defmodule Readmark.MixProject do
       {:earmark, "~> 1.4"},
       {:bupe, "~> 0.6.0"},
       {:gen_smtp, "~> 1.2"},
-      {:oban, "~> 2.13"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:sobelow, "~> 0.11.1", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},

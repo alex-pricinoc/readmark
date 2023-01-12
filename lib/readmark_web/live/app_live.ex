@@ -10,7 +10,7 @@ defmodule ReadmarkWeb.AppLive do
 
       alias Readmark.Bookmarks
       alias Bookmarks.Bookmark
-      alias Readmark.Workers.ArticleCrawler
+      alias Readmark.ArticleFetcher
 
       @behaviour AppLive
 
@@ -154,7 +154,7 @@ defmodule ReadmarkWeb.AppLive do
       defp get_article(_bookmark), do: nil
 
       defp maybe_fetch_article(%Bookmark{folder: :reading, articles: []} = bookmark) do
-        ArticleCrawler.fetch_article(bookmark)
+        ArticleFetcher.fetch_bookmark_article(bookmark)
       end
 
       defp maybe_fetch_article(_bookmark), do: :ok
