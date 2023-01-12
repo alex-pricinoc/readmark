@@ -10,11 +10,6 @@ variables:
   MIX_HOME: $CI_PROJECT_DIR/.mix
   LATEST_IMAGE: $CI_REGISTRY_IMAGE:latest
 
-workflow:
-  name: "Pipeline for branch: $CI_COMMIT_BRANCH"
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
-
 build image:
   stage: image
   # tags: [podman]
@@ -90,5 +85,6 @@ release:
     - curl -L https://fly.io/install.sh | sh
   script:
     - /root/.fly/bin/flyctl deploy --detach
-  rules:
-    - when: manual
+  when: manual
+  only:
+    - develop
