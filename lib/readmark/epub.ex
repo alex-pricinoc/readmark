@@ -6,15 +6,15 @@ defmodule Readmark.Epub do
 
   require Logger
 
-  alias Readmark.Cldr
   alias Readmark.Bookmarks.Article
 
   @doc "Generate epub from articles."
-  @spec build(articles :: [Article.t()]) :: {path :: String.t(), remove_generated_files :: fun()}
+  @spec build(articles :: [Article.t()]) ::
+          {epub_path :: String.t(), remove_generated_files :: fun()}
   def build(articles) when is_list(articles) do
     config = %{
-      dir: dest_folder(),
-      label: book_label()
+      dir: Path.join([System.tmp_dir!(), "readmark", BUPE.Util.uuid4()]),
+      label: Timex.format!(Timex.now(), "{WDfull}, {Mshort}. {D}, {YYYY}")
     }
 
     articles
@@ -30,7 +30,7 @@ defmodule Readmark.Epub do
     articles
     |> Enum.with_index()
     |> Enum.map(&Task.async(fn -> to_xhtml(&1, config) end))
-    |> Enum.map(&Task.await(&1, 10000))
+    |> Enum.map(&Task.await(&1, :timer.seconds(30)))
   end
 
   defp to_xhtml({%Article{article_html: html, title: title}, index}, %{dir: dest}) do
@@ -72,7 +72,9 @@ defmodule Readmark.Epub do
     |> Floki.parse_document!()
     |> Floki.find_and_update("img", fn
       {"img", [{"src", src} | attrs]} ->
-        {"img", [{"src", download_image(src, dest)} | attrs]}
+        image = download_image(src, dest)
+        Process.sleep(500)
+        {"img", [{"src", image} | attrs]}
 
       other ->
         other
@@ -96,15 +98,13 @@ defmodule Readmark.Epub do
           File.write!(file_path, body)
           file_name
 
-        {:error, error} ->
+        error ->
           Logger.warning("Unable to download image #{inspect(error)}")
           ""
       end
     end
   end
 
-  defp dest_folder, do: Path.join([System.tmp_dir!(), "readmark", BUPE.Util.uuid4()])
-  defp book_label, do: Cldr.DateTime.to_string!(DateTime.utc_now(), format: "EEEE, MMM. d, y")
   defp pad_leading(index), do: String.pad_leading(to_string(index), 4, "0")
 
   def encode(string) do
