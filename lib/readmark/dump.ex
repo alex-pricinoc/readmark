@@ -4,6 +4,8 @@ defmodule Readmark.Dump do
   """
 
   alias __MODULE__.HTMLParser
+
+  alias Readmark.Repo
   alias Readmark.Bookmarks
 
   def import(user, document) do
@@ -13,7 +15,7 @@ defmodule Readmark.Dump do
   end
 
   def export(user) do
-    Bookmarks.list_bookmarks(user)
+    Bookmarks.all_query(user_id: user.id) |> Repo.all()
   end
 
   defp save(user, {:ok, attrs}) do

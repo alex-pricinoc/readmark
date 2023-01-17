@@ -23,7 +23,7 @@ defmodule ReadmarkWeb.AppLive do
         if connected?(socket), do: Bookmarks.subscribe(user.id)
 
         %{entries: bookmarks, metadata: metatada} =
-          Bookmarks.list_bookmarks(user, folder: @folder)
+          Bookmarks.paginate_bookmarks(user, folder: @folder)
 
         assigns = [
           tags: [],
@@ -54,7 +54,7 @@ defmodule ReadmarkWeb.AppLive do
         tags = toggle_tag.(socket.assigns.tags, tag)
 
         %{entries: bookmarks, metadata: metadata} =
-          Bookmarks.list_bookmarks(user, folder: @folder, tags: tags)
+          Bookmarks.paginate_bookmarks(user, folder: @folder, tags: tags)
 
         {:noreply,
          socket
@@ -92,7 +92,7 @@ defmodule ReadmarkWeb.AppLive do
         socket =
           if after_cursor = page_meta.after do
             %{entries: bookmarks, metadata: metadata} =
-              Bookmarks.list_bookmarks(user, params, after: after_cursor)
+              Bookmarks.paginate_bookmarks(user, params, after: after_cursor)
 
             socket |> append_bookmarks(bookmarks) |> assign(:page_meta, metadata)
           else
