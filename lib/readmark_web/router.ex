@@ -11,13 +11,18 @@ defmodule ReadmarkWeb.Router do
     plug :fetch_live_flash
     plug :put_root_layout, {ReadmarkWeb.Layouts, :root}
     plug :protect_from_forgery
-    plug :put_secure_browser_headers, %{"content-security-policy" => @content_security_policy}
+
+    plug :put_secure_browser_headers, %{
+      "content-security-policy" => @content_security_policy,
+      "permissions-policy" => "interest-cohort=()"
+    }
+
     plug :fetch_current_user
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
+  # pipeline :api do
+  #   plug :accepts, ["json"]
+  # end
 
   # Other scopes may use custom stacks.
   # scope "/api", ReadmarkWeb do

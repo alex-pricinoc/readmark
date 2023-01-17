@@ -10,6 +10,8 @@
     ],
     "theme_color": "#ffffff",
     "background_color": "#ffffff",
-    "start_url": "/",
-    "display": "fullscreen"
+    "display": "standalone",
+    "orientation": "portrait",
+    "lang": "en-US",
+    "start_url": "/"
 }

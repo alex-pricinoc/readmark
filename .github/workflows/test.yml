@@ -34,7 +34,7 @@ jobs:
 
     strategy:
       matrix:
-        elixir: [1.14.2]
+        elixir: [1.14.3]
         otp: [25.0.4]
         include:
           - coverage: false

@@ -18,11 +18,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - elixir: 1.14.2
+          - elixir: 1.14.3
             otp: 25.0.4
             alpine-version: 3.16.1
             aliases: |
-              ghcr.io/${{ github.repository }}-builder:1.14.2-25.0.4
+              ghcr.io/${{ github.repository }}-builder:1.14.3-25.0.4
               ghcr.io/${{ github.repository }}-builder:1.14-25.0
     steps:
       - name: Checkout code

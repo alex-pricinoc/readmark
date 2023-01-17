@@ -3,7 +3,8 @@ defmodule ReadmarkWeb.BookmarkController do
 
   import Phoenix.Template
 
-  alias Readmark.{ArticleFetcher, Bookmarks, Dump, Epub}
+  alias Readmark.{Bookmarks, Dump, Epub}
+  alias Readmark.Workers.ArticleFetcher
   alias Readmark.Accounts.EpubSender
 
   def action(conn, _) do
