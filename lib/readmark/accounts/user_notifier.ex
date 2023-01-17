@@ -1,23 +1,5 @@
 defmodule Readmark.Accounts.UserNotifier do
-  import Swoosh.Email
-
-  alias Readmark.Mailer
-
-  # Delivers the email using the application mailer.
-  defp deliver(recipient, subject, body) do
-    from_email = Application.get_env(:readmark, :from_email, "contact@example.com")
-
-    email =
-      new()
-      |> to(recipient)
-      |> from({"Alex from readmark", from_email})
-      |> subject(subject)
-      |> text_body(body)
-
-    with {:ok, _metadata} <- Mailer.deliver(email) do
-      {:ok, email}
-    end
-  end
+  import Readmark.Workers.Mailer, only: [deliver: 3]
 
   @doc """
   Deliver instructions to confirm account.

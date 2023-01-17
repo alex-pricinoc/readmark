@@ -3,10 +3,8 @@ defmodule ReadmarkWeb.BookmarkController do
 
   import Phoenix.Template
 
-  alias Readmark.{Bookmarks, Epub}
-  alias Readmark.ArticleFetcher
+  alias Readmark.{ArticleFetcher, Bookmarks, Dump, Epub}
   alias Readmark.Accounts.EpubSender
-  alias Readmark.Dump
 
   def action(conn, _) do
     args = [conn, conn.params, conn.assigns.current_user]
@@ -60,7 +58,7 @@ defmodule ReadmarkWeb.BookmarkController do
     if article != nil do
       {epub, delete_gen_files} = Epub.build(article)
 
-      {:ok, _mail} = EpubSender.deliver_epub(email, epub)
+      EpubSender.deliver_epub(email, epub)
 
       delete_gen_files.()
 
