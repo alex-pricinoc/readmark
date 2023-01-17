@@ -4,7 +4,7 @@ defmodule Readmark.Accounts.EpubSender do
   alias Readmark.Mailer
 
   @doc "Deliver epub to kindle."
-  @spec deliver_epub(String.t(), String.t()) :: {:ok, String.t()}
+  @spec deliver_epub(kindle_email :: String.t(), book_path :: String.t()) :: {:ok, String.t()}
   def deliver_epub(kindle_email, epub) do
     from_email = Application.get_env(:readmark, :from_email, "contact@example.com")
 

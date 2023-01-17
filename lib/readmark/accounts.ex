@@ -7,6 +7,7 @@ defmodule Readmark.Accounts do
   alias Readmark.Repo
 
   alias Readmark.Accounts.{User, UserToken, UserNotifier}
+  alias Readmark.Workers.ArticleSender
 
   ## Database getters
 

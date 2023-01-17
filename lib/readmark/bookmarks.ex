@@ -6,8 +6,8 @@ defmodule Readmark.Bookmarks do
   import Ecto.Query, warn: false
   alias Readmark.Repo
 
-  alias Readmark.Bookmarks.{Bookmark, BookmarkArticle}
   alias Readmark.Accounts.User
+  alias Readmark.Bookmarks.{Bookmark, BookmarkArticle}
 
   @doc """
   Returns all Bookmarks belonging to the given user.
@@ -52,17 +52,16 @@ defmodule Readmark.Bookmarks do
 
   @doc """
   Returns the latest 10 currently reading bookmarks of a user.
-
   """
-  def list_reading_bookmarks(%User{} = user) do
-    reading_bookmarks_query()
+  def latest_unread_bookmarks(%User{} = user) do
+    reading_articles_query()
     |> order_by(desc: :inserted_at)
     |> where(^filter_where(folder: :reading, user_id: user.id))
     |> limit(10)
     |> Repo.all()
   end
 
-  defp reading_bookmarks_query() do
+  defp reading_articles_query do
     from b in Bookmark,
       as: :bookmark,
       where: exists(from ba in BookmarkArticle, where: parent_as(:bookmark).id == ba.bookmark_id),
