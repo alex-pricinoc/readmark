@@ -18,12 +18,14 @@ defmodule Readmark.DataCase do
 
   using do
     quote do
-      alias Readmark.Repo
+      use Oban.Testing, repo: Readmark.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
       import Readmark.DataCase
+
+      alias Readmark.Repo
     end
   end
 
