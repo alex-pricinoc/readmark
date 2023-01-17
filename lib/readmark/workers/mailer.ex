@@ -6,9 +6,10 @@ defmodule Readmark.Workers.Mailer do
   @impl Oban.Worker
   def perform(%{
         args: %{
-          "recipient" => recipient,
+          "to" => recipient,
+          "from" => from,
           "subject" => subject,
-          "body" => body
+          "text_body" => body
         }
       }) do
     from_email = Application.get_env(:readmark, :from_email, "contact@example.com")
@@ -16,19 +17,28 @@ defmodule Readmark.Workers.Mailer do
     email =
       Swoosh.Email.new(
         to: recipient,
-        from: {"Alex from readmark", from_email},
+        from: {from, from_email},
         subject: subject,
         text_body: body
       )
 
-    with {:ok, _} <- Mailer.deliver(email) do
-      {:ok, email}
-    end
+    Mailer.deliver!(email)
+
+    :ok
   end
 
   def deliver(recipient, subject, body) do
-    %{recipient: recipient, subject: subject, body: body}
+    email = %{
+      to: recipient,
+      from: "Alex from readmark",
+      subject: subject,
+      text_body: body
+    }
+
+    email
     |> new()
-    |> Oban.insert()
+    |> Oban.insert!()
+
+    {:ok, email}
   end
 end
