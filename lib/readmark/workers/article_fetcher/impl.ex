@@ -1,28 +1,26 @@
-defmodule Readmark.ArticleFetcher.Impl do
+defmodule Readmark.Workers.ArticleFetcher.Impl do
+  @moduledoc false
+
   require Logger
 
   alias Readmark.Repo
   alias Readmark.{Bookmarks, Readability}
-  alias Bookmarks.Article
+  alias Bookmarks.{Article, Bookmark}
 
-  def fetch_bookmark_article(bookmark) do
+  def fetch_bookmark_article(%Bookmark{} = bookmark) do
     bookmark = Repo.preload(bookmark, :articles)
 
     with %Article{} = article <- get_or_fetch_article(bookmark.url),
          {:ok, _bookmark} <- Bookmarks.update_bookmark(bookmark, %{"articles" => [article]}) do
       :ok
     else
-      {:error, error} ->
-        Logger.error("Unable to save bookmark #{inspect(error)}")
-        {:error, error}
-
       error ->
         Logger.error("Unable to save bookmark #{inspect(error)}")
         {:error, error}
     end
   end
 
-  def get_or_fetch_article(url) do
+  def get_or_fetch_article(url) when is_binary(url) do
     Repo.get(Article, url) || maybe_insert_article(summarize(url))
   end
 
