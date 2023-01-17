@@ -22,6 +22,8 @@ defmodule Readmark.Application do
       # {Readmark.Worker, arg}
       {Task.Supervisor, name: Readmark.TaskSupervisor},
       %{id: Readmark.ArticleFetcher, start: {Readmark.ArticleFetcher, :start_link, []}}
+      # Start Oban
+      {Oban, Application.fetch_env!(:readmark, Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

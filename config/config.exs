@@ -69,6 +69,12 @@ config :readmark,
        :content_security_policy,
        "default-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' wss:; img-src 'self' https: data:; font-src 'self' data:;"
 
+# Oban
+config :readmark, Oban,
+  repo: Readmark.Repo,
+  plugins: [Oban.Plugins.Pruner],
+  queues: [default: 3, kindle: 2]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
