@@ -3,8 +3,7 @@ defmodule ReadmarkWeb.SettingsLive do
 
   alias Readmark.Accounts
   alias ReadmarkWeb.SettingsLive.{UploadFormComponent, KindlePreferencesFormComponent}
-  alias Readmark.{Bookmarks, Epub}
-  alias Accounts.EpubSender
+  alias Readmark.Workers.ArticleSender
 
   # TODO: Move account settings to a live component
   @impl true
@@ -143,14 +142,13 @@ defmodule ReadmarkWeb.SettingsLive do
     pid = self()
 
     Task.Supervisor.start_child(Readmark.TaskSupervisor, fn ->
-      {epub, delete_gen_files} = Enum.flat_map(bookmarks, & &1.articles) |> Epub.build()
+      sent_articles_count = ArticleSender.deliver_kindle_compilation(socket.assigns.current_user)
 
-      {:ok, _mail} = EpubSender.deliver_epub(user.kindle_email, epub)
+      send(pid, {:articles_sent, sent_articles_count})
+    end)
 
-      delete_gen_files.()
-
-      _archived =
-        Enum.map(bookmarks, fn b ->
+    {:noreply, assign(socket, :articles_sending?, true)}
+  end
 
   @impl true
   def handle_info({:articles_sent, count}, socket) do
