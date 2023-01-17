@@ -10,7 +10,7 @@ defmodule ReadmarkWeb.AppLive do
 
       alias Readmark.Bookmarks
       alias Bookmarks.Bookmark
-      alias Readmark.ArticleFetcher
+      alias Readmark.Workers.ArticleFetcher
 
       @behaviour AppLive
 

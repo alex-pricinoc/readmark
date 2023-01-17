@@ -2,7 +2,7 @@ defmodule ReadmarkWeb.ReadingLive.FormComponent do
   use ReadmarkWeb, :live_component
 
   alias Readmark.Bookmarks
-  alias Readmark.ArticleFetcher
+  alias Readmark.Workers.ArticleFetcher
 
   @impl true
   def update(%{action: {:article, article}}, socket) do
