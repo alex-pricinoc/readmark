@@ -50,9 +50,6 @@ defmodule ReadmarkWeb.SettingsLive.KindlePreferencesFormComponent do
     end
   end
 
-  defp kindle_email_valid?(%{changes: %{kindle_email: _}, errors: []}), do: true
-  defp kindle_email_valid?(_changeset), do: false
-
   defp time_select_options do
     [
       midnight: "00:00:00",

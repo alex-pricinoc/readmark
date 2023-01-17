@@ -58,18 +58,23 @@
 
         <.link
           class="col-start-2 md:col-start-3 row-start-4 text-primary-500 text-xs font-medium text-end"
-          patch={~p"/settings/update_kindle_preferences"}
+          patch={~p"/settings/change_kindle_preferences"}
         >
-          Update
+          Change
         </.link>
       </div>
     </section>
-    <section class="grid sm:grid-cols-[10rem_auto] gap-4">
+    <section :if={@current_user.kindle_email} class="grid sm:grid-cols-[10rem_auto] gap-4">
       <h2 class="font-medium">Kindle</h2>
-      <div :if={@current_user.kindle_email} class="text-sm sm:col-start-2">
-        <h2 class="font-medium mb-4">Send unread articles to Kindle</h2>
-        <.button phx-click="send-articles" type="button">
-          Send and Archive
+      <div class="text-sm sm:col-start-2">
+        <h2 class="font-medium mb-4">Send and archive unread articles to Kindle</h2>
+        <.button
+          phx-click="send-articles"
+          type="button"
+          disabled={@articles_sending?}
+          loading={@articles_sending?}
+        >
+          Send Now
         </.button>
       </div>
     </section>
@@ -237,7 +242,7 @@
 </.modal>
 
 <.modal
-  :if={@live_action == :update_kindle_preferences}
+  :if={@live_action == :change_kindle_preferences}
   id="update-kindle-preferences-modal"
   show
   on_cancel={JS.patch(~p"/settings")}

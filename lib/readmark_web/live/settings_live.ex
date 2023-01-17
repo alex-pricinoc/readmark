@@ -1,7 +1,7 @@
 defmodule ReadmarkWeb.SettingsLive do
   use ReadmarkWeb, :app_view
 
-  alias Readmark.Accounts
+  alias Readmark.{Accounts, Bookmarks}
   alias ReadmarkWeb.SettingsLive.{UploadFormComponent, KindlePreferencesFormComponent}
   alias Readmark.Workers.ArticleSender
 
@@ -32,6 +32,7 @@ defmodule ReadmarkWeb.SettingsLive do
       password_changeset: Accounts.change_user_password(user),
       display_name_changeset: Accounts.change_user_display_name(user),
       trigger_submit: false,
+      articles_sending?: false,
       time_zone: get_connect_params(socket)["timezone"]
     ]
 
@@ -142,20 +143,25 @@ defmodule ReadmarkWeb.SettingsLive do
     pid = self()
 
     Task.Supervisor.start_child(Readmark.TaskSupervisor, fn ->
-      sent_articles_count = ArticleSender.deliver_kindle_compilation(socket.assigns.current_user)
+      user = socket.assigns.current_user
+      bookmarks = Bookmarks.latest_unread_bookmarks(user)
 
-      send(pid, {:articles_sent, sent_articles_count})
+      if length(bookmarks) > 0 do
+        send(pid, {:articles_sent, ArticleSender.deliver_kindle_compilation(user, bookmarks)})
+      else
+        send(pid, {:articles_sent, 0})
+      end
     end)
 
     {:noreply, assign(socket, :articles_sending?, true)}
   end
 
   @impl true
-  def handle_info({:articles_sent, count}, socket) do
+  def handle_info({:articles_sent, sent}, socket) do
     info =
-      if count > 0,
-        do: "Your articles have been sent. You should receive them in a few minutes.",
-        else: "You don't have any unread articles. Add some on reading page."
+      if sent > 0,
+        do: "#{sent} have been sent. You should receive them in a few minutes.",
+        else: "You don't have any unread articles."
 
     {:noreply, socket |> put_flash(:info, info) |> assign(:articles_sending?, false)}
   end
@@ -180,7 +186,7 @@ defmodule ReadmarkWeb.SettingsLive do
     |> assign(:page_title, "Change Password")
   end
 
-  defp apply_action(socket, :update_kindle_preferences, _params) do
+  defp apply_action(socket, :change_kindle_preferences, _params) do
     socket
     |> assign(:page_title, "Change Kindle Preferences")
   end

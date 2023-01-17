@@ -20,8 +20,15 @@ defmodule Readmark.Workers.ArticleSender do
     Logger.debug("Sending kindle compilation: #{inspect(job)}")
 
     user = Accounts.get_user!(user_id)
+    bookmarks = Bookmarks.latest_unread_bookmarks(user)
 
-    deliver_kindle_compilation(user)
+    if length(bookmarks) >= user.kindle_preferences.articles and user.kindle_email != nil do
+      sent = deliver_kindle_compilation(user, bookmarks)
+      Logger.info("Kindle compilation sent for user: #{user.id}. #{sent} articles.")
+    else
+      Logger.info("Skipping sending kindle compilation for user: #{user.id}.")
+    end
+
     schedule_kindle_delivery(user)
 
     :ok
@@ -49,21 +56,13 @@ defmodule Readmark.Workers.ArticleSender do
   @doc """
   Delivers unread articles immediately and returns the number of sent articles.
   """
-  @spec deliver_kindle_compilation(user :: User.t()) :: sent_articles_count :: integer()
-  def deliver_kindle_compilation(%User{} = user) do
-    bookmarks = Bookmarks.latest_unread_bookmarks(user)
+  @spec deliver_kindle_compilation(User.t(), [Bookmark.t()]) :: integer()
+  def deliver_kindle_compilation(%User{} = user, bookmarks) when length(bookmarks) > 0 do
+    {epub, delete_gen_files} = bookmarks |> Enum.flat_map(& &1.articles) |> Epub.build()
+    EpubSender.deliver_epub(user.kindle_email, epub)
 
-    if length(bookmarks) >= user.kindle_preferences.articles do
-      {epub, delete_gen_files} = bookmarks |> Enum.flat_map(& &1.articles) |> Epub.build()
-      EpubSender.deliver_epub(user.kindle_email, epub)
-
-      delete_gen_files.()
-      Repo.update_all(bookmarks, set: [folder: :archive])
-
-      Logger.info("Kindle compilation sent for user: #{user.id}.")
-    else
-      Logger.info("Skipping sending kindle compilation for user: #{user.id}.")
-    end
+    delete_gen_files.()
+    _ = Enum.map(bookmarks, &Bookmarks.update_bookmark(&1, %{folder: :archive}))
 
     length(bookmarks)
   end

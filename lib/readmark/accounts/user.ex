@@ -177,17 +177,25 @@ defmodule Readmark.Accounts.User do
   def kindle_preferences_changeset(user, attrs) do
     user
     |> cast(attrs, [:kindle_email])
-    |> cast_embed(:kindle_preferences)
+    |> cast_embed(:kindle_preferences, with: &KindlePreferences.changeset/2)
     |> validate_kindle_email()
   end
 
   @kindle_email_regex ~r/^[^\s]+(@kindle\.com|@free\.kindle\.com|@kindle\.cn)$/
 
   defp validate_kindle_email(changeset) do
-    changeset
-    |> validate_format(:kindle_email, @kindle_email_regex,
-      message: "must be a valid kindle email with no spaces"
-    )
-    |> validate_length(:kindle_email, max: 160)
+    changeset =
+      changeset
+      |> validate_format(:kindle_email, @kindle_email_regex,
+        message: "must be a valid kindle email with no spaces"
+      )
+      |> validate_length(:kindle_email, max: 160)
+
+    if get_field(changeset, :kindle_preferences).is_scheduled? and
+         get_field(changeset, :kindle_email) == nil do
+      add_error(changeset, :kindle_email, "must specify an email for Kindle automatic deliveries")
+    else
+      changeset
+    end
   end
 end
