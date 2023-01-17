@@ -18,7 +18,7 @@ defmodule ReadmarkWeb do
   """
 
   def static_paths,
-    do: ~w(assets fonts images favicon.ico favicon.svg robots.txt site.webmanifest)
+    do: ~w(assets fonts images favicon.ico favicon.svg robots.txt manifest.json)
 
   def router do
     quote do

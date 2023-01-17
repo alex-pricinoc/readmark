@@ -37,7 +37,7 @@
         :if={@action == :edit}
         field={{f, :folder}}
         type="select"
-        options={select_options(Bookmarks.Bookmark, :folder)}
+        options={Ecto.Enum.values(Bookmarks.Bookmark, :folder)}
         label="Folder"
       />
     </fieldset>

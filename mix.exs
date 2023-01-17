@@ -38,7 +38,7 @@ defmodule Readmark.MixProject do
   defp deps do
     [
       {:bcrypt_elixir, "~> 3.0"},
-      {:phoenix, "~> 1.7.0-rc.1", override: true},
+      {:phoenix, "~> 1.7.0-rc.2", override: true},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
@@ -62,7 +62,6 @@ defmodule Readmark.MixProject do
       {:earmark, "~> 1.4"},
       {:bupe, "~> 0.6.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:sobelow, "~> 0.11.1", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:image, "~> 0.18.1"},
       {:quarto, path: "vendor/quarto"},

@@ -43,7 +43,6 @@ check.deps.outdated:
 
 check.code-analysis:
 	mix credo --strict --only warning
-# 	mix sobelow --config --exit
 
 .PHONY: test
 test:

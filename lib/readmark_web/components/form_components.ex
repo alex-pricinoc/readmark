@@ -271,15 +271,4 @@ defmodule ReadmarkWeb.FormComponents do
 
   defp value_to_string(list) when is_list(list), do: Enum.join(list, " ")
   defp value_to_string(value), do: value
-
-  def select_options(schema, field) do
-    schema
-    |> Ecto.Enum.values(field)
-    |> Enum.reduce([], fn atom, acc ->
-      [
-        {String.capitalize(Atom.to_string(atom)), Atom.to_string(atom)} | acc
-      ]
-    end)
-    |> Enum.reverse()
-  end
 end

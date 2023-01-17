@@ -21,7 +21,6 @@ defmodule Readmark.Bookmarks.Tag do
     end
   end
 
-  @impl true
   def cast(_), do: :error
 
   @impl true
@@ -29,8 +28,6 @@ defmodule Readmark.Bookmarks.Tag do
 
   @impl true
   def dump(tags) when is_list(tags), do: {:ok, tags}
-
-  @impl true
   def dump(_), do: :error
 
   @impl true

@@ -15,7 +15,7 @@ build image:
   # tags: [podman]
   image: quay.io/podman/stable
   variables:
-    ELIXIR_VERSION: 1.14.2
+    ELIXIR_VERSION: 1.14.3
     OTP_VERSION: 25.0.4
     ALPINE_VERSION: 3.16.1
     IMAGE_TAG: $CI_REGISTRY_IMAGE:$ELIXIR_VERSION-$OTP_VERSION-$ALPINE_VERSION
