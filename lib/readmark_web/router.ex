@@ -84,6 +84,7 @@ defmodule ReadmarkWeb.Router do
       live "/settings/change_email", SettingsLive, :change_email
       live "/settings/change_display_name", SettingsLive, :change_display_name
       live "/settings/change_password", SettingsLive, :change_password
+      live "/settings/update_kindle_preferences", SettingsLive, :update_kindle_preferences
     end
 
     delete "/users/delete_account", UserSessionController, :delete_account

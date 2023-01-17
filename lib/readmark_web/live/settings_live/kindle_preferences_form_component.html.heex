@@ -1,0 +1,113 @@
+<div>
+  <div
+    :if={@current_user.kindle_email == nil and not kindle_email_valid?(@changeset)}
+    class="text-sm mb-2"
+  >
+    <h3 class="font-medium mb-4">Setup your Kindle</h3>
+    <ol :if={@current_user.kindle_email == nil} class="list-decimal list-inside">
+      <li>
+        Go to
+        <.link class="text-primary-500 font-medium" href="https://www.amazon.com/mycd">
+          Manage Your Content and Devices
+        </.link>
+      </li>
+      <li>
+        From <strong>Preferences</strong>
+        scroll down to <strong>Personal Document Settings</strong>
+      </li>
+      <li>
+        Add the following email to your <strong>Approved Personal Document E-mail List:</strong>
+        <div class="relative w-fit group">
+          <input
+            type="text"
+            id="approved-email"
+            value={@from_email}
+            readonly
+            class={[
+              "ml-5 block rounded-md font-semibold bg-primary-50 py-[1px] px-[8px] text-primary-500 w-fit text-sm border-primary-300",
+              "sm:leading-6 focus:border-primary-400 focus:outline-none"
+            ]}
+          />
+          <button
+            class="absolute top-1/2 -translate-y-1/2 right-[1em] text-primary-300 hover:text-primary-700 invisible group-hover:visible"
+            type="button"
+            aria-label="copy email"
+            phx-click={JS.dispatch("js:clipcopy", to: "#approved-email")}
+          >
+            <Heroicons.clipboard_document class="h-4 w-4" />
+          </button>
+        </div>
+      </li>
+      <li>
+        Find the email for your Kindle under <strong>Send-to-Kindle Email Settings</strong>, and add it below:
+      </li>
+    </ol>
+  </div>
+
+  <.form
+    :let={f}
+    for={@changeset}
+    phx-target={@myself}
+    id="kindle_preferences_form"
+    phx-submit="save"
+    phx-change="validate"
+    class="space-y-4 text-sm"
+  >
+    <.input
+      field={{f, :kindle_email}}
+      label="Your Kindle Email"
+      placeholder="Send-to-Kindle Email"
+    />
+
+    <p class="prose prose-zinc prose-sm">
+      <strong>Important:</strong>
+      Some Kindle devices can receive documents over the mobile network (3G/4G) as well as Wi-Fi. On these devices, Amazon may charge you a fee after delivering the document over the mobile network.
+      <br />
+      To avoid such charges and only deliver documents over Wi-Fi, enter your kindle email ending with <code>@free.kindle.com</code>.
+    </p>
+
+    <%= if @current_user.kindle_email != nil or kindle_email_valid?(@changeset) do %>
+      <hr />
+
+      <%= for kp <- inputs_for(f, :kindle_preferences) do %>
+        <h2 class="font-medium">Kindle automatic delivery</h2>
+        <.input
+          field={{kp, :is_scheduled?}}
+          type="checkbox"
+          label="Send my Unread articles to my Kindle automatically"
+        />
+        <h2 class="font-medium">Deliver frequency</h2>
+        <p>Send a compilation of up to 10 of my unread articles:</p>
+        <ol class="list-disc list-inside pl-4 space-y-1">
+          <li>
+            Every
+            <.input
+              mini
+              type="select"
+              field={{kp, :frequency}}
+              options={Ecto.Enum.values(KindlePreferences, :frequency)}
+            /> at around
+            <.input mini type="select" field={{kp, :time}} options={time_select_options()} />
+            <label class="text-gray-600">
+              <Heroicons.globe_europe_africa mini class="inline h-4 w-4" />
+              <%= @time_zone %>
+              <.input field={{kp, :time_zone}} value={@time_zone} type="hidden" />
+            </label>
+          </li>
+          <li>
+            Only if it will contain at least
+            <.input mini type="select" field={{kp, :articles}} options={[1, 3, 5, 10]} />
+            articles.
+          </li>
+        </ol>
+      <% end %>
+      <p :if={@next_delivery} class="text-xs text-zinc-400">
+        Your next delivery is scheduled for <%= @next_delivery %>
+      </p>
+    <% end %>
+
+    <.button type="submit" phx-disable-with="Saving..." class="self-start">
+      Save
+    </.button>
+  </.form>
+</div>

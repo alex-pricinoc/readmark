@@ -65,6 +65,8 @@ defmodule ReadmarkWeb.FormComponents do
     values: ~w(checkbox color date datetime-local email file hidden month number password
                range radio search select tel text textarea time url week)
 
+  attr :mini, :boolean, default: false
+
   attr :value, :any
   attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
   attr :errors, :list
@@ -105,6 +107,19 @@ defmodule ReadmarkWeb.FormComponents do
       />
       <%= @label %>
     </label>
+    """
+  end
+
+  def input(%{type: "select", mini: true} = assigns) do
+    ~H"""
+    <select
+      id={@id}
+      name={@name}
+      {@rest}
+      class="text-sm py-0 pl-2 pr-5 bg-[right_0.1rem_center] rounded"
+    >
+      <%= Form.options_for_select(@options, @value) %>
+    </select>
     """
   end
 

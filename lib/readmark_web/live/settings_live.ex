@@ -2,7 +2,7 @@ defmodule ReadmarkWeb.SettingsLive do
   use ReadmarkWeb, :app_view
 
   alias Readmark.Accounts
-  alias ReadmarkWeb.SettingsLive.UploadFormComponent
+  alias ReadmarkWeb.SettingsLive.{UploadFormComponent, KindlePreferencesFormComponent}
   alias Readmark.{Bookmarks, Epub}
   alias Accounts.EpubSender
 
@@ -24,7 +24,6 @@ defmodule ReadmarkWeb.SettingsLive do
   @impl true
   def mount(_params, _session, socket) do
     user = socket.assigns.current_user
-    from_email = Application.get_env(:readmark, :from_email, "contact@example.com")
 
     assigns = [
       current_password: nil,
@@ -33,10 +32,8 @@ defmodule ReadmarkWeb.SettingsLive do
       email_changeset: Accounts.change_user_email(user),
       password_changeset: Accounts.change_user_password(user),
       display_name_changeset: Accounts.change_user_display_name(user),
-      kindle_email_changeset: Accounts.change_user_kindle_email(user),
       trigger_submit: false,
-      reading_bookmarks: Bookmarks.list_reading_bookmarks(user),
-      from_email: from_email
+      time_zone: get_connect_params(socket)["timezone"]
     ]
 
     {:ok, assign(socket, assigns)}
@@ -142,44 +139,7 @@ defmodule ReadmarkWeb.SettingsLive do
   end
 
   @impl true
-  def handle_event("validate_kindle_email", %{"user" => user_params}, socket) do
-    kindle_email_changeset =
-      Accounts.change_user_kindle_email(socket.assigns.current_user, user_params)
-
-    {:noreply,
-     socket
-     |> assign(:kindle_email_changeset, Map.put(kindle_email_changeset, :action, :validate))}
-  end
-
-  @impl true
-  def handle_event("update_kindle_email", %{"user" => user_params}, socket) do
-    case Accounts.update_user_kindle_email(socket.assigns.current_user, user_params) do
-      {:ok, _user} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Updated successfully!")
-         |> push_navigate(to: ~p"/settings")}
-
-      {:error, changeset} ->
-        {:noreply, assign(socket, :kindle_email_changeset, changeset)}
-    end
-  end
-
-  @impl true
   def handle_event("send-articles", _params, socket) do
-    %{current_user: user, reading_bookmarks: bookmarks} = socket.assigns
-
-    {:noreply, deliver_articles(socket, user, bookmarks)}
-  end
-
-  @impl true
-  def handle_info(:articles_sent, socket) do
-    info = "Your articles have been sent. You should receive them in a few minutes."
-
-    {:noreply, socket |> put_flash(:info, info) |> assign(:articles_sending?, false)}
-  end
-
-  defp deliver_articles(socket, user, bookmarks) do
     pid = self()
 
     Task.Supervisor.start_child(Readmark.TaskSupervisor, fn ->
@@ -191,13 +151,15 @@ defmodule ReadmarkWeb.SettingsLive do
 
       _archived =
         Enum.map(bookmarks, fn b ->
-          {:ok, _} = Bookmarks.update_bookmark(b, %{folder: :archive})
-        end)
 
-      send(pid, :articles_sent)
-    end)
+  @impl true
+  def handle_info({:articles_sent, count}, socket) do
+    info =
+      if count > 0,
+        do: "Your articles have been sent. You should receive them in a few minutes.",
+        else: "You don't have any unread articles. Add some on reading page."
 
-    assign(socket, :articles_sending?, true)
+    {:noreply, socket |> put_flash(:info, info) |> assign(:articles_sending?, false)}
   end
 
   defp apply_action(socket, :index, _params) do
@@ -218,6 +180,11 @@ defmodule ReadmarkWeb.SettingsLive do
   defp apply_action(socket, :change_password, _params) do
     socket
     |> assign(:page_title, "Change Password")
+  end
+
+  defp apply_action(socket, :update_kindle_preferences, _params) do
+    socket
+    |> assign(:page_title, "Change Kindle Preferences")
   end
 
   defp bookmarklet() do

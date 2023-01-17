@@ -3,6 +3,8 @@ defmodule Readmark.Accounts.User do
 
   import Ecto.Changeset
 
+  alias __MODULE__.KindlePreferences
+
   schema "users" do
     field :email, :string
     field :password, :string, virtual: true, redact: true
@@ -11,6 +13,8 @@ defmodule Readmark.Accounts.User do
 
     field :display_name, :string
     field :kindle_email, :string
+
+    embeds_one :kindle_preferences, KindlePreferences, on_replace: :delete
 
     timestamps()
   end
@@ -170,9 +174,10 @@ defmodule Readmark.Accounts.User do
   @doc """
   A user changeset for changing the kindle email.
   """
-  def kindle_email_changeset(user, attrs) do
+  def kindle_preferences_changeset(user, attrs) do
     user
     |> cast(attrs, [:kindle_email])
+    |> cast_embed(:kindle_preferences)
     |> validate_kindle_email()
   end
 
