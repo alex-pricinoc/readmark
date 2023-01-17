@@ -234,7 +234,6 @@ defmodule Readmark.Accounts do
 
   @doc """
   Updates the user display name.
-
   """
   def update_user_display_name(user, attrs) do
     user
@@ -243,26 +242,39 @@ defmodule Readmark.Accounts do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for changing the user kindle email.
+  Returns an `%Ecto.Changeset{}` for changing user kindle preferences.
 
   ## Examples
 
-      iex> change_user_kindle_email(user)
+      iex> change_user_kindle_preferences(user)
       %Ecto.Changeset{data: %User{}}
 
   """
-  def change_user_kindle_email(user, attrs \\ %{}) do
-    User.kindle_email_changeset(user, attrs)
+  def change_user_kindle_preferences(%User{} = user, attrs \\ %{}) do
+    User.kindle_preferences_changeset(user, attrs)
   end
 
   @doc """
-  Updates the user kindle email.
-
+  Updates user kindle preferences and schedule/cancel a kindle delivery.
   """
-  def update_user_kindle_email(user, attrs) do
-    user
-    |> User.kindle_email_changeset(attrs)
-    |> Repo.update()
+  def update_user_kindle_preferences(%User{} = user, attrs) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.update(:user, User.kindle_preferences_changeset(user, attrs))
+    |> Ecto.Multi.run(:oban_job, fn _repo, %{user: user} ->
+      if user.kindle_preferences.is_scheduled? do
+        ArticleSender.schedule_kindle_delivery(user)
+      else
+        ArticleSender.cancel_kindle_delivery(user)
+      end
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{user: user}} ->
+        {:ok, user}
+
+      {:error, :user, changeset, _} ->
+        {:error, changeset}
+    end
   end
 
   ## Session

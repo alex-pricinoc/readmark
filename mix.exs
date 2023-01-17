@@ -58,18 +58,17 @@ defmodule Readmark.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:excoveralls, "~> 0.10", only: :test},
       {:heroicons, "~> 0.5"},
+      {:gen_smtp, "~> 1.2"},
       {:earmark, "~> 1.4"},
       {:bupe, "~> 0.6.0"},
-      {:gen_smtp, "~> 1.2"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:sobelow, "~> 0.11.1", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
-      {:ex_cldr, "~> 2.34"},
-      {:ex_cldr_calendars, "~> 1.17"},
-      {:ex_cldr_dates_times, "~> 2.10"},
       {:image, "~> 0.18.1"},
       {:quarto, path: "vendor/quarto"},
       {:oban, "~> 2.13"},
+      {:timex, "~> 3.7"},
+      {:kday, "~> 1.0"}
     ]
   end
 

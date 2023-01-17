@@ -42,97 +42,28 @@
         >
           Change Password
         </.link>
+
+        <label class="hidden md:block col-start-1 row-start-4 font-medium">Kindle Email</label>
+
+        <span class="col-start-1 row-start-4 md:col-start-2">
+          <%= @current_user.kindle_email %>
+        </span>
+
+        <.link
+          class="col-start-2 md:col-start-3 row-start-4 text-primary-500 text-xs font-medium text-end"
+          patch={~p"/settings/update_kindle_preferences"}
+        >
+          Update Kindle Preferences
+        </.link>
       </div>
     </section>
-    <!-- Kindle preferences -->
     <section class="grid sm:grid-cols-[10rem_auto] gap-4">
       <h2 class="font-medium">Kindle</h2>
-      <div class="text-sm sm:col-start-2">
-        <%= if @current_user.kindle_email == nil do %>
-          <h3 class="font-medium mb-4">Setup your Kindle</h3>
-          <ol :if={@current_user.kindle_email == nil} class="list-decimal list-inside">
-            <li>
-              Go to
-              <.link class="text-primary-500 font-medium" href="https://www.amazon.com/mycd">
-                Manage Your Content and Devices
-              </.link>
-            </li>
-            <li>
-              From <strong>Preferences</strong>
-              scroll down to <strong>Personal Document Settings</strong>
-            </li>
-            <li>
-              Add the following email to your
-              <strong>Approved Personal Document E-mail List:</strong>
-              <div class="relative w-fit group">
-                <input
-                  type="text"
-                  id="approved-email"
-                  value={@from_email}
-                  readonly
-                  class="ml-5 block rounded-md font-semibold bg-primary-50 py-[1px] px-[8px] text-primary-500 sm:leading-6 w-fit text-sm border-primary-300 focus:border-primary-400 focus:outline-none"
-                />
-                <button
-                  class="absolute top-1/2 -translate-y-1/2 right-[1em] text-primary-300 hover:text-primary-700 invisible group-hover:visible"
-                  type="button"
-                  aria-label="copy email"
-                  phx-click={JS.dispatch("js:clipcopy", to: "#approved-email")}
-                >
-                  <Heroicons.clipboard_document class="h-4 w-4" />
-                </button>
-              </div>
-            </li>
-            <li>
-              Find the email for your Kindle under <strong>Send-to-Kindle Email Settings</strong>, and add it below:
-            </li>
-          </ol>
-        <% end %>
-        <.form
-          :let={f}
-          id="kindle_email_form"
-          for={@kindle_email_changeset}
-          phx-submit="update_kindle_email"
-          phx-change="validate_kindle_email"
-          class="space-y-4 max-w-full sm:max-w-sm"
-        >
-          <.error :if={@email_changeset.action == :insert}>
-            Oops, something went wrong! Please check the errors below.
-          </.error>
-          <.input
-            field={{f, :kindle_email}}
-            label="Your Kindle Email"
-            placeholder="Send-to-Kindle Email"
-          />
-          <.button
-            type="submit"
-            phx-disable-with="Saving..."
-            class={"self-start #{if @kindle_email_changeset.valid? and @kindle_email_changeset.action == :validate, do: "block", else: "hidden"}"}
-          >
-            Save
-          </.button>
-        </.form>
-        <p :if={@current_user.kindle_email == nil} class="mt-2">
-          <strong>Important:</strong>
-          Some Kindle devices can receive documents over the mobile network (3G/4G) as well as Wi-Fi. On these devices, Amazon may charge you a fee after delivering the document over the mobile network.
-          <br />
-          To avoid such charges and only deliver documents over Wi-Fi, use an email ending with '@free.kindle.com'.
-        </p>
-      </div>
-      <hr class="sm:col-start-2" />
       <div :if={@current_user.kindle_email} class="text-sm sm:col-start-2">
-        <h2 class="font-medium mb-4">Send up to 10 reading articles to Kindle</h2>
-        <%= if @reading_bookmarks != [] do %>
-          <.button
-            phx-click="send-articles"
-            type="button"
-            loading={assigns[:articles_sending?]}
-            disabled={assigns[:articles_sending?]}
-          >
-            Send and Archive
-          </.button>
-        <% else %>
-          <p>Your reading list is empty</p>
-        <% end %>
+        <h2 class="font-medium mb-4">Send unread articles to Kindle</h2>
+        <.button phx-click="send-articles" type="button">
+          Send and Archive
+        </.button>
       </div>
     </section>
     <!-- Import component -->
@@ -296,6 +227,20 @@
       <.button phx-disable-with="Saving...">Save</.button>
     </:actions>
   </.simple_form>
+</.modal>
+
+<.modal
+  :if={@live_action == :update_kindle_preferences}
+  id="update-kindle-preferences-modal"
+  show
+  on_cancel={JS.patch(~p"/settings")}
+>
+  <.live_component
+    id={:kindle}
+    module={KindlePreferencesFormComponent}
+    current_user={@current_user}
+    time_zone={@time_zone}
+  />
 </.modal>
 
 <.flash
