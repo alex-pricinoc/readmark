@@ -70,6 +70,7 @@ defmodule ReadmarkWeb.Router do
     get "/settings/export", BookmarkController, :export
 
     live_session :require_authenticated_user,
+      layout: {ReadmarkWeb.Layouts, :app},
       on_mount: [{ReadmarkWeb.UserAuth, :ensure_authenticated}, ReadmarkWeb.Sidebar] do
       live "/notes", NotesLive, :index
       live "/notes/:id", NotesLive, :show

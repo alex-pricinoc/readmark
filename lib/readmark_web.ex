@@ -58,16 +58,6 @@ defmodule ReadmarkWeb do
     end
   end
 
-  # FIXME: specify layout on router level
-  def app_view do
-    quote do
-      use Phoenix.LiveView,
-        layout: {ReadmarkWeb.Layouts, :app}
-
-      unquote(html_helpers())
-    end
-  end
-
   def live_component do
     quote do
       use Phoenix.LiveComponent

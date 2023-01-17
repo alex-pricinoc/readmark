@@ -6,7 +6,7 @@ defmodule ReadmarkWeb.AppLive do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      use ReadmarkWeb, :app_view
+      use ReadmarkWeb, :live_view
 
       alias Readmark.Bookmarks
       alias Bookmarks.Bookmark

@@ -1,5 +1,5 @@
 defmodule ReadmarkWeb.SettingsLive do
-  use ReadmarkWeb, :app_view
+  use ReadmarkWeb, :live_view
 
   alias Readmark.{Accounts, Bookmarks}
   alias ReadmarkWeb.SettingsLive.{UploadFormComponent, KindlePreferencesFormComponent}
