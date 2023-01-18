@@ -154,7 +154,7 @@ defmodule ReadmarkWeb.AppLive do
       defp get_article(_bookmark), do: nil
 
       defp maybe_fetch_article(%Bookmark{folder: :reading, articles: []} = bookmark) do
-        ArticleFetcher.fetch_bookmark_article(bookmark)
+        ArticleFetcher.fetch_bookmark(bookmark)
       end
 
       defp maybe_fetch_article(_bookmark), do: :ok

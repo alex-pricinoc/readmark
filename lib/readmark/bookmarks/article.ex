@@ -6,10 +6,10 @@ defmodule Readmark.Bookmarks.Article do
   @primary_key false
   schema "articles" do
     field :url, :string, primary_key: true
-    field :authors, {:array, :string}
+    field :title, :string
     field :article_html, :string
     field :article_text, :string
-    field :title, :string
+    field :authors, {:array, :string}
 
     many_to_many :bookmarks, Bookmark,
       join_through: BookmarkArticle,

@@ -8,9 +8,10 @@ defmodule Readmark.Epub do
 
   alias Readmark.Bookmarks.Article
 
-  @doc "Generate epub from articles."
-  @spec build(articles :: [Article.t()]) ::
-          {epub_path :: String.t(), remove_generated_files :: fun()}
+  @doc """
+  Generate epub from articles.
+  """
+  @spec build(list(Article.t()) | Article.t()) :: {path :: String.t(), remove_gen_files :: fun()}
   def build(articles) when is_list(articles) do
     config = %{
       dir: Path.join([System.tmp_dir!(), "readmark", BUPE.Util.uuid4()]),

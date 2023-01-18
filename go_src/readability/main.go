@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -12,23 +13,27 @@ import (
 type Article struct {
 	Url         string `json:"url"`
 	Title       string `json:"title"`
+	Content     string `json:"article_html"`
+	TextContent string `json:"article_text"`
 	Excerpt     string `json:"excerpt"`
 	Length      int    `json:"length"`
-	Content     string `json:"content"`
-	TextContent string `json:"text_content"`
+}
+
+func init() {
+	log.SetFlags(0)
 }
 
 func main() {
 	args := os.Args[1:]
 
 	if len(args) != 1 {
-		die("must provide a url")
+		log.Fatal("must provide a url")
 	}
 
 	article, err := readability.FromURL(args[0], 5*time.Second)
 
 	if err != nil {
-		die(err.Error())
+		log.Fatal(err)
 	}
 
 	res := Article{
@@ -43,13 +48,8 @@ func main() {
 	json, err := json.Marshal(&res)
 
 	if err != nil {
-		die("unable to encode json")
+		log.Fatal("unable to encode json")
 	}
 
 	fmt.Print(string(json))
-}
-
-func die(msg string) {
-	fmt.Print(msg)
-	os.Exit(1)
 }
