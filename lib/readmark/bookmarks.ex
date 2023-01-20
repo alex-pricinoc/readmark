@@ -91,10 +91,10 @@ defmodule Readmark.Bookmarks do
 
   ## Examples
 
-      iex> create_bookmark(%{field: value})
+      iex> create_bookmark(%User{}, %{field: value})
       {:ok, %Bookmark{}}
 
-      iex> create_bookmark(%{field: bad_value})
+      iex> create_bookmark(%User{}, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
@@ -165,8 +165,8 @@ defmodule Readmark.Bookmarks do
 
   def broadcast!({:error, _reason} = error, _event), do: error
 
-  def broadcast!({:ok, bookmark}, event) do
+  def broadcast!({:ok, bookmark} = result, event) do
     Phoenix.PubSub.broadcast!(@pubsub, topic(bookmark.user_id), {event, bookmark})
-    {:ok, bookmark}
+    result
   end
 end

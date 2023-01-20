@@ -193,7 +193,7 @@ defmodule Readmark.Accounts.User do
 
     if get_field(changeset, :kindle_preferences).is_scheduled? and
          get_field(changeset, :kindle_email) == nil do
-      add_error(changeset, :kindle_email, "must specify an email for Kindle automatic deliveries")
+      add_error(changeset, :kindle_email, "must specify an email for Kindle Automatic Delivery")
     else
       changeset
     end

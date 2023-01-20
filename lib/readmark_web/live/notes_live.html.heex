@@ -5,6 +5,7 @@
   show={@note == nil}
   items={@notes}
   item_click={&JS.patch(~p"/notes/#{&1}")}
+  empty_list_message="Nothing to see here."
 >
   <span class="font-medium text-sm line-clamp-1"><%= note.title %></span>
   <span class="text-gray-600 text-sm line-clamp-1">

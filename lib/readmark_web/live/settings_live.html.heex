@@ -14,11 +14,9 @@
       <h2 class="font-medium">Account</h2>
       <div class="grid grid-cols-2 md:grid-cols-[10rem_auto_15rem] gap-2 sm:gap-4 text-sm">
         <label class="hidden md:block col-start-1 row-start-1 font-medium">Display Name</label>
-
         <span class="col-start-1 row-start-1 md:col-start-2">
           <%= @current_user.display_name %>
         </span>
-
         <.link
           class="col-start-2 md:col-start-3 row-start-1 text-primary-500 text-xs font-medium text-end"
           patch={~p"/settings/change_display_name"}
@@ -27,9 +25,7 @@
         </.link>
 
         <label class="hidden md:block col-start-1 row-start-2 font-medium">Email</label>
-
         <span class="col-start-1 row-start-2 md:col-start-2"><%= @current_user.email %></span>
-
         <.link
           class="col-start-2 md:col-start-3 row-start-2 text-primary-500 text-xs font-medium text-end"
           patch={~p"/settings/change_email"}
@@ -38,7 +34,6 @@
         </.link>
 
         <label class="hidden md:block col-start-1 row-start-3 font-medium">Password</label>
-
         <span class="col-start-1 row-start-3 md:col-start-2">
           <%= for _ <- 1..12, do: raw("&bull;") %>
         </span>
@@ -49,34 +44,49 @@
         >
           Change Password
         </.link>
-
-        <label class="hidden md:block col-start-1 row-start-4 font-medium">Kindle Email</label>
-
-        <span class="col-start-1 row-start-4 md:col-start-2">
-          <%= @current_user.kindle_email %>
-        </span>
-
-        <.link
-          class="col-start-2 md:col-start-3 row-start-4 text-primary-500 text-xs font-medium text-end"
-          patch={~p"/settings/change_kindle_preferences"}
-        >
-          Change
-        </.link>
       </div>
     </section>
-    <section :if={@current_user.kindle_email} class="grid sm:grid-cols-[10rem_auto] gap-4">
+    <!-- Kindle preferences -->
+    <section class="grid sm:grid-cols-[10rem_auto] gap-4">
       <h2 class="font-medium">Kindle</h2>
-      <div class="text-sm sm:col-start-2">
-        <h2 class="font-medium mb-4">Send and archive unread articles to Kindle</h2>
-        <.button
-          phx-click="send-articles"
-          type="button"
-          disabled={@articles_sending?}
-          loading={@articles_sending?}
-        >
-          Send Now
-        </.button>
+      <div :if={@current_user.kindle_email} class="text-sm space-y-4">
+        <div class="space-y-2">
+          <h3 class="font-medium">
+            Your Kindle Email
+          </h3>
+
+          <div class="flex justify-between flex-wrap items-center gap-2">
+            <span><%= @current_user.kindle_email %></span>
+
+            <.link
+              class="text-end text-primary-500 text-xs font-medium"
+              patch={~p"/settings/change_kindle_preferences"}
+            >
+              Change Kindle Preferences
+            </.link>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h2 class="font-medium">Send Articles to Kindle</h2>
+          <.button
+            class=""
+            phx-click="send-articles"
+            type="button"
+            disabled={@articles_sending?}
+            loading={@articles_sending?}
+          >
+            Send Now
+          </.button>
+        </div>
       </div>
+      <.link
+        :if={@current_user.kindle_email == nil}
+        class="text-primary-500 text-sm font-medium"
+        patch={~p"/settings/change_kindle_preferences"}
+      >
+        Setup your Kindle
+      </.link>
     </section>
     <!-- Import component -->
     <section class="grid sm:grid-cols-[10rem_auto] gap-4">

@@ -5,7 +5,7 @@
   title={@active_tab}
   phx_update={@phx_update}
   item_hidden={fn b -> deleted?(b) || b.folder != :bookmarks end}
-  show={@active_bookmark == nil}
+  empty_list_message="No bookmarks added."
 >
   <:action>
     <.icon_button label="Add bookmark" patch={~p"/bookmarks/new"}>
@@ -29,7 +29,7 @@
       :for={tag <- bookmark.tags}
       class={[
         "relative text-sm hover:text-orange-600",
-        "#{if tag in @tags, do: "text-orange-600 hover:text-gray-900"}"
+        tag in @tags and "text-orange-600 hover:text-gray-900"
       ]}
       phx-click="select-tag"
       phx-value-name={tag}

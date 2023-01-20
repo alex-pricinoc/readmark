@@ -18,15 +18,15 @@
     </div>
 
     <%= for entry <- @uploads.bookmarks.entries do %>
-      <%= for err <- upload_errors(@uploads.bookmarks, entry) do %>
-        <p class="text-red-700"><%= error_to_string(err) %></p>
-      <% end %>
+      <p :for={err <- upload_errors(@uploads.bookmarks, entry)} class="text-red-700 text-sm">
+        <%= error_to_string(err) %>
+      </p>
     <% end %>
 
     <.button
       type="submit"
       phx-disable-with="Saving..."
-      class={"self-start #{if valid?(@uploads.bookmarks), do: "block", else: "hidden"}"}
+      class={(valid?(@uploads.bookmarks) && "block") || "hidden"}
     >
       Upload
     </.button>

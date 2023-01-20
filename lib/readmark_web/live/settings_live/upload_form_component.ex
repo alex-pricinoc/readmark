@@ -12,6 +12,7 @@ defmodule ReadmarkWeb.SettingsLive.UploadFormComponent do
      |> allow_upload(:bookmarks,
        accept: ~w(.html),
        auto_upload: true,
+       # Drag and drop, max_entries: 1 stops accepting input. https://github.com/phoenixframework/phoenix_live_view/issues/2392
        max_entries: 1
      )}
   end

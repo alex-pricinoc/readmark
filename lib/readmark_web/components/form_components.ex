@@ -30,7 +30,6 @@ defmodule ReadmarkWeb.FormComponents do
   slot :inner_block, required: true
   slot :actions, doc: "the slot for form actions, such as a submit button"
 
-  # TODO: redesign the form for authentication routes, unify with the bookmarks form
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
@@ -224,7 +223,7 @@ defmodule ReadmarkWeb.FormComponents do
     """
   end
 
-  # Helper functions
+  ## Helper functions
 
   def list_input_value(form, field) do
     value_to_string(Form.input_value(form, field))

@@ -2,10 +2,10 @@
   :let={bookmark}
   id="bookmarks-list"
   items={@bookmarks}
-  phx_update={@phx_update}
   title={@active_tab}
+  phx_update={@phx_update}
   item_hidden={fn b -> deleted?(b) || b.folder != :archive end}
-  show={@active_bookmark == nil}
+  empty_list_message="No bookmarks archived."
 >
   <a
     href={bookmark.url}

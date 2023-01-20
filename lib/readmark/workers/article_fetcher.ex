@@ -12,7 +12,7 @@ defmodule Readmark.Workers.ArticleFetcher do
   # Client
 
   @doc false
-  def start_link(_), do: GenServer.start_link(__MODULE__, nil, name: @name)
+  def start_link([] = _opts), do: GenServer.start_link(__MODULE__, :no_state, name: @name)
 
   @doc """
   Fetches the article of a bookmark.
@@ -29,7 +29,7 @@ defmodule Readmark.Workers.ArticleFetcher do
   # Server (callbacks)
 
   @impl true
-  def init(_) do
+  def init(:no_state) do
     {:ok, nil}
   end
 
