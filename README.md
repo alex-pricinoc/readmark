@@ -31,3 +31,7 @@ Run the tests with `make test`, or with `make test.coverage` for coverage.
 - [Elixir](http://elixir-lang.org/) programming language
 - [Phoenix Framework](https://www.phoenixframework.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
+
+## Disclaimer
+
+Readmark is currently _beta quality_ software. Use at your own risk.

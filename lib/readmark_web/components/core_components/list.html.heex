@@ -1,6 +1,9 @@
 <div
   id={@id}
-  class={"grow overflow-y-auto md:grow-0 md:block border-r bg-white md:w-80 xl:w-96 #{if not @show, do: "hidden"}"}
+  class={[
+    "grow overflow-y-auto md:grow-0 md:block border-r bg-white md:w-80 xl:w-96",
+    not @show and "hidden"
+  ]}
   phx-hook="Open"
   data-scroll-area
 >

@@ -66,13 +66,13 @@
     <hr />
 
     <%= for kp <- inputs_for(f, :kindle_preferences) do %>
-      <h2 class="font-medium">Kindle automatic delivery</h2>
+      <h2 class="font-medium">Kindle Automatic Delivery</h2>
       <.input
         field={{kp, :is_scheduled?}}
         type="checkbox"
         label="Send my Unread articles to my Kindle automatically"
       />
-      <h2 class="font-medium">Deliver frequency</h2>
+      <h2 class="font-medium">Deliver Frequency</h2>
       <p>Send a compilation of up to 10 of my unread articles:</p>
       <ol class="list-disc list-inside pl-4 space-y-1">
         <li>

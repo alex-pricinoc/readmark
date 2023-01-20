@@ -1,6 +1,6 @@
 defmodule Readmark.Readability do
   @doc """
-  Summarizes the given url.
+  Returns a readable text view version of an article.
   """
   @spec summarize(String.t()) :: {:ok, Summary.t()} | {:error, String.t()}
   def summarize(url) when is_binary(url) do
@@ -17,8 +17,7 @@ defmodule Readmark.Readability do
 
   defp run(command, args) when is_list(args) do
     opts = [
-      stderr_to_stdout: true,
-      parallelism: true
+      stderr_to_stdout: true
     ]
 
     System.cmd(command, args, opts)

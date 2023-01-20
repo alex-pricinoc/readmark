@@ -4,7 +4,7 @@
 >
   <header class="h-20 flex items-center px-4">
     <.close_sidebar_button class="lg:hidden" />
-    <h1 class="ml-3 text-md font-bold line-clamp-1">
+    <h1 class="ml-3 text-md font-bold overflow-hidden text-ellipsis">
       <%= @current_user.display_name || "readmark" %>
     </h1>
   </header>

@@ -167,7 +167,7 @@ defmodule Readmark.Accounts.User do
   def display_name_changeset(user, attrs) do
     user
     |> cast(attrs, [:display_name])
-    |> validate_length(:display_name, max: 160)
+    |> validate_length(:display_name, max: 30)
     |> validate_required([:display_name])
   end
 
@@ -193,7 +193,7 @@ defmodule Readmark.Accounts.User do
 
     if get_field(changeset, :kindle_preferences).is_scheduled? and
          get_field(changeset, :kindle_email) == nil do
-      add_error(changeset, :kindle_email, "must specify an email for Kindle automatic deliveries")
+      add_error(changeset, :kindle_email, "must specify an email for Kindle Automatic Delivery")
     else
       changeset
     end

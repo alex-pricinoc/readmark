@@ -185,7 +185,7 @@ defmodule ReadmarkWeb.CoreComponents do
   attr :item_click, :any, default: false
   attr :items, :list, required: true
   attr :phx_update, :string, default: "replace"
-  attr :empty_list_message, :string, default: "No bookmarks added."
+  attr :empty_list_message, :string, required: true
 
   slot :action
   slot :inner_block, required: true
@@ -359,7 +359,7 @@ defmodule ReadmarkWeb.CoreComponents do
     JS.dispatch(js, "js:focus", to: to, detail: %{parent: parent})
   end
 
-  # Helper functions
+  ## Helper functions
 
   def get_domain(url), do: URI.parse(url).host
 

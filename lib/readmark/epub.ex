@@ -1,6 +1,6 @@
 defmodule Readmark.Epub do
   @moduledoc """
-  Module for creating EPUB files
+  Module for creating EPUB files.
   """
   import __MODULE__.Utils
 
@@ -74,7 +74,7 @@ defmodule Readmark.Epub do
     |> Floki.find_and_update("img", fn
       {"img", [{"src", src} | attrs]} ->
         image = download_image(src, dest)
-        Process.sleep(500)
+        Process.sleep(Enum.random(100..1_000))
         {"img", [{"src", image} | attrs]}
 
       other ->
@@ -94,12 +94,11 @@ defmodule Readmark.Epub do
       |> Finch.build(src)
       |> Finch.request(Readmark.Finch)
       |> case do
-        # TODO: maybe handle potential redirects
         {:ok, %Finch.Response{status: 200, body: body}} ->
           File.write!(file_path, body)
           file_name
 
-        error ->
+        {_, error} ->
           Logger.warning("Unable to download image #{inspect(error)}")
           ""
       end
