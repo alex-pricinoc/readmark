@@ -1,18 +1,33 @@
 # Readmark
 
-To start your Phoenix server:
+This is the full source code for [Readmark](https://readmark.fly.dev), a bookmarking site.
 
-- Run `mix setup` to install and setup dependencies
-- Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## Overview
+
+![](priv/static/images/screenshot.png)
+
+### Features
+
+- Simple and clean interface with a mobile-first responsive design
+- Basic bookmark management, tagging, bookmarklets
+- Import and export from and to Netscape Bookmark file
+- Send-to-Kindle functionality with automatic daily/weekly digests
+
+## Installation
+
+[Elixir 1.13+](https://elixir-lang.org/install.html) and [Go 1.19+](https://go.dev/doc/install) is required.
+
+- Build the application with `make`
+- Start Phoenix endpoint with `make server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+## Running tests
 
-## Learn more
+Run the tests with `make test`, or with `make test.coverage` for coverage.
 
-- Official website: https://www.phoenixframework.org/
-- Guides: https://hexdocs.pm/phoenix/overview.html
-- Docs: https://hexdocs.pm/phoenix
-- Forum: https://elixirforum.com/c/phoenix-forum
-- Source: https://github.com/phoenixframework/phoenix
+## Built with
+
+- [Elixir](http://elixir-lang.org/) programming language
+- [Phoenix Framework](https://www.phoenixframework.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
