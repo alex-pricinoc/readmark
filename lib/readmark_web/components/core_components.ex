@@ -285,6 +285,7 @@ defmodule ReadmarkWeb.CoreComponents do
   def show(js \\ %JS{}, selector) do
     JS.show(js,
       to: selector,
+      time: 300,
       transition:
         {"transition-all transform ease-out duration-300",
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
@@ -308,6 +309,7 @@ defmodule ReadmarkWeb.CoreComponents do
     |> JS.show(to: "##{id}")
     |> JS.show(
       to: "##{id}-bg",
+      time: 300,
       transition: {"transition-all transform ease-out duration-300", "opacity-0", "opacity-100"}
     )
     |> show("##{id}-container")
@@ -315,34 +317,40 @@ defmodule ReadmarkWeb.CoreComponents do
     |> JS.focus_first(to: "##{id}-content")
   end
 
-  # FIXME: JS.hide causes the topbar to show when closing the modal (might be a liveview bug)
   def hide_modal(js \\ %JS{}, id) do
     js
     |> JS.hide(
       to: "##{id}-bg",
+      time: 200,
       transition: {"transition-all transform ease-in duration-200", "opacity-100", "opacity-0"}
     )
     |> hide("##{id}-container")
-    |> JS.hide(to: "##{id}", transition: {"block", "block", "hidden"})
+    |> JS.hide(to: "##{id}", time: 200, transition: {"block", "block", "hidden"})
     |> JS.remove_class("overflow-hidden", to: "body")
     |> JS.pop_focus()
   end
 
   def hide_sidebar(js \\ %JS{}) do
     js
-    |> JS.hide(to: "#sidebar-overlay", transition: "fade-out")
+    |> JS.hide(to: "#sidebar-overlay", time: 200, transition: "fade-out")
     |> JS.hide(
       to: "#sidebar",
-      transition: {"transition duration-200 transform-gpu", "translate-x-0", "-translate-x-full"}
+      time: 200,
+      transition:
+        {"transition-transform transform-gpu ease-out duration-200", "translate-x-0",
+         "-translate-x-full"}
     )
   end
 
   def show_sidebar(js \\ %JS{}) do
     js
-    |> JS.show(to: "#sidebar-overlay", transition: "fade-in")
+    |> JS.show(to: "#sidebar-overlay", time: 300, transition: "fade-in")
     |> JS.show(
       to: "#sidebar",
-      transition: {"transition duration-200 transform-gpu", "-translate-x-full", "translate-x-0"}
+      time: 300,
+      transition:
+        {"transition-transform transform-gpu ease-out-cubic duration-300", "-translate-x-full",
+         "translate-x-0"}
     )
   end
 
