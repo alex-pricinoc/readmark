@@ -285,6 +285,7 @@ defmodule ReadmarkWeb.CoreComponents do
   def show(js \\ %JS{}, selector) do
     JS.show(js,
       to: selector,
+      time: 300,
       transition:
         {"transition-all transform ease-out duration-300",
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
@@ -295,9 +296,9 @@ defmodule ReadmarkWeb.CoreComponents do
   def hide(js \\ %JS{}, selector) do
     JS.hide(js,
       to: selector,
-      time: 200,
+      time: 175,
       transition:
-        {"transition-all transform ease-in duration-200",
+        {"transition-all transform ease-in duration-175",
          "opacity-100 translate-y-0 sm:scale-100",
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
     )
@@ -308,6 +309,7 @@ defmodule ReadmarkWeb.CoreComponents do
     |> JS.show(to: "##{id}")
     |> JS.show(
       to: "##{id}-bg",
+      time: 300,
       transition: {"transition-all transform ease-out duration-300", "opacity-0", "opacity-100"}
     )
     |> show("##{id}-container")
@@ -315,15 +317,15 @@ defmodule ReadmarkWeb.CoreComponents do
     |> JS.focus_first(to: "##{id}-content")
   end
 
-  # FIXME: JS.hide causes the topbar to show when closing the modal (might be a liveview bug)
   def hide_modal(js \\ %JS{}, id) do
     js
     |> JS.hide(
       to: "##{id}-bg",
-      transition: {"transition-all transform ease-in duration-200", "opacity-100", "opacity-0"}
+      time: 175,
+      transition: {"transition-all transform ease-in duration-175", "opacity-100", "opacity-0"}
     )
     |> hide("##{id}-container")
-    |> JS.hide(to: "##{id}", transition: {"block", "block", "hidden"})
+    |> JS.hide(to: "##{id}", time: 175, transition: {"block", "block", "hidden"})
     |> JS.remove_class("overflow-hidden", to: "body")
     |> JS.pop_focus()
   end
@@ -333,7 +335,10 @@ defmodule ReadmarkWeb.CoreComponents do
     |> JS.hide(to: "#sidebar-overlay", transition: "fade-out")
     |> JS.hide(
       to: "#sidebar",
-      transition: {"transition duration-200 transform-gpu", "translate-x-0", "-translate-x-full"}
+      time: 200,
+      transition:
+        {"transition-transform transform-gpu ease-out duration-200", "translate-x-0",
+         "-translate-x-full"}
     )
   end
 
@@ -342,7 +347,10 @@ defmodule ReadmarkWeb.CoreComponents do
     |> JS.show(to: "#sidebar-overlay", transition: "fade-in")
     |> JS.show(
       to: "#sidebar",
-      transition: {"transition duration-200 transform-gpu", "-translate-x-full", "translate-x-0"}
+      time: 250,
+      transition:
+        {"transition-transform transform-gpu ease-in-out duration-250", "-translate-x-full",
+         "translate-x-0"}
     )
   end
 

@@ -15,6 +15,10 @@ module.exports = {
       },
       backgroundImage: {
         "graph-paper": "url('/images/graph-paper.svg')"
+      },
+      transitionDuration: {
+        "175": "175ms",
+        "250": "250ms"
       }
     }
   },
