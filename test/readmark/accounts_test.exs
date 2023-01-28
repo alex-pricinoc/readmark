@@ -1,10 +1,13 @@
 defmodule Readmark.AccountsTest do
   use Readmark.DataCase
 
-  alias Readmark.Accounts
+  import Swoosh.TestAssertions
 
-  import Readmark.AccountsFixtures
+  import Readmark.{AccountsFixtures, BookmarksFixtures}
+
+  alias Readmark.{Accounts, Workers}
   alias Readmark.Accounts.{User, UserToken}
+  alias Readmark.Workers.ArticleSender
 
   describe "get_user_by_email/1" do
     test "does not return the user if the email does not exist" do
@@ -86,7 +89,7 @@ defmodule Readmark.AccountsTest do
 
     test "registers users with a hashed password" do
       email = unique_user_email()
-      {:ok, user} = Accounts.register_user(valid_user_attributes(email: email))
+      {:ok, user} = Accounts.register_user(valid_user_attributes(%{"email" => email}))
       assert user.email == email
       assert is_binary(user.hashed_password)
       assert is_nil(user.confirmed_at)
@@ -107,7 +110,7 @@ defmodule Readmark.AccountsTest do
       changeset =
         Accounts.change_user_registration(
           %User{},
-          valid_user_attributes(email: email, password: password)
+          valid_user_attributes(%{"email" => email, "password" => password})
         )
 
       assert changeset.valid?
@@ -503,6 +506,134 @@ defmodule Readmark.AccountsTest do
   describe "inspect/2 for the User module" do
     test "does not include password" do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""
+    end
+  end
+
+  describe "delete_user!/1" do
+    test "user account is deleted" do
+      %{id: id} = user = user_fixture()
+      assert %User{id: ^id} = Accounts.get_user!(user.id)
+
+      Accounts.delete_user!(user)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Accounts.get_user!(id)
+      end
+    end
+  end
+
+  describe "update_user_kindle_preferences/2" do
+    setup do
+      %{user: user_fixture()}
+    end
+
+    test "schedules/cancels a kindle delivery", %{user: user} do
+      Oban.Testing.with_testing_mode(:manual, fn ->
+        assert [] = all_enqueued()
+
+        {:ok, user} =
+          Accounts.update_user_kindle_preferences(user, %{
+            kindle_email: "some.email@kindle.com",
+            kindle_preferences: %{is_scheduled?: true}
+          })
+
+        job = [
+          worker: Workers.ArticleSender,
+          args: %{user_id: user.id},
+          scheduled_at: User.KindlePreferences.next_delivery_date(user.kindle_preferences),
+          queue: :kindle
+        ]
+
+        assert_enqueued(job)
+
+        {:ok, _user} =
+          Accounts.update_user_kindle_preferences(user, %{
+            kindle_preferences: %{is_scheduled?: false}
+          })
+
+        assert [] = all_enqueued()
+      end)
+    end
+
+    test "cannot schedule multiple deliveries at the same time", %{user: user} do
+      Oban.Testing.with_testing_mode(:manual, fn ->
+        assert [] = all_enqueued()
+
+        {:ok, _user} =
+          Accounts.update_user_kindle_preferences(user, %{
+            kindle_email: "some.email@kindle.com",
+            kindle_preferences: %{is_scheduled?: true}
+          })
+
+        job = [
+          worker: ArticleSender,
+          args: %{user_id: user.id},
+          scheduled_at: User.KindlePreferences.next_delivery_date(user.kindle_preferences)
+        ]
+
+        assert_enqueued(job)
+
+        {:ok, user} =
+          Accounts.update_user_kindle_preferences(user, %{
+            kindle_email: "some.email@kindle.com",
+            kindle_preferences: %{is_scheduled?: true, frequency: :day, time: ~T[12:00:00]}
+          })
+
+        assert length(all_enqueued(queue: :kindle)) == 1
+
+        refute_enqueued(job)
+
+        updated_job = [
+          worker: ArticleSender,
+          args: %{user_id: user.id},
+          scheduled_at: User.KindlePreferences.next_delivery_date(user.kindle_preferences)
+        ]
+
+        assert_enqueued(updated_job)
+      end)
+    end
+
+    test "new deliveries are automatically scheduled", %{user: user} do
+      Oban.Testing.with_testing_mode(:manual, fn ->
+        assert [] = all_enqueued()
+
+        {:ok, _user} =
+          Accounts.update_user_kindle_preferences(user, %{
+            kindle_email: "some.email@kindle.com",
+            kindle_preferences: %{is_scheduled?: true}
+          })
+
+        assert :ok = perform_job(ArticleSender, %{user_id: user.id})
+        assert :ok = perform_job(ArticleSender, %{user_id: user.id})
+
+        assert length(all_enqueued()) == 1
+
+        assert_enqueued(
+          worker: ArticleSender,
+          args: %{user_id: user.id},
+          scheduled_at: User.KindlePreferences.next_delivery_date(user.kindle_preferences)
+        )
+      end)
+    end
+
+    test "articles are sent", %{user: user} do
+      Oban.Testing.with_testing_mode(:manual, fn ->
+        _bookmark = bookmark_with_article_fixture(user)
+
+        {:ok, _user} =
+          Accounts.update_user_kindle_preferences(user, %{
+            kindle_email: "some.email@kindle.com",
+            kindle_preferences: %{is_scheduled?: true, articles: 1}
+          })
+
+        assert :ok = perform_job(ArticleSender, %{user_id: user.id})
+
+        assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :kindle, with_scheduled: true)
+
+        assert_email_sent(fn email ->
+          assert %{attachments: [%{content_type: "application/epub+zip"}]} = email
+        end)
+      end)
     end
   end
 end

@@ -18,11 +18,6 @@ defmodule ReadmarkWeb.SettingsLive.UploadFormComponent do
   end
 
   @impl true
-  def handle_event("validate", _params, socket) do
-    {:noreply, socket}
-  end
-
-  @impl true
   def handle_event("save", _params, socket) do
     [imported] =
       consume_uploaded_entries(socket, :bookmarks, fn %{path: path}, _entries ->
@@ -33,6 +28,12 @@ defmodule ReadmarkWeb.SettingsLive.UploadFormComponent do
     {:noreply, update(socket, :imported, &(&1 ++ imported))}
   end
 
+  # coveralls-ignore-start
+  @impl true
+  def handle_event("validate", _params, socket) do
+    {:noreply, socket}
+  end
+
   defp valid?(%{entries: [_ | _], errors: []}), do: true
   defp valid?(_), do: false
 
@@ -40,4 +41,5 @@ defmodule ReadmarkWeb.SettingsLive.UploadFormComponent do
   defp error_to_string(:too_many_files), do: "You have selected too many files"
   defp error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
   defp error_to_string(_), do: "Something went wrong"
+  # coveralls-ignore-stop
 end

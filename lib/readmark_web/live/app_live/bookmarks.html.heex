@@ -1,6 +1,6 @@
 <.list
   :let={bookmark}
-  id="bookmarks-list"
+  id="bookmarks"
   items={@bookmarks}
   title={@active_tab}
   phx_update={@phx_update}
@@ -8,7 +8,7 @@
   empty_list_message="No bookmarks added."
 >
   <:action>
-    <.icon_button label="Add bookmark" patch={~p"/bookmarks/new"}>
+    <.icon_button id="add-bookmark-button" label="Add bookmark" patch={~p"/bookmarks/new"}>
       <Heroicons.plus class="h-5 w-5" stroke-width="2" />
     </.icon_button>
   </:action>

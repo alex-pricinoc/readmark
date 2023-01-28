@@ -49,7 +49,10 @@ test:
 	mix test
 
 test.coverage:
-	mix test --cover
+	mix coveralls
+
+test.coverage.html:
+	mix coveralls.html
 
 clean:
 	mix clean

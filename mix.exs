@@ -67,7 +67,8 @@ defmodule Readmark.MixProject do
       {:quarto, path: "vendor/quarto"},
       {:oban, "~> 2.13"},
       {:timex, "~> 3.7"},
-      {:kday, "~> 1.0"}
+      {:kday, "~> 1.0"},
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 

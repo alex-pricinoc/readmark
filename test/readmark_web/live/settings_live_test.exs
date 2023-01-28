@@ -1,9 +1,21 @@
-defmodule ReadmarkWeb.UserSettingsLiveTest do
+defmodule ReadmarkWeb.SettingsLiveTest do
   use ReadmarkWeb.ConnCase
 
-  alias Readmark.Accounts
+  import Swoosh.TestAssertions
   import Phoenix.LiveViewTest
-  import Readmark.AccountsFixtures
+  import Readmark.{AccountsFixtures, BookmarksFixtures}
+
+  import TimeHelper
+
+  alias Readmark.Accounts
+
+  setup :set_swoosh_global
+
+  defp create_40_bookmarks(%{user: user}) do
+    for _ <- 1..40, do: bookmark_fixture(user)
+
+    :ok
+  end
 
   describe "Settings page" do
     test "renders settings page", %{conn: conn} do
@@ -28,7 +40,7 @@ defmodule ReadmarkWeb.UserSettingsLiveTest do
   describe "update email form" do
     setup %{conn: conn} do
       password = valid_user_password()
-      user = user_fixture(%{password: password})
+      user = user_fixture(%{"password" => password})
       %{conn: log_in_user(conn, user), user: user, password: password}
     end
 
@@ -91,7 +103,7 @@ defmodule ReadmarkWeb.UserSettingsLiveTest do
   describe "update password form" do
     setup %{conn: conn} do
       password = valid_user_password()
-      user = user_fixture(%{password: password})
+      user = user_fixture(%{"password" => password})
       %{conn: log_in_user(conn, user), user: user, password: password}
     end
 
@@ -217,6 +229,172 @@ defmodule ReadmarkWeb.UserSettingsLiveTest do
       assert path == ~p"/users/log_in"
       assert %{"error" => message} = flash
       assert message == "You must log in to access this page."
+    end
+  end
+
+  describe "upload bookmarks" do
+    setup [:register_and_log_in_user]
+
+    test "bookmarks are imported", %{conn: conn} do
+      {:ok, lv, html} = live(conn, ~p"/settings")
+
+      assert html =~ "Import"
+      refute has_element?(lv, ~s|button[type=submit]|, "Upload")
+
+      bookmarks =
+        file_input(lv, "#upload-bookmarks-form", :bookmarks, [
+          %{
+            content: File.read!("test/support/fixtures/delicious.html"),
+            name: "bookmarks.html",
+            size: 2541,
+            type: "text/html",
+            last_modified: 1_674_422_321_245
+          }
+        ])
+
+      render_upload(bookmarks, "bookmarks.html")
+
+      assert has_element?(lv, ~s|button[type=submit]|, "Upload")
+
+      html = lv |> form("#upload-bookmarks-form") |> render_submit()
+
+      assert html =~ "Imported 9 links"
+      assert html =~ "Failed to import 1 links"
+
+      bookmarks =
+        file_input(lv, "#upload-bookmarks-form", :bookmarks, [
+          %{
+            content: File.read!("test/support/fixtures/delicious.html"),
+            name: "bookmarks.html",
+            size: 2541,
+            type: "text/html",
+            last_modified: 1_674_422_321_245
+          }
+        ])
+
+      render_upload(bookmarks, "bookmarks.html")
+
+      assert lv |> form("#upload-bookmarks-form") |> render_submit() =~ "Imported 18 links"
+    end
+  end
+
+  describe "export bookmarks" do
+    setup [:register_and_log_in_user]
+
+    setup [:create_40_bookmarks]
+
+    test "can export bookmarks", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/settings")
+
+      assert {:error, redirect} =
+               result = lv |> element("a", "Download .HTML file") |> render_click()
+
+      assert {:redirect, %{to: path}} = redirect
+      assert path == ~p"/settings/export"
+
+      {:ok, %{resp_body: file} = _conn} = follow_redirect(result, conn)
+
+      assert file =~ "!DOCTYPE NETSCAPE-Bookmark-file-1"
+      assert file =~ "Example title"
+      assert file =~ "https://www.example.com/article.html"
+
+      assert 40 = Regex.scan(~r/Example title/, file) |> length
+    end
+  end
+
+  describe "kindle preferences" do
+    setup [:register_and_log_in_user]
+
+    test "setup", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/settings")
+
+      html = lv |> element("a", "Setup your Kindle") |> render_click()
+
+      assert html =~ "Your Kindle Email"
+      assert html =~ "Personal Document Settings"
+      refute html =~ "Send Now"
+
+      html =
+        lv
+        |> form("#kindle_preferences_form", %{
+          user: %{
+            "kindle_preferences" => %{
+              "is_scheduled?" => true
+            }
+          }
+        })
+        |> render_submit()
+
+      assert html =~ "must specify an email for Kindle Automatic Delivery"
+
+      html =
+        lv
+        |> form("#kindle_preferences_form", %{
+          user: %{
+            "kindle_email" => "invalid email"
+          }
+        })
+        |> render_change()
+
+      assert html =~ "must be a valid kindle email with no spaces"
+
+      {:ok, _lv, html} =
+        lv
+        |> form("#kindle_preferences_form", %{
+          user: %{
+            "kindle_email" => "alex_4o2432cb@kindle.com",
+            "kindle_preferences" => %{
+              "is_scheduled?" => false
+            }
+          }
+        })
+        |> render_submit()
+        |> follow_redirect(conn)
+
+      assert html =~ "Updated successfully"
+      assert html =~ "Send Now"
+      refute html =~ "Setup your Kindle"
+    end
+
+    test "articles can be sent immediately (no unread articles)", %{conn: conn, user: user} do
+      {:ok, _user} =
+        Accounts.update_user_kindle_preferences(user, %{
+          kindle_email: "some.email@kindle.com",
+          kindle_preferences: %{articles: 1}
+        })
+
+      {:ok, lv, html} = live(conn, ~p"/settings")
+
+      assert html =~ "Send Now"
+      refute html =~ "Setup your Kindle"
+
+      lv |> element("button", "Send Now") |> render_click()
+
+      wait_until(fn ->
+        assert render(lv) =~ "You don&#39;t have any unread articles"
+      end)
+    end
+
+    test "articles can be sent immediately (unread articles)", %{conn: conn, user: user} do
+      _bookmark = bookmark_with_article_fixture(user)
+
+      {:ok, _user} =
+        Accounts.update_user_kindle_preferences(user, %{
+          kindle_email: "some.email@kindle.com",
+          kindle_preferences: %{articles: 1}
+        })
+
+      {:ok, lv, _html} = live(conn, ~p"/settings")
+
+      lv |> element("button", "Send Now") |> render_click()
+
+      wait_until(fn ->
+        assert render(lv) =~ "Your articles have been sent to your kindle"
+      end)
+
+      assert_email_sent(fn email ->
+        assert %{attachments: [%{content_type: "application/epub+zip"}]} = email
+      end)
     end
   end
 end

@@ -78,7 +78,7 @@ defmodule Readmark.Accounts do
   def register_user(attrs) do
     %User{}
     |> User.registration_changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert(returning: true)
   end
 
   @doc """
