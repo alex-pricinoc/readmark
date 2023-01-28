@@ -1,0 +1,28 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2\n"
+
+#: lib/readmark_web/components/core_components/table.html.heex:6
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr ""
+
+#: lib/readmark_web/components/core_components.ex:91
+#: lib/readmark_web/components/core_components/modal.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "close"
+msgstr ""
+
+#: lib/readmark_web/live/settings_live.html.heex:149
+#, elixir-autogen, elixir-format
+msgid "Are you sure? This action is irreversible."
+msgstr ""

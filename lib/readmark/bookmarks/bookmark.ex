@@ -57,7 +57,7 @@ defmodule Readmark.Bookmarks.Bookmark do
           "is missing a host"
 
         %URI{host: host} ->
-          case :inet.gethostbyname(Kernel.to_charlist(host)) do
+          case :inet.gethostbyname(to_charlist(host)) do
             {:ok, _} -> nil
             {:error, _} -> "invalid host"
           end

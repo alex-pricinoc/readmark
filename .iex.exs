@@ -1,8 +1,7 @@
-alias Readmark.{Repo, Bookmarks, Notes, Epub}
+alias Readmark.{Repo, Accounts, Bookmarks, Notes, Epub}
 
 alias Bookmarks.{Bookmark, Article}
 
-alias Readmark.Accounts
-alias Readmark.Accounts.{User, KindlePreferences}
+alias Accounts.User
 
 import_file_if_available("~/.iex.exs")

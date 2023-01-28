@@ -1,4 +1,4 @@
-<div class="w-full overflow-scroll">
+<div class="min-w-0">
   <.form
     id="upload-bookmarks-form"
     for={:bookmarks}
@@ -29,31 +29,29 @@
   </.form>
 
   <%= unless Enum.empty?(@imported) do %>
-    <div class="">
-      <%= if (count = Enum.count(@imported, fn {key, _} -> key == :ok end)) > 0 do %>
-        <h1 class="text-green-600"><%= "Imported #{count} links" %></h1>
-      <% end %>
-      <%= if (count = Enum.count(@imported, fn {key, _} -> key == :error end)) > 0 do %>
-        <details class="">
-          <summary class="text-red-600"><%= "Failed to import #{count} links" %></summary>
-          <dl>
-            <%= for {:error, item} <- @imported do %>
-              <%= case item do %>
-                <% %Ecto.Changeset{} -> %>
-                  <dt class="text-sm truncate"><%= item.changes.title %></dt>
-                  <dd class="text-xs text-gray-600">
-                    <%= item.changes.url %>
-                  </dd>
-                <% _ -> %>
-                  <dt class="font-medium">Failed to parse:</dt>
-                  <dd>
-                    <pre class="prose-code text-sm"><%= "#{item}" %></pre>
-                  </dd>
-              <% end %>
+    <%= if (count = Enum.count(@imported, fn {key, _} -> key == :ok end)) > 0 do %>
+      <h1 class="text-green-600"><%= "Imported #{count} links" %></h1>
+    <% end %>
+    <%= if (count = Enum.count(@imported, fn {key, _} -> key == :error end)) > 0 do %>
+      <details>
+        <summary class="text-red-600"><%= "Failed to import #{count} links" %></summary>
+        <dl class="overflow-x-auto">
+          <%= for {:error, item} <- @imported do %>
+            <%= case item do %>
+              <% %Ecto.Changeset{} -> %>
+                <dt class="text-sm truncate"><%= item.changes.title %></dt>
+                <dd class="text-xs text-gray-600">
+                  <%= item.changes.url %>
+                </dd>
+              <% _ -> %>
+                <dt class="font-medium">Failed to parse:</dt>
+                <dd>
+                  <pre class="prose-code text-sm"><%= "#{item}" %></pre>
+                </dd>
             <% end %>
-          </dl>
-        </details>
-      <% end %>
-    </div>
+          <% end %>
+        </dl>
+      </details>
+    <% end %>
   <% end %>
 </div>
