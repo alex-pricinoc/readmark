@@ -26,9 +26,7 @@ defmodule ReadmarkWeb.BookmarkController do
   end
 
   def reading(conn, %{"url" => url}, current_user) do
-    article = ArticleFetcher.get_or_fetch_article(url)
-
-    if article != nil do
+    if article = ArticleFetcher.get_article(url) do
       bookmark_params = %{
         "url" => url,
         "title" => article.title,

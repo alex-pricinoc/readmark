@@ -36,3 +36,5 @@ config :logger, level: :warning
 config :phoenix, :plug_init_mode, :runtime
 
 config :readmark, Oban, testing: :inline
+
+config :readmark, :readability, ReadabilityMock

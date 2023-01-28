@@ -1,8 +1,8 @@
 defmodule Readmark.Bookmarks.Bookmark do
   use Readmark.Schema
 
-  alias Readmark.Bookmarks.{Tag, BookmarkArticle, Article}
   alias Readmark.Accounts.User
+  alias Readmark.Bookmarks.{Tag, BookmarkArticle, Article}
 
   @type t :: Ecto.Schema.t()
 

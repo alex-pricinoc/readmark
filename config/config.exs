@@ -75,6 +75,8 @@ config :readmark, Oban,
   plugins: [Oban.Plugins.Pruner],
   queues: [default: 3, kindle: 2]
 
+config :readmark, :readability, Readability
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
