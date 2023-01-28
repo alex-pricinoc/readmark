@@ -11,20 +11,16 @@ defmodule Readmark.Epub do
   @doc """
   Generate epub from articles.
   """
-  @spec build(list(Article.t()) | Article.t()) :: {path :: String.t(), remove_gen_files :: fun()}
-  def build(articles) when is_list(articles) do
+  @spec build(list(Article.t())) :: {path :: String.t(), remove_gen_files :: fun()}
+  def build(articles) when is_list(articles) and length(articles) > 0 do
     config = %{
-      dir: Path.join([System.tmp_dir!(), "readmark", BUPE.Util.uuid4()]),
-      label: Timex.format!(Timex.now(), "{WDfull}, {Mshort}. {D}, {YYYY}")
+      label: book_title(articles),
+      dir: Path.join([System.tmp_dir!(), "readmark", BUPE.Util.uuid4()])
     }
 
     articles
     |> convert_article_pages(config)
     |> to_epub(config)
-  end
-
-  def build(%Article{} = article) do
-    build([article])
   end
 
   defp convert_article_pages(articles, config) do
@@ -73,9 +69,7 @@ defmodule Readmark.Epub do
     |> Floki.parse_document!()
     |> Floki.find_and_update("img", fn
       {"img", [{"src", src} | attrs]} ->
-        image = download_image(src, dest)
-        Process.sleep(Enum.random(100..1_000))
-        {"img", [{"src", image} | attrs]}
+        {"img", [{"src", download_image(src, dest)} | attrs]}
 
       other ->
         other
@@ -83,7 +77,7 @@ defmodule Readmark.Epub do
     |> Floki.raw_html()
   end
 
-  def download_image(src, dest) do
+  defp download_image(src, dest) do
     file_name = Path.basename(src)
     file_path = Path.join(dest, file_name)
 
@@ -103,6 +97,14 @@ defmodule Readmark.Epub do
           ""
       end
     end
+  end
+
+  defp book_title([%{title: title}]) do
+    if String.length(title) > 50, do: String.slice(title, 0..47) <> "...", else: title
+  end
+
+  defp book_title([_ | _]) do
+    Timex.format!(Timex.now(), "{WDfull}, {Mshort}. {D}, {YYYY}")
   end
 
   defp pad_leading(index), do: String.pad_leading(to_string(index), 4, "0")
