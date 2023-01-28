@@ -43,11 +43,11 @@ defmodule Readmark.Epub.Utils do
   defp text(image, text) do
     Image.Text.simple_text!(text,
       autofit: true,
-      width: text_box_width(image),
-      font: "sans",
       font_size: 100,
+      font: "sans-serif",
+      align: :center,
       height: 100,
-      align: :center
+      width: text_box_width(image)
     )
   end
 
