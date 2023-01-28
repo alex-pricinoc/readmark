@@ -1,11 +1,11 @@
-<div>
+<div class="w-full overflow-scroll">
   <.form
     id="upload-bookmarks-form"
     for={:bookmarks}
     phx-target={@myself}
     phx-change="validate"
     phx-submit="save"
-    class="space-y-4"
+    class="space-y-4 max-w-full sm:max-w-sm"
   >
     <div
       class="border-dashed border-gray-300 border-2 rounded-md px-4 sm:px-6 py-5"
@@ -23,17 +23,13 @@
       </p>
     <% end %>
 
-    <.button
-      type="submit"
-      phx-disable-with="Saving..."
-      class={(valid?(@uploads.bookmarks) && "block") || "hidden"}
-    >
+    <.button :if={valid?(@uploads.bookmarks)} type="submit" phx-disable-with="Saving...">
       Upload
     </.button>
   </.form>
 
   <%= unless Enum.empty?(@imported) do %>
-    <div class="max-w-lg">
+    <div class="">
       <%= if (count = Enum.count(@imported, fn {key, _} -> key == :ok end)) > 0 do %>
         <h1 class="text-green-600"><%= "Imported #{count} links" %></h1>
       <% end %>

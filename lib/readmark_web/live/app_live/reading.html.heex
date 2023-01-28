@@ -1,7 +1,7 @@
 <.list
   :let={bookmark}
   items={@bookmarks}
-  id="bookmarks-list"
+  id="bookmarks"
   title={@active_tab}
   phx_update={@phx_update}
   item_hidden={fn b -> deleted?(b) || b.folder != :reading end}
@@ -10,7 +10,7 @@
   empty_list_message="No articles saved."
 >
   <:action>
-    <.icon_button label="Add bookmark" patch={~p"/reading/new"}>
+    <.icon_button id="add-bookmark-button" label="Add link" patch={~p"/reading/new"}>
       <Heroicons.plus class="h-5 w-5" stroke-width="2" />
     </.icon_button>
   </:action>

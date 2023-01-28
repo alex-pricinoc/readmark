@@ -110,4 +110,13 @@ defmodule ReadmarkWeb.UserSessionControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"
     end
   end
+
+  describe "DELETE /users/delete_account" do
+    test "deletes user account", %{conn: conn, user: user} do
+      conn = conn |> log_in_user(user) |> delete(~p"/users/delete_account")
+      assert redirected_to(conn) == ~p"/users/log_in"
+      refute get_session(conn, :user_token)
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Sorry to see you go"
+    end
+  end
 end
