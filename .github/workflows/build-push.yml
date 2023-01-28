@@ -20,7 +20,7 @@ jobs:
         include:
           - elixir: 1.14.3
             otp: 25.0.4
-            alpine-version: 3.16.1
+            debian-version: bullseye-20220801-slim
             aliases: |
               ghcr.io/${{ github.repository }}-builder:1.14.3-25.0.4
               ghcr.io/${{ github.repository }}-builder:1.14-25.0
@@ -35,11 +35,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-dev-${{ matrix.alpine-version }}-${{ matrix.otp }}-${{ matrix.elixir }}
+          key: ${{ runner.os }}-buildx-dev-${{ matrix.debian-version }}-${{ matrix.otp }}-${{ matrix.elixir }}
           restore-keys: |
-            ${{ runner.os }}-buildx-dev-${{ matrix.alpine-version }}-${{ matrix.otp }}-${{ matrix.elixir }}
-            ${{ runner.os }}-buildx-dev-${{ matrix.alpine-version }}-${{ matrix.otp }}
-            ${{ runner.os }}-buildx-dev-${{ matrix.alpine-version }}
+            ${{ runner.os }}-buildx-dev-${{ matrix.debian-version }}-${{ matrix.otp }}-${{ matrix.elixir }}
+            ${{ runner.os }}-buildx-dev-${{ matrix.debian-version }}-${{ matrix.otp }}
+            ${{ runner.os }}-buildx-dev-${{ matrix.debian-version }}
             ${{ runner.os }}-buildx-dev
 
       - name: Login to GitHub Container Registry
@@ -57,11 +57,11 @@ jobs:
           file: build.Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}-builder:${{ matrix.elixir }}-${{ matrix.otp }}-${{ matrix.alpine-version }}
+            ghcr.io/${{ github.repository }}-builder:${{ matrix.elixir }}-erlang-${{ matrix.otp }}-debian-${{ matrix.debian-version }}
             ${{ matrix.aliases }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
             ELIXIR_VERSION=${{ matrix.elixir }}
             OTP_VERSION=${{ matrix.otp }}
-            ALPINE_VERSION=${{ matrix.alpine-version }}
+            DEBIAN_VERSION=${{ matrix.debian-version }}
