@@ -78,11 +78,11 @@ jobs:
         run: mix local.hex --force && mix local.rebar --force
 
       # Conditionally bust the cache when job is re-run.
-      # - name: Clean to rule out incremental build as a source of flakiness
-      #   if: github.run_attempt != '1'
-      #   run: |
-      #     mix deps.clean --all
-      #     mix clean
+      - name: Clean to rule out incremental build as a source of flakiness
+        if: github.run_attempt != '1'
+        run: |
+          mix deps.clean --all
+          mix clean
 
       - name: Install dependencies
         run: mix deps.get --only $MIX_ENV

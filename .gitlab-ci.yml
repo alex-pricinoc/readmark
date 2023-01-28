@@ -8,22 +8,18 @@ stages:
 variables:
   MIX_ENV: test
   MIX_HOME: $CI_PROJECT_DIR/.mix
-  LATEST_IMAGE: $CI_REGISTRY_IMAGE:latest
+  ELIXIR_VERSION: 1.14.3
+  OTP_VERSION: 25.0.4
+  DEBIAN_VERSION: bullseye-20220801-slim
+  BUILDER_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH/builder:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}
 
 build image:
   stage: image
-  # tags: [podman]
   image: quay.io/podman/stable
-  variables:
-    ELIXIR_VERSION: 1.14.3
-    OTP_VERSION: 25.0.4
-    ALPINE_VERSION: 3.16.1
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:$ELIXIR_VERSION-$OTP_VERSION-$ALPINE_VERSION
   script:
     - echo $CI_REGISTRY_PASSWORD | podman login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - podman build --file build.Dockerfile --tag $IMAGE_TAG --tag $LATEST_IMAGE --build-arg ELIXIR_VERSION=$ELIXIR_VERSION --build-arg OTP_VERSION=$OTP_VERSION --build-arg ALPINE_VERSION=$ALPINE_VERSION .
-    - podman push $IMAGE_TAG
-    - podman push $LATEST_IMAGE
+    - podman build --file build.Dockerfile --tag $BUILDER_IMAGE --build-arg ELIXIR_VERSION=$ELIXIR_VERSION --build-arg OTP_VERSION=$OTP_VERSION --build-arg DEBIAN_VERSION=$DEBIAN_VERSION .
+    - podman push $BUILDER_IMAGE
   rules:
     - changes:
         - .gitlab-ci.yml
@@ -31,8 +27,7 @@ build image:
 
 deps:elixir:
   stage: deps
-  image: $LATEST_IMAGE
-  # tags: [podman]
+  image: $BUILDER_IMAGE
   before_script:
     - mix local.hex --force
     - mix local.rebar --force
@@ -56,16 +51,14 @@ deps:elixir:
 
 lint:elixir:
   stage: test
-  # tags: [podman]
-  image: $LATEST_IMAGE
+  image: $BUILDER_IMAGE
   dependencies: [deps:elixir]
   script:
     - make lint
 
 test:elixir:
   stage: test
-  # tags: [podman]
-  image: $LATEST_IMAGE
+  image: $BUILDER_IMAGE
   services: [postgres:14-alpine]
   dependencies: [deps:elixir]
   variables:
@@ -79,11 +72,10 @@ test:elixir:
 release:
   stage: release
   image: alpine:latest
-  # tags: [podman]
   before_script:
     - apk add --no-cache curl
     - curl -L https://fly.io/install.sh | sh
   script:
-    - /root/.fly/bin/flyctl deploy --detach
+    - /root/.fly/bin/flyctl deploy --detach --build-arg BUILDER_IMAGE=$BUILDER_IMAGE --build-arg ELIXIR_VERSION=$ELIXIR_VERSION --build-arg OTP_VERSION=$OTP_VERSION --build-arg DEBIAN_VERSION=$DEBIAN_VERSION
   only:
     - develop
