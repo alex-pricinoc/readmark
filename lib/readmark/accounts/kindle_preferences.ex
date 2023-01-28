@@ -38,10 +38,10 @@ defmodule Readmark.Accounts.User.KindlePreferences do
     field :time_zone, :string, default: "Etc/UTC"
   end
 
-  @fields ~w(is_scheduled? frequency articles time time_zone)a
+  @params ~w(is_scheduled? frequency articles time time_zone)a
 
   def changeset(preferences, attrs) do
-    cast(preferences, attrs, @fields)
+    cast(preferences, attrs, @params)
   end
 
   def next_delivery_date(%Preferences{} = preferences) do
@@ -49,24 +49,18 @@ defmodule Readmark.Accounts.User.KindlePreferences do
 
     now
     |> set(preferences)
-    |> maybe_shift(now, days(preferences.frequency))
     |> Timex.Timezone.convert("Etc/UTC")
   end
 
-  defp maybe_shift(next_run, now, days) do
-    if Timex.before?(now, next_run), do: next_run, else: Timex.shift(next_run, days: days)
+  defp set(date, %{frequency: :day, time: time}) do
+    date
+    |> Timex.set(time: time)
+    |> Timex.shift(days: 1)
   end
 
-  defp set(now, %{frequency: :day, time: time}) do
-    Timex.set(now, time: time)
-  end
-
-  defp set(now, %{frequency: :week, time: time}) do
+  defp set(date, %{frequency: :week, time: time}) do
     # weekly deliveries are always sent on friday
-    friday = Kday.first_kday(now, 5)
-    Timex.set(now, date: friday, time: time)
+    friday = Kday.kday_after(date, 5)
+    Timex.set(date, date: friday, time: time)
   end
-
-  defp days(:day), do: 1
-  defp days(:week), do: 7
 end
