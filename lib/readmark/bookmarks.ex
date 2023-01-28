@@ -7,7 +7,7 @@ defmodule Readmark.Bookmarks do
   alias Readmark.Repo
 
   alias Readmark.Accounts.User
-  alias Readmark.Bookmarks.{Bookmark, BookmarkArticle}
+  alias Readmark.Bookmarks.{Bookmark, BookmarkArticle, Article}
 
   @doc """
   Returns all Bookmarks belonging to the given user.
@@ -153,6 +153,24 @@ defmodule Readmark.Bookmarks do
   """
   def change_bookmark(%Bookmark{} = bookmark, attrs \\ %{}) do
     Bookmark.changeset(bookmark, attrs)
+  end
+
+  @doc """
+  Creates an article.
+
+  ## Examples
+
+      iex> create_article(%{field: value})
+      {:ok, %Article{}}
+
+      iex> create_article(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_article(attrs \\ %{}) do
+    %Article{}
+    |> Article.changeset(attrs)
+    |> Repo.insert()
   end
 
   @pubsub Readmark.PubSub

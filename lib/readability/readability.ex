@@ -1,8 +1,14 @@
-defmodule Readmark.Readability do
+defmodule Readability do
+  @moduledoc """
+  Readability module for extracting articles.
+  """
+
+  @behaviour Readability.Behaviour
+
   @doc """
   Returns a readable text view version of an article.
   """
-  @spec summarize(String.t()) :: {:ok, Summary.t()} | {:error, String.t()}
+  @impl true
   def summarize(url) when is_binary(url) do
     bin_path()
     |> run([url])

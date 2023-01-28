@@ -3,9 +3,10 @@ defmodule Readmark.Workers.ArticleFetcher do
 
   require Logger
 
-  alias Readmark.Repo
-  alias Readmark.{Bookmarks, Readability}
+  alias Readmark.{Repo, Bookmarks}
   alias Bookmarks.{Article, Bookmark}
+
+  @readability Application.compile_env!(:readmark, :readability)
 
   @name __MODULE__
 
@@ -24,7 +25,7 @@ defmodule Readmark.Workers.ArticleFetcher do
 
   Returns an `Article` struct or `nil`.
   """
-  def get_or_fetch_article(url) when is_binary(url), do: GenServer.call(@name, {:fetch, url})
+  def get_article(url) when is_binary(url), do: GenServer.call(@name, {:fetch, url})
 
   # Server (callbacks)
 
@@ -51,15 +52,16 @@ defmodule Readmark.Workers.ArticleFetcher do
 
   @impl true
   def handle_call({:fetch, url}, _from, state) do
-    article = Repo.get(Article, url) || maybe_insert_article(url, Readability.summarize(url))
+    {:reply, get_or_fetch_article(url), state}
+  end
 
-    {:reply, article, state}
+  defp get_or_fetch_article(url) do
+    Repo.get(Article, url) || maybe_insert_article(url, @readability.summarize(url))
   end
 
   defp maybe_insert_article(url, {:ok, attrs}) do
-    %Article{}
-    |> Article.changeset(attrs)
-    |> Repo.insert()
+    attrs
+    |> Bookmarks.create_article()
     |> case do
       {:ok, article} ->
         article
