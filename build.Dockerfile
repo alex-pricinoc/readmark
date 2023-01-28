@@ -20,11 +20,12 @@ RUN echo "${DPRINT_SHA256}  /tmp/dprint.zip" | sha256sum -c -s && \
     rm /tmp/dprint.zip
 
 RUN apk add --no-cache \
-  git \
-  gcc \
-  musl-dev \
-  make \
-  tar \
-  vips-dev
+    git \
+    gcc \
+    musl-dev \
+    make \
+    tar \
+    pkgconf \
+    vips-dev
 
 CMD ["iex"]
