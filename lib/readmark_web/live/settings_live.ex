@@ -5,7 +5,6 @@ defmodule ReadmarkWeb.SettingsLive do
   alias ReadmarkWeb.SettingsLive.{UploadFormComponent, KindlePreferencesFormComponent}
   alias Readmark.Workers.ArticleSender
 
-  # TODO: Move account settings to a live component
   @impl true
   def mount(%{"token" => token}, _session, socket) do
     socket =
@@ -30,7 +29,6 @@ defmodule ReadmarkWeb.SettingsLive do
       current_email: user.email,
       email_changeset: Accounts.change_user_email(user),
       password_changeset: Accounts.change_user_password(user),
-      display_name_changeset: Accounts.change_user_display_name(user),
       trigger_submit: false,
       articles_sending?: false,
       time_zone: get_connect_params(socket)["timezone"]
@@ -116,29 +114,6 @@ defmodule ReadmarkWeb.SettingsLive do
   end
 
   @impl true
-  def handle_event("validate_display_name", %{"user" => user_params}, socket) do
-    display_name_changeset =
-      Accounts.change_user_display_name(socket.assigns.current_user, user_params)
-
-    {:noreply,
-     assign(socket, :display_name_changeset, Map.put(display_name_changeset, :action, :validate))}
-  end
-
-  @impl true
-  def handle_event("update_display_name", %{"user" => user_params}, socket) do
-    case Accounts.update_user_display_name(socket.assigns.current_user, user_params) do
-      {:ok, _user} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Updated successfully!")
-         |> push_navigate(to: ~p"/settings")}
-
-      {:error, changeset} ->
-        {:noreply, assign(socket, :display_name_changeset, changeset)}
-    end
-  end
-
-  @impl true
   def handle_event("send-articles", _params, socket) do
     pid = self()
 
@@ -174,11 +149,6 @@ defmodule ReadmarkWeb.SettingsLive do
   defp apply_action(socket, :change_email, _params) do
     socket
     |> assign(:page_title, "Change Email")
-  end
-
-  defp apply_action(socket, :change_display_name, _params) do
-    socket
-    |> assign(:page_title, "Change Display Name")
   end
 
   defp apply_action(socket, :change_password, _params) do

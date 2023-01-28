@@ -221,28 +221,6 @@ defmodule Readmark.Accounts do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for changing the user display name.
-
-  ## Examples
-
-      iex> change_user_display_name(user)
-      %Ecto.Changeset{data: %User{}}
-
-  """
-  def change_user_display_name(user, attrs \\ %{}) do
-    User.display_name_changeset(user, attrs)
-  end
-
-  @doc """
-  Updates the user display name.
-  """
-  def update_user_display_name(user, attrs) do
-    user
-    |> User.display_name_changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
   Returns an `%Ecto.Changeset{}` for changing user kindle preferences.
 
   ## Examples
