@@ -11,7 +11,6 @@ defmodule Readmark.Accounts.User do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
 
-    field :display_name, :string
     field :kindle_email, :string
 
     embeds_one :kindle_preferences, KindlePreferences, on_replace: :delete
@@ -159,16 +158,6 @@ defmodule Readmark.Accounts.User do
     else
       add_error(changeset, :current_password, "is not valid")
     end
-  end
-
-  @doc """
-  A user changeset for changing the display name.
-  """
-  def display_name_changeset(user, attrs) do
-    user
-    |> cast(attrs, [:display_name])
-    |> validate_length(:display_name, max: 30)
-    |> validate_required([:display_name])
   end
 
   @doc """

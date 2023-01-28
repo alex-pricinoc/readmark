@@ -88,7 +88,6 @@ defmodule ReadmarkWeb.Router do
       live "/settings", SettingsLive, :index
       live "/settings/confirm_email/:token", SettingsLive, :confirm_email
       live "/settings/change_email", SettingsLive, :change_email
-      live "/settings/change_display_name", SettingsLive, :change_display_name
       live "/settings/change_password", SettingsLive, :change_password
       live "/settings/change_kindle_preferences", SettingsLive, :change_kindle_preferences
     end
