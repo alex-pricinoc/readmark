@@ -3,16 +3,16 @@ defmodule ReadmarkWeb.BookmarkController do
 
   import Phoenix.Template
 
-  alias Readmark.{Bookmarks, Dump, Epub}
+  alias Readmark.Workers.ArticleSender
+  alias Readmark.{Bookmarks, Dump}
   alias Readmark.Workers.ArticleFetcher
-  alias Readmark.Accounts.EpubSender
 
   def action(conn, _) do
     args = [conn, conn.params, conn.assigns.current_user]
     apply(__MODULE__, action_name(conn), args)
   end
 
-  def post(conn, %{"url" => url, "title" => _, "notes" => _} = bookmark_params, current_user) do
+  def post(conn, %{"url" => url, "title" => _} = bookmark_params, current_user) do
     case Bookmarks.create_bookmark(current_user, bookmark_params) do
       {:ok, _bookmark} ->
         conn
@@ -51,15 +51,9 @@ defmodule ReadmarkWeb.BookmarkController do
     end
   end
 
-  def kindle(conn, %{"url" => url}, %{kindle_email: email}) when not is_nil(email) do
-    article = ArticleFetcher.get_or_fetch_article(url)
-
-    if article != nil do
-      {epub, delete_gen_files} = Epub.build(article)
-
-      EpubSender.deliver_epub(email, epub)
-
-      delete_gen_files.()
+  def kindle(conn, %{"url" => url}, user) do
+    if article = ArticleFetcher.get_article(url) do
+      _ = ArticleSender.deliver_kindle_compilation(user, [article])
 
       redirect(conn, external: url)
     else

@@ -14,6 +14,7 @@ defmodule Readmark.Workers.ArticleSender do
   alias Readmark.{Accounts, Bookmarks, Epub, Repo}
   alias Accounts.{User, EpubSender}
   alias User.KindlePreferences
+  alias Bookmarks.Article
 
   @impl Oban.Worker
   def perform(%{args: %{"user_id" => user_id} = job}) do
@@ -21,9 +22,12 @@ defmodule Readmark.Workers.ArticleSender do
 
     user = Accounts.get_user!(user_id)
     bookmarks = Bookmarks.latest_unread_bookmarks(user)
+    articles = Enum.flat_map(bookmarks, & &1.articles)
 
-    if length(bookmarks) >= user.kindle_preferences.articles and user.kindle_email != nil do
-      sent = deliver_kindle_compilation(user, bookmarks)
+    if length(articles) >= user.kindle_preferences.articles and user.kindle_email != nil do
+      sent = deliver_kindle_compilation(user, articles)
+      _ = Enum.map(bookmarks, &Bookmarks.update_bookmark(&1, %{folder: :archive}))
+
       Logger.info("Kindle compilation sent for user: #{user.id}. #{sent} articles.")
     else
       Logger.info("Skipping sending kindle compilation for user: #{user.id}.")
@@ -42,7 +46,7 @@ defmodule Readmark.Workers.ArticleSender do
   @doc """
   Schedule a new kindle delivery or updates an existing one based on user preferences.
   """
-  def schedule_kindle_delivery(%User{} = user) do
+  def schedule_kindle_delivery(%User{} = user) when user.kindle_preferences.is_scheduled? do
     scheduled_at = KindlePreferences.next_delivery_date(user.kindle_preferences)
 
     %{user_id: user.id}
@@ -54,28 +58,28 @@ defmodule Readmark.Workers.ArticleSender do
   end
 
   @doc """
-  Delivers unread articles immediately and returns the number of sent articles.
+  Delivers articles to user kindle email immediately. Returns the number of sent articles.
   """
-  @spec deliver_kindle_compilation(User.t(), [Bookmark.t()]) :: integer()
-  def deliver_kindle_compilation(%User{} = user, bookmarks) when length(bookmarks) > 0 do
-    {epub, delete_gen_files} = bookmarks |> Enum.flat_map(& &1.articles) |> Epub.build()
-    EpubSender.deliver_epub(user.kindle_email, epub)
+  @spec deliver_kindle_compilation(User.t(), [Article.t()]) :: integer()
+  def deliver_kindle_compilation(%User{} = user, articles)
+      when length(articles) > 0 and user.kindle_email != nil do
+    {epub, delete_gen_files} = Epub.build(articles)
+
+    {:ok, _email} = EpubSender.deliver_epub(user.kindle_email, epub)
 
     delete_gen_files.()
-    _ = Enum.map(bookmarks, &Bookmarks.update_bookmark(&1, %{folder: :archive}))
 
-    length(bookmarks)
+    length(articles)
   end
 
   @doc """
   Cancel an existing kindle delivery.
   """
-  def cancel_kindle_delivery(%User{} = user) do
+  def cancel_kindle_delivery(%User{} = user) when not user.kindle_preferences.is_scheduled? do
     with %Oban.Job{id: id} <- get_scheduled_delivery(user) do
       {:ok, Oban.cancel_job(id)}
     else
-      _ ->
-        {:ok, nil}
+      _ -> {:ok, nil}
     end
   end
 

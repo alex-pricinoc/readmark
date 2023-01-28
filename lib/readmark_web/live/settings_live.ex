@@ -38,11 +38,6 @@ defmodule ReadmarkWeb.SettingsLive do
   end
 
   @impl true
-  def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
-  end
-
-  @impl true
   def handle_event("validate_email", params, socket) do
     %{"current_password" => password, "user" => user_params} = params
     email_changeset = Accounts.change_user_email(socket.assigns.current_user, user_params)
@@ -120,9 +115,13 @@ defmodule ReadmarkWeb.SettingsLive do
     Task.Supervisor.start_child(Readmark.TaskSupervisor, fn ->
       user = socket.assigns.current_user
       bookmarks = Bookmarks.latest_unread_bookmarks(user)
+      articles = Enum.flat_map(bookmarks, & &1.articles)
 
-      if length(bookmarks) > 0 do
-        send(pid, {:articles_sent, ArticleSender.deliver_kindle_compilation(user, bookmarks)})
+      if length(articles) > 0 do
+        sent = ArticleSender.deliver_kindle_compilation(user, articles)
+        # TODO: use Repo.update_all function
+        _ = Enum.map(bookmarks, &Bookmarks.update_bookmark(&1, %{folder: :archive}))
+        send(pid, {:articles_sent, sent})
       else
         send(pid, {:articles_sent, 0})
       end
@@ -134,11 +133,18 @@ defmodule ReadmarkWeb.SettingsLive do
   @impl true
   def handle_info({:articles_sent, sent}, socket) do
     info =
-      if sent > 0,
-        do: "#{sent} have been sent. You should receive them in a few minutes.",
-        else: "You don't have any unread articles."
+      if sent > 0 do
+        "Your articles have been sent to your kindle. You should receive them in a few minutes."
+      else
+        "You don't have any unread articles."
+      end
 
     {:noreply, socket |> put_flash(:info, info) |> assign(:articles_sending?, false)}
+  end
+
+  @impl true
+  def handle_params(params, _url, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
   defp apply_action(socket, :index, _params) do
