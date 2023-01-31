@@ -35,6 +35,6 @@ config :logger, level: :warning
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :readmark, Oban, testing: :inline
+config :readmark, Oban, testing: :inline, plugins: false, queues: false
 
 config :readmark, :readability, ReadabilityMock

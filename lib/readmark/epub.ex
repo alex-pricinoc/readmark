@@ -34,7 +34,7 @@ defmodule Readmark.Epub do
     unless File.exists?(dest), do: File.mkdir_p(dest)
 
     file_path = Path.join(dest, "section#{pad_leading(index)}.xhtml")
-    title = encode(title)
+    title = escape_html_text(title)
 
     html
     |> embed_images(dest)
@@ -109,14 +109,10 @@ defmodule Readmark.Epub do
 
   defp pad_leading(index), do: String.pad_leading(to_string(index), 4, "0")
 
-  def encode(string) do
-    String.replace(string, ["'", "\"", "&", "<", ">"], fn
-      "'" -> "&#39;"
-      "\"" -> "&quot;"
-      "&" -> "&amp;"
-      "<" -> "&lt;"
-      ">" -> "&gt;"
-    end)
+  defp escape_html_text(string) do
+    string
+    |> Phoenix.HTML.html_escape()
+    |> Phoenix.HTML.safe_to_string()
   end
 
   require EEx
