@@ -30,34 +30,44 @@ defmodule Readmark.Epub do
     |> Enum.map(&Task.await(&1, :timer.seconds(30)))
   end
 
-  defp to_xhtml({%Article{article_html: html, title: title}, index}, %{dir: dest}) do
+  defp to_xhtml({%{article_html: html, title: title}, index}, %{dir: dest}) do
     unless File.exists?(dest), do: File.mkdir_p(dest)
 
-    file_path = Path.join(dest, "section#{pad_leading(index)}.xhtml")
-    title = encode(title)
+    item_path = Path.join(dest, "story#{index}.xhtml")
+    title = escape_html_text(title)
 
     html
     |> embed_images(dest)
     |> to_page(%{label: title})
-    |> then(&File.write(file_path, &1))
+    |> then(&File.write(item_path, &1))
 
-    %BUPE.Item{href: file_path, description: title}
+    %BUPE.Item{href: item_path, description: title}
   end
 
   defp to_epub(pages, %{dir: dest, label: label}) do
-    build_cover(label, Path.join(dest, "cover.jpg"))
     images = Path.wildcard(Path.join(dest, "*.{jpg,png,gif,jpeg,bmp}"))
+
+    cover_path = Path.join(dest, "cover-image.jpg")
+
+    cover_page = %BUPE.Item{
+      id: "cover",
+      href: cover_path,
+      media_type: "image/jpeg",
+      properties: "cover-image"
+    }
 
     config = %BUPE.Config{
       title: "readmark: #{label}",
       creator: "readmark",
-      logo: "cover.jpg",
-      cover: true,
+      cover: false,
       pages: pages,
-      images: images
+      images: [cover_page | images]
     }
 
+    build_cover(label, cover_path)
+
     {:ok, path} = BUPE.build(config, Path.join(dest, "readmark-#{gen_reference()}.epub"))
+
     delete_gen_files = fn -> File.rm_rf!(dest) end
 
     {to_string(path), delete_gen_files}
@@ -107,16 +117,10 @@ defmodule Readmark.Epub do
     Timex.format!(Timex.now(), "{WDfull}, {Mshort}. {D}, {YYYY}")
   end
 
-  defp pad_leading(index), do: String.pad_leading(to_string(index), 4, "0")
-
-  def encode(string) do
-    String.replace(string, ["'", "\"", "&", "<", ">"], fn
-      "'" -> "&#39;"
-      "\"" -> "&quot;"
-      "&" -> "&amp;"
-      "<" -> "&lt;"
-      ">" -> "&gt;"
-    end)
+  defp escape_html_text(string) do
+    string
+    |> Phoenix.HTML.html_escape()
+    |> Phoenix.HTML.safe_to_string()
   end
 
   require EEx
