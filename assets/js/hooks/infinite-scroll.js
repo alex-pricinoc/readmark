@@ -6,10 +6,10 @@ export default InfiniteScroll = {
     }
   },
   mounted() {
-    const scrollArea = document.querySelector("[data-scroll-area]")
+    let root = document.getElementById(this.el.dataset.scrollArea)
 
     let options = {
-      root: scrollArea,
+      root: root,
       rootMargin: "400px",
       threshold: 0.1
     }

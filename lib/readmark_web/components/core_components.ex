@@ -5,6 +5,7 @@ defmodule ReadmarkWeb.CoreComponents do
   use Phoenix.Component
   use ReadmarkWeb, :verified_routes
 
+  import Phoenix.Param
   import ReadmarkWeb.Gettext
 
   alias Phoenix.LiveView.JS
@@ -156,6 +157,53 @@ defmodule ReadmarkWeb.CoreComponents do
     """
   end
 
+  attr :class, :string, default: nil
+  attr :rest, :global
+
+  slot :inner_block, required: true
+
+  def sticky_header(assigns) do
+    ~H"""
+    <header class={["z-10 sticky h-20 -top-8 flex items-center", @class]} {@rest}>
+      <div class="sticky top-0 h-12 flex flex-1 items-center">
+        <%= render_slot(@inner_block) %>
+      </div>
+    </header>
+    """
+  end
+
+  attr :id, :string, required: true
+  attr :items, :list, required: true
+  attr :item_hidden, :any, default: false
+  attr :item_click, :any, default: false
+  attr :phx_update, :string, default: "replace"
+  attr :class, :string, default: nil
+
+  slot :inner_block, required: true
+
+  def bookmark_list(assigns) do
+    ~H"""
+    <ul
+      id={@id}
+      phx-update={@phx_update}
+      class={["relative divide-y md:divide-y-0 divide-zinc-100 text-sm leading-relaxed", @class]}
+    >
+      <li
+        :for={item <- @items}
+        id={"#{@id}-#{to_param(item)}"}
+        style={@item_hidden && @item_hidden.(item) and "display: none;"}
+        phx-click={@item_click && @item_click.(item)}
+        class={[
+          "flex flex-col px-3 py-1.5 transition-colors duration-75 md:rounded-xl",
+          @item_click && "hover:cursor-pointer hover:bg-zinc-50"
+        ]}
+      >
+        <%= render_slot(@inner_block, item) %>
+      </li>
+    </ul>
+    """
+  end
+
   @doc ~S"""
   Renders a table with generic styling.
 
@@ -177,28 +225,6 @@ defmodule ReadmarkWeb.CoreComponents do
   slot :action, doc: "the slot for showing user actions in the last table column"
 
   def table(assigns)
-
-  attr :id, :string, required: true
-  attr :show, :boolean, default: true
-  attr :title, :string, required: true
-  attr :item_hidden, :any, default: false
-  attr :item_click, :any, default: false
-  attr :items, :list, required: true
-  attr :phx_update, :string, default: "replace"
-  attr :empty_list_message, :string, required: true
-
-  slot :action
-  slot :inner_block, required: true
-
-  def list(assigns)
-
-  attr :back, :string, required: true
-  attr :title, :string, required: true
-
-  slot :action
-  slot :inner_block, required: true
-
-  def list_detail(assigns)
 
   attr :class, :string, default: nil
   attr :rest, :global, include: ~w(patch phx-click method href)
@@ -332,24 +358,32 @@ defmodule ReadmarkWeb.CoreComponents do
 
   def hide_sidebar(js \\ %JS{}) do
     js
-    |> JS.hide(to: "#sidebar-overlay", time: 200, transition: "fade-out")
+    |> JS.hide(
+      to: "#sidebar-overlay",
+      time: 200,
+      transition: {"transition-opacity ease-in duration-200", "opacity-100", "opacity-0"}
+    )
     |> JS.hide(
       to: "#sidebar",
       time: 200,
       transition:
-        {"transition-transform transform-gpu ease-out duration-200", "translate-x-0",
+        {"transition-transform transform-gpu ease-in duration-200", "translate-x-0",
          "-translate-x-full"}
     )
   end
 
   def show_sidebar(js \\ %JS{}) do
     js
-    |> JS.show(to: "#sidebar-overlay", time: 300, transition: "fade-in")
+    |> JS.show(
+      to: "#sidebar-overlay",
+      time: 300,
+      transition: {"transition-opacity ease-out duration-300", "opacity-0", "opacity-100"}
+    )
     |> JS.show(
       to: "#sidebar",
       time: 300,
       transition:
-        {"transition-transform transform-gpu ease-out-cubic duration-300", "-translate-x-full",
+        {"transition-all transform ease-out-cubic duration-300", "-translate-x-full",
          "translate-x-0"}
     )
   end

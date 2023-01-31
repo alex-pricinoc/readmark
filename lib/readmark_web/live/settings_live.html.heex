@@ -1,14 +1,20 @@
-<div class="bg-white flex-1 px-4 overflow-y-auto">
-  <header class="z-10 sticky top-0 h-20 flex items-center border-b mb-8 bg-white">
-    <.show_sidebar_button class="mr-3 lg:hidden" />
-    <h1 class="font-semibold">
+<div
+  id="settings"
+  class="bg-white flex-1 bg-white min-h-screen md:overflow-auto md:block md:h-screen"
+>
+  <.sticky_header
+    class="px-4 bg-white/90 backdrop-blur border-b"
+    phx-click={JS.dispatch("js:scrolltop", to: "#settings")}
+  >
+    <.show_sidebar_button class="mr-3 xl:hidden" />
+    <h1 class="font-semibold leading-0 text-zinc-800">
       Settings
     </h1>
     <.icon_button label="Log out" href={~p"/users/log_out"} method="delete" class="ml-auto">
       <Heroicons.arrow_right_on_rectangle class="h-5 w-5" />
     </.icon_button>
-  </header>
-  <div class="max-w-full md:max-w-4xl overflow-hidden space-y-6 pb-8">
+  </.sticky_header>
+  <div class="p-4 max-w-full md:max-w-4xl overflow-hidden space-y-6 pb-8">
     <!-- Account settings -->
     <section class="grid sm:grid-cols-[10rem_auto] gap-4">
       <h2 class="font-medium">Account</h2>
