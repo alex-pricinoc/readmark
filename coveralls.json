@@ -7,8 +7,6 @@
     "lib/readmark/release.ex",
     "lib/readmark_web/telemetry.ex",
     "lib/readability",
-    "lib/readmark/notes",
-    "lib/readmark/notes.ex",
     "lib/readmark_web/components",
     "lib/readmark_web/live/notes_live.ex"
   ]

@@ -3,7 +3,7 @@ defmodule ReadmarkWeb.Sidebar do
 
   import Phoenix.LiveView
 
-  alias ReadmarkWeb.{NotesLive, SettingsLive, AppLive}
+  alias ReadmarkWeb.{AppLive, SettingsLive}
 
   def on_mount(:default, _params, _session, socket) do
     {:cont, attach_hook(socket, :active_tab, :handle_params, &handle_active_tab_params/3)}
@@ -20,9 +20,6 @@ defmodule ReadmarkWeb.Sidebar do
 
         {AppLive.Archive, _} ->
           :archive
-
-        {NotesLive, _} ->
-          :notes
 
         {SettingsLive, _} ->
           :settings

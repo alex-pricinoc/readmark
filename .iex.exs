@@ -1,4 +1,4 @@
-alias Readmark.{Repo, Accounts, Bookmarks, Notes, Epub}
+alias Readmark.{Repo, Accounts, Bookmarks, Epub}
 
 alias Bookmarks.{Bookmark, Article}
 
