@@ -1,4 +1,5 @@
 import topbar from "../vendor/topbar"
+import { smoothScrollTo } from "./lib/utils"
 
 export function registerTopbar() {
   topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
@@ -7,6 +8,11 @@ export function registerTopbar() {
 }
 
 export function registerGlobalEventHandlers() {
+  window.addEventListener("js:scrolltop", e => {
+    smoothScrollTo(0, e.target)
+    smoothScrollTo(0)
+  })
+
   window.addEventListener("js:exec", e => e.target[e.detail.call](...e.detail.args))
   window.addEventListener("js:focus", e => {
     let parent = document.querySelector(e.detail.parent)

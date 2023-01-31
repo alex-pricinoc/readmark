@@ -1,60 +1,81 @@
-<.list
-  :let={bookmark}
+<div
   id="bookmarks"
-  items={@bookmarks}
-  title={@active_tab}
-  phx_update={@phx_update}
-  item_hidden={fn b -> deleted?(b) || b.folder != :bookmarks end}
-  empty_list_message="No bookmarks added."
+  class="w-full md:w-1/3 lg:w-80 xl:w-96 border-r bg-white min-h-screen md:overflow-auto md:block md:h-screen"
+  phx-hook="Open"
 >
-  <:action>
+  <.sticky_header
+    class="px-4 bg-white/90 backdrop-blur transition-shadow open:shadow-md"
+    phx-click={JS.dispatch("js:scrolltop", to: "#bookmarks")}
+  >
+    <.show_sidebar_button class="mr-3 xl:hidden" />
+    <h1 class="grow font-semibold capitalize leading-0 text-zinc-800">
+      <%= @active_tab %>
+    </h1>
     <.icon_button id="add-bookmark-button" label="Add bookmark" patch={~p"/bookmarks/new"}>
       <Heroicons.plus class="h-5 w-5" stroke-width="2" />
     </.icon_button>
-  </:action>
-  <a
-    href={bookmark.url}
-    target="_blank"
-    rel="noopener noreferrer"
-    class={[
-      "relative w-fit max-w-full font-medium hover:text-primary-700",
-      if(bookmark.tags != [], do: "line-clamp-1", else: "line-clamp-2")
-    ]}
+  </.sticky_header>
+
+  <.bookmark_list
+    :let={bookmark}
+    id="bookmarks-items"
+    items={@bookmarks}
+    phx_update={@phx_update}
+    item_hidden={fn b -> deleted?(b) || b.folder != :bookmarks end}
+    class="px-1"
   >
-    <%= bookmark.title %>
-  </a>
-
-  <div :if={bookmark.tags != []} class="leading-none">
-    <.link
-      :for={tag <- bookmark.tags}
+    <a
+      href={bookmark.url}
+      target="_blank"
+      rel="noopener noreferrer"
       class={[
-        "relative text-sm hover:text-orange-600",
-        tag in @tags and "text-orange-600 hover:text-gray-900"
+        "relative w-fit max-w-full font-medium hover:text-primary-700",
+        if(bookmark.tags != [], do: "line-clamp-1", else: "line-clamp-2")
       ]}
-      phx-click="select-tag"
-      phx-value-name={tag}
     >
-      <%= tag %>
-    </.link>
+      <%= bookmark.title %>
+    </a>
+
+    <div :if={bookmark.tags != []} class="leading-none">
+      <.link
+        :for={tag <- bookmark.tags}
+        class={[
+          "relative text-sm hover:text-orange-600",
+          tag in @tags and "text-orange-600 hover:text-gray-900"
+        ]}
+        phx-click="select-tag"
+        phx-value-name={tag}
+      >
+        <%= tag %>
+      </.link>
+    </div>
+
+    <div class="relative w-fit">
+      <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
+      <.link
+        patch={~p"/bookmarks/#{bookmark}/edit"}
+        class="text-sm text-gray-400 hover:text-gray-900"
+      >
+        edit
+      </.link>
+      <.link
+        phx-click="archive-bookmark"
+        phx-value-id={bookmark.id}
+        class="text-sm text-gray-400 hover:text-gray-900"
+      >
+        archive
+      </.link>
+    </div>
+  </.bookmark_list>
+
+  <div id="infinite-scroll-marker-body" phx-hook="InfiniteScroll"></div>
+  <div id="infinite-scroll-marker-area" phx-hook="InfiniteScroll" data-scroll-area="bookmarks">
   </div>
 
-  <div class="relative w-fit">
-    <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
-    <.link
-      patch={~p"/bookmarks/#{bookmark}/edit"}
-      class="text-sm text-gray-400 hover:text-gray-900"
-    >
-      edit
-    </.link>
-    <.link
-      phx-click="archive-bookmark"
-      phx-value-id={bookmark.id}
-      class="text-sm text-gray-400 hover:text-gray-900"
-    >
-      archive
-    </.link>
-  </div>
-</.list>
+  <p :if={@bookmarks == []} class="mt-24 text-center text-sm text-gray-600">
+    No bookmarks added.
+  </p>
+</div>
 
 <.modal
   :if={@live_action in [:new, :edit]}

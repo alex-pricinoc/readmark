@@ -16,6 +16,12 @@ module.exports = {
       backgroundImage: {
         "graph-paper": "url('/images/graph-paper.svg')"
       },
+      height: {
+        "screen": "100dvh"
+      },
+      minHeight: {
+        "screen": "100dvh"
+      },
       transitionTimingFunction: {
         // custom easing variables: https://gist.github.com/bendc/ac03faac0bf2aee25b49e5fd260a727d
         "in-quad": "cubic-bezier(.55, .085, .68, .53)",

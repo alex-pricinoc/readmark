@@ -1,42 +1,46 @@
-<div
-  id="sidebar"
-  class="z-30 fixed shrink-0 hidden lg:block lg:static h-screen bg-white border-r w-3/4 sm:w-1/2 md:w-1/3 lg:w-56 2xl:w-72 3xl:w-80"
->
-  <header class="h-20 flex items-center px-4">
-    <.close_sidebar_button class="lg:hidden" />
-    <h1 class="ml-3 text-md font-bold">
-      readmark
-    </h1>
-  </header>
+<div class="xl:ml-60">
+  <aside
+    id="sidebar"
+    class="fixed inset-y-0 left-0 z-40 w-60 border-r border-zinc-900/10 px-4 py-4 bg-white hidden xl:block"
+  >
+    <div class="px-2 py-2">
+      <.link navigate={~p"/reading"} aria-label="Home" class="text-lg font-bold">
+        readmark
+      </.link>
+    </div>
 
-  <nav class="flex-1 px-3 py-3 space-y-1">
-    <.link
-      :for={link <- links()}
-      navigate={link.to}
-      class={[
-        "flex items-center space-x-3 px-2 py-1.5 font-medium text-sm rounded-lg transition-colors duration-75",
-        if(@active_tab == link.name,
-          do: "bg-gray-900 text-white",
-          else: "text-gray-700 hover:bg-zinc-100"
-        )
-      ]}
-    >
-      <.icon name={link.name} class="w-6 h-6" />
-      <span><%= link.label %></span>
-    </.link>
-  </nav>
+    <nav class="mt-10">
+      <ul role="list" class="space-y-1">
+        <.link
+          :for={link <- links()}
+          navigate={link.to}
+          class={[
+            "flex items-center space-x-3 px-2 py-1.5 font-medium text-sm rounded-lg transition-colors duration-75",
+            if(@active_tab == link.name,
+              do: "bg-gray-900 text-white",
+              else: "text-gray-700 hover:bg-zinc-50"
+            )
+          ]}
+        >
+          <.icon name={link.name} class="w-6 h-6" />
+          <span><%= link.label %></span>
+        </.link>
+      </ul>
+    </nav>
+  </aside>
+
+  <div
+    id="sidebar-overlay"
+    class="z-20 fixed inset-0 bg-zinc-50/90 hidden"
+    aria-hidden="true"
+    phx-click={hide_sidebar()}
+  >
+  </div>
+
+  <main class="flex bg-graph-paper">
+    <%= @inner_content %>
+  </main>
 </div>
-
-<div
-  id="sidebar-overlay"
-  class="z-20 hidden fixed inset-0 bg-neutral-500/50"
-  phx-click={hide_sidebar()}
->
-</div>
-
-<main class="flex flex-1 bg-white bg-graph-paper w-full min-w-0">
-  <%= @inner_content %>
-</main>
 
 <.flash kind={:info} title="Success!" flash={@flash} />
 <.flash kind={:error} title="Error!" flash={@flash} />

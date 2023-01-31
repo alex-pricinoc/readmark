@@ -51,8 +51,7 @@ defmodule ReadmarkWeb do
 
   def live_view do
     quote do
-      use Phoenix.LiveView,
-        layout: {ReadmarkWeb.Layouts, :live}
+      use Phoenix.LiveView, layout: {ReadmarkWeb.Layouts, :live}
 
       unquote(html_helpers())
     end
@@ -83,6 +82,7 @@ defmodule ReadmarkWeb do
     quote do
       # HTML escaping functionality
       import Phoenix.HTML
+      import Phoenix.Param
       # Core UI components and translation
       import ReadmarkWeb.{CoreComponents, FormComponents}
       import ReadmarkWeb.Gettext
