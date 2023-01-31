@@ -6,7 +6,6 @@ defmodule ReadmarkWeb.Layouts do
   defp links do
     [
       %{name: :reading, label: "Reading", to: ~p"/reading"},
-      # %{name: :notes, label: "Notes", to: ~p"/notes"},
       %{name: :bookmarks, label: "Bookmarks", to: ~p"/bookmarks"},
       %{name: :archive, label: "Archive", to: ~p"/archive"},
       %{name: :settings, label: "Settings", to: ~p"/settings"}
@@ -17,7 +16,6 @@ defmodule ReadmarkWeb.Layouts do
   attr :rest, :global
 
   defp icon(%{name: :reading} = assigns), do: ~H|<Heroicons.book_open {@rest} />|
-  defp icon(%{name: :notes} = assigns), do: ~H|<Heroicons.pencil_square {@rest} />|
   defp icon(%{name: :bookmarks} = assigns), do: ~H|<Heroicons.bookmark_square {@rest} />|
   defp icon(%{name: :archive} = assigns), do: ~H|<Heroicons.archive_box {@rest} />|
   defp icon(%{name: :settings} = assigns), do: ~H|<Heroicons.cog_8_tooth {@rest} />|

@@ -72,9 +72,6 @@ defmodule ReadmarkWeb.Router do
     live_session :require_authenticated_user,
       layout: {ReadmarkWeb.Layouts, :app},
       on_mount: [{ReadmarkWeb.UserAuth, :ensure_authenticated}, ReadmarkWeb.Sidebar] do
-      live "/notes", NotesLive, :index
-      live "/notes/:id", NotesLive, :show
-
       live "/reading", AppLive.Reading, :index
       live "/reading/new", AppLive.Reading, :new
       live "/reading/:id", AppLive.Reading, :show
