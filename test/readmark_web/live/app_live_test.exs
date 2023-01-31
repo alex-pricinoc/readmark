@@ -80,7 +80,7 @@ defmodule ReadmarkWeb.AppLiveTest do
     test "updates bookmark in listing", %{conn: conn, bookmark: bookmark} do
       {:ok, lv, _html} = live(conn, ~p"/bookmarks")
 
-      assert lv |> element("#bookmarks-#{bookmark.id} a", "edit") |> render_click() =~
+      assert lv |> element("#bookmarks-items-#{bookmark.id} a", "edit") |> render_click() =~
                "Edit bookmark"
 
       assert_patch(lv, ~p"/bookmarks/#{bookmark}/edit")
@@ -98,7 +98,7 @@ defmodule ReadmarkWeb.AppLiveTest do
     test "archives bookmark", %{conn: conn, bookmark: bookmark} do
       {:ok, lv, _html} = live(conn, ~p"/bookmarks")
 
-      assert lv |> element("#bookmarks-#{bookmark.id} a", "archive") |> render_click()
+      assert lv |> element("#bookmarks-items-#{bookmark.id} a", "archive") |> render_click()
       refute has_element?(lv, "#bookmark-#{bookmark.id}")
     end
 
@@ -107,19 +107,19 @@ defmodule ReadmarkWeb.AppLiveTest do
 
       assert lv |> has_element?(~s|#bookmarks-items li:nth-of-type(3)|)
 
-      assert lv |> has_element?("#bookmarks-#{bookmark.id}")
+      assert lv |> has_element?("#bookmarks-items-#{bookmark.id}")
 
-      lv |> element("#bookmarks-#{bookmark1.id} a", "tag_one") |> render_click()
+      lv |> element("#bookmarks-items-#{bookmark1.id} a", "tag_one") |> render_click()
 
       refute lv |> has_element?(~s|#bookmarks-items li:nth-of-type(3)|)
 
-      refute lv |> has_element?("#bookmarks-#{bookmark.id}")
+      refute lv |> has_element?("#bookmarks-items-#{bookmark.id}")
 
-      lv |> element("#bookmarks-#{bookmark1.id} a", "tag_one") |> render_click()
+      lv |> element("#bookmarks-items-#{bookmark1.id} a", "tag_one") |> render_click()
 
       assert lv |> has_element?(~s|#bookmarks-items li:nth-of-type(3)|)
 
-      assert lv |> has_element?("#bookmarks-#{bookmark.id}")
+      assert lv |> has_element?("#bookmarks-items-#{bookmark.id}")
     end
 
     test "updates the bookmark from broadcast", %{conn: conn, bookmark: bookmark} do
@@ -208,7 +208,7 @@ defmodule ReadmarkWeb.AppLiveTest do
 
       refute html =~ "This domain is for use in illustrative examples in documents"
 
-      lv |> element("#bookmarks-#{bookmark.id} a", bookmark.title) |> render_click()
+      lv |> element("#reading-items-#{bookmark.id} a", bookmark.title) |> render_click()
 
       assert_patch(lv)
 
@@ -224,21 +224,21 @@ defmodule ReadmarkWeb.AppLiveTest do
     test "archives bookmarks", %{conn: conn, bookmark: bookmark} do
       {:ok, lv, _html} = live(conn, ~p"/archive")
 
-      assert lv |> has_element?(~s|#bookmarks-#{bookmark.id}|)
+      assert lv |> has_element?(~s|#archived-items-#{bookmark.id}|)
 
-      lv |> element("#bookmarks-#{bookmark.id} a", "unarchive") |> render_click()
+      lv |> element("#archived-items-#{bookmark.id} a", "unarchive") |> render_click()
 
-      assert lv |> has_element?(~s|#bookmarks-#{bookmark.id}[style="display: none;"]|)
+      assert lv |> has_element?(~s|#archived-items-#{bookmark.id}[style="display: none;"]|)
     end
 
     test "deletes bookmarks", %{conn: conn, bookmark: bookmark} do
       {:ok, lv, _html} = live(conn, ~p"/archive")
 
-      assert lv |> has_element?(~s|#bookmarks-#{bookmark.id}|)
+      assert lv |> has_element?(~s|#archived-items-#{bookmark.id}|)
 
-      lv |> element("#bookmarks-#{bookmark.id} a", "delete") |> render_click()
+      lv |> element("#archived-items-#{bookmark.id} a", "delete") |> render_click()
 
-      assert lv |> has_element?(~s|#bookmarks-#{bookmark.id}[style="display: none;"]|)
+      assert lv |> has_element?(~s|#archived-items-#{bookmark.id}[style="display: none;"]|)
     end
   end
 end

@@ -5,6 +5,8 @@ defmodule Readmark.Accounts.User do
 
   alias __MODULE__.KindlePreferences
 
+  @type t :: Ecto.Schema.t()
+
   schema "users" do
     field :email, :string
     field :password, :string, virtual: true, redact: true

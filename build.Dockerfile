@@ -7,7 +7,7 @@ ARG BUILDER_IMAGE="docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION
 ARG DPRINT_VERSION=0.34.1
 ARG DPRINT_SHA256=43dd4bab71f3a70738670ef51f1e54c84b89405d9dfe5bec6ae5199ca20c93fe
 
-FROM ${BUILDER_IMAGE} AS builder
+FROM ${BUILDER_IMAGE}
 
 # install build dependencies
 RUN apt-get update -y && \

@@ -16,7 +16,7 @@ ARG GO_VERSION=1.19.4
 ARG OTP_VERSION=25.0.4
 ARG DEBIAN_VERSION=bullseye-20220801-slim
 
-ARG BUILDER_IMAGE="docker.io/alexpricinoc/readmark-builder:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
+ARG BUILDER_IMAGE="registry.gitlab.com/alex-pricinoc/bookmark-service/builder:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="docker.io/debian:${DEBIAN_VERSION}"
 
 # Compile Go deps

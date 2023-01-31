@@ -1,4 +1,4 @@
-CURRENT_DIR=$(shell pwd)
+MIX_APP_PATH=$(shell pwd)
 LDFLAGS += -s -w
 
 all: install
@@ -8,7 +8,7 @@ install: setup go_build
 go_build: priv/go/readability
 
 priv/go/readability: go_priv
-	cd go_src/readability; go build -ldflags '$(LDFLAGS)' -o $(CURRENT_DIR)/$@
+	cd go_src/readability; go build -ldflags '$(LDFLAGS)' -o $(MIX_APP_PATH)/$@
 
 go_priv:
 	mkdir -p priv/go
@@ -16,12 +16,14 @@ go_priv:
 setup:
 	mix setup
 
+
+start server:
+	mix phx.server
+
 format f:
 	mix format
 	dprint fmt
 
-start server:
-	mix phx.server
 
 check lint: check.compile check.format check.deps check.code-analysis
 
@@ -33,18 +35,18 @@ check.format:
 	dprint check
 
 check.deps:
-	mix deps.unlock --check-unused
 	mix deps.audit
 	mix hex.audit
+	mix deps.unlock --check-unused
 	mix xref graph --label compile-connected --fail-above 0
-
-check.deps.outdated:
-	mix hex.outdated
 
 check.code-analysis:
 	mix credo --strict --only warning
 
-.PHONY: test
+check.deps.outdated:
+	mix hex.outdated
+
+
 test:
 	mix test
 
@@ -53,6 +55,7 @@ test.coverage:
 
 test.coverage.html:
 	mix coveralls.html
+
 
 clean:
 	mix clean
@@ -65,3 +68,5 @@ versions:
 	@echo "Tool Versions"
 	@cat .tool-versions
 	@echo
+
+.PHONY: test
