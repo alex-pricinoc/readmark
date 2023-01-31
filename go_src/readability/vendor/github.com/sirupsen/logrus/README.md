@@ -92,11 +92,11 @@ This adds the caller as 'method' like so:
 
 ```json
 {
-  "animal": "penguin",
-  "level": "fatal",
-  "method": "github.com/sirupsen/arcticcreatures.migrate",
-  "msg": "a penguin swims by",
-  "time": "2014-03-10 19:57:38.562543129 -0400 EDT"
+	"animal": "penguin",
+	"level": "fatal",
+	"method": "github.com/sirupsen/arcticcreatures.migrate",
+	"msg": "a penguin swims by",
+	"time": "2014-03-10 19:57:38.562543129 -0400 EDT"
 }
 ```
 

@@ -45,7 +45,7 @@ defmodule Readmark.Accounts.User.KindlePreferences do
   end
 
   def next_delivery_date(%Preferences{} = preferences) do
-    now = Timex.now(preferences.time_zone)
+    now = DateTime.now!(preferences.time_zone)
 
     now
     |> set(preferences)

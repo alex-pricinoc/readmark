@@ -22,8 +22,8 @@ defmodule Readmark.Epub.Utils do
   @spec build_cover(text :: String.t(), path :: String.t()) :: Vimage.t()
   def build_cover(text, path) do
     image = Image.new!(@width, @height)
-    title = title()
-    text = text(image, text)
+    text = text!(image, text)
+    title = title!()
 
     image
     |> Image.compose!(title, title_location(image, title))
@@ -31,7 +31,7 @@ defmodule Readmark.Epub.Utils do
     |> Image.write!(path)
   end
 
-  defp title do
+  defp title! do
     Image.Text.simple_text!("readmark",
       font_size: 100,
       font_weight: :bold,
@@ -40,7 +40,7 @@ defmodule Readmark.Epub.Utils do
     )
   end
 
-  defp text(image, text) do
+  defp text!(image, text) do
     Image.Text.simple_text!(text,
       autofit: true,
       font_size: 100,

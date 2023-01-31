@@ -20,15 +20,6 @@ defmodule ReadmarkWeb.Router do
     plug :fetch_current_user
   end
 
-  # pipeline :api do
-  #   plug :accepts, ["json"]
-  # end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", ReadmarkWeb do
-  #   pipe_through :api
-  # end
-
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:readmark, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put
@@ -67,8 +58,6 @@ defmodule ReadmarkWeb.Router do
   scope "/", ReadmarkWeb do
     pipe_through [:browser, :require_authenticated_user]
 
-    get "/settings/export", BookmarkController, :export
-
     live_session :require_authenticated_user,
       layout: {ReadmarkWeb.Layouts, :app},
       on_mount: [{ReadmarkWeb.UserAuth, :ensure_authenticated}, ReadmarkWeb.Sidebar] do
@@ -88,6 +77,8 @@ defmodule ReadmarkWeb.Router do
       live "/settings/change_password", SettingsLive, :change_password
       live "/settings/change_kindle_preferences", SettingsLive, :change_kindle_preferences
     end
+
+    get "/settings/export", BookmarkController, :export
 
     delete "/users/delete_account", UserSessionController, :delete_account
   end

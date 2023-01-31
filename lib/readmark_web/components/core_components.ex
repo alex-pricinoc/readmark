@@ -236,7 +236,7 @@ defmodule ReadmarkWeb.CoreComponents do
     ~H"""
     <.link
       aria-label={@label}
-      class={["p-2 rounded-lg transition-colors hover:bg-gray-200", @class]}
+      class={["p-2 rounded-lg transition-colors hover:bg-zinc-50", @class]}
       {@rest}
     >
       <%= render_slot(@inner_block) %>
@@ -330,7 +330,7 @@ defmodule ReadmarkWeb.CoreComponents do
     )
   end
 
-  def show_modal(js \\ %JS{}, id) when is_binary(id) do
+  def show_modal(js \\ %JS{}, id) do
     js
     |> JS.show(to: "##{id}")
     |> JS.show(

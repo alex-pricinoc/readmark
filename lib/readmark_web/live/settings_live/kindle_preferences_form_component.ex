@@ -31,9 +31,7 @@ defmodule ReadmarkWeb.SettingsLive.KindlePreferencesFormComponent do
   def handle_event("validate", %{"user" => user_params}, socket) do
     changeset = Accounts.change_user_kindle_preferences(socket.assigns.current_user, user_params)
 
-    {:noreply,
-     socket
-     |> assign(:changeset, Map.put(changeset, :action, :validate))}
+    {:noreply, assign(socket, :changeset, Map.put(changeset, :action, :validate))}
   end
 
   @impl true

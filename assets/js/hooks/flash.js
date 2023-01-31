@@ -1,4 +1,4 @@
-const Flash = {
+export default Flash = {
   mounted() {
     let hide = () => liveSocket.execJS(this.el, this.el.getAttribute("phx-click"))
     this.timer = setTimeout(() => hide(), 8000)
@@ -12,5 +12,3 @@ const Flash = {
     clearTimeout(this.timer)
   }
 }
-
-export default Flash
