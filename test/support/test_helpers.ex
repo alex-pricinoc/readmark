@@ -1,4 +1,4 @@
-defmodule TimeHelper do
+defmodule Readmark.TestHelpers do
   def wait_until(fun), do: wait_until(1_000, fun)
 
   def wait_until(0, fun), do: fun.()

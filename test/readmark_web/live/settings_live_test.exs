@@ -5,8 +5,6 @@ defmodule ReadmarkWeb.SettingsLiveTest do
   import Phoenix.LiveViewTest
   import Readmark.{AccountsFixtures, BookmarksFixtures}
 
-  import TimeHelper
-
   alias Readmark.Accounts
 
   setup :set_swoosh_global

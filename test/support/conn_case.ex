@@ -28,6 +28,7 @@ defmodule ReadmarkWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import ReadmarkWeb.ConnCase
+      import Readmark.TestHelpers
     end
   end
 
