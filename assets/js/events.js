@@ -10,7 +10,6 @@ export function registerTopbar() {
 export function registerGlobalEventHandlers() {
   window.addEventListener("js:scrolltop", e => {
     smoothScrollTo(0, e.target)
-    smoothScrollTo(0)
   })
 
   window.addEventListener("js:exec", e => e.target[e.detail.call](...e.detail.args))

@@ -51,9 +51,9 @@ defmodule Readmark.Epub do
 
     cover_page = %BUPE.Item{
       id: "cover",
-      href: cover_path,
       media_type: "image/jpeg",
-      properties: "cover-image"
+      properties: "cover-image",
+      href: cover_path
     }
 
     config = %BUPE.Config{

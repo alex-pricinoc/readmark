@@ -39,11 +39,11 @@ defmodule Readmark.EpubTest do
         end)
 
       assert opf_template =~
-               ~s|<item id="cover" href="title.xhtml" media-type="application/xhtml+xml" />|
+               ~s|<item id="cover" href="content/cover-image.jpg" media-type="image/jpeg"/>|
 
       {_, cover} =
         Enum.find(content, fn {name, _binary} ->
-          name == 'OEBPS/content/cover.jpg'
+          name == 'OEBPS/content/cover-image.jpg'
         end)
 
       assert <<@jpg_bytes, _rest::binary>> = cover
