@@ -73,7 +73,7 @@ config :readmark,
 config :readmark, Oban,
   repo: Readmark.Repo,
   plugins: [Oban.Plugins.Pruner],
-  queues: [default: 3, kindle: 2]
+  queues: [default: 5, kindle: 3]
 
 config :readmark, :readability, Readability
 
