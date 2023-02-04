@@ -72,7 +72,7 @@ config :readmark,
 # Oban
 config :readmark, Oban,
   repo: Readmark.Repo,
-  plugins: [Oban.Plugins.Pruner],
+  plugins: [{Oban.Plugins.Pruner, max_age: :timer.hours(24)}],
   queues: [default: 5, kindle: 3]
 
 config :readmark, :readability, Readability
