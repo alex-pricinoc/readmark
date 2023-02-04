@@ -1,13 +1,13 @@
 {
-  "coverage_options": {
-    "minimum_coverage": 90
-  },
-  "skip_files": [
-    "deps",
-    "lib/readmark/release.ex",
-    "lib/readmark_web/telemetry.ex",
-    "lib/readability",
-    "lib/readmark_web/components",
-    "lib/readmark_web/live/notes_live.ex"
-  ]
+	"coverage_options": {
+		"minimum_coverage": 90
+	},
+	"skip_files": [
+		"deps",
+		"lib/readmark/release.ex",
+		"lib/readmark_web/telemetry.ex",
+		"lib/readability",
+		"lib/readmark_web/components",
+		"lib/readmark_web/live/notes_live.ex"
+	]
 }

@@ -1,7 +1,7 @@
 defmodule ReadmarkWeb.AppLive do
   defmodule AppLive do
-    @callback bookmark_path(bookmark :: Bookmark.t() | nil) :: String.t()
-    @callback assign_title(socket :: Socket.t(), action :: atom()) :: Phoenix.LiveView.Socket.t()
+    @callback bookmark_path(Readmark.Bookmarks.Bookmark.t() | nil) :: String.t()
+    @callback assign_title(Phoenix.LiveView.Socket.t(), atom()) :: Phoenix.LiveView.Socket.t()
   end
 
   defmacro __using__(opts) do
