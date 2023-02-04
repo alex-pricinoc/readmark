@@ -3,10 +3,14 @@
       xmlns:epub="http://www.idpf.org/2007/ops">
   <head>
     <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"/>
-    <title><%= config.label %></title>
+    <%= if config.title do %>
+      <title><%= config.title %></title>
+    <% end %>
   </head>
   <body>
-    <h1><%= config.label %></h1>
+    <%= if config.title do %>
+      <h1><%= config.title %></h1>
+    <% end %>
     <%= content %>
   </body>
 </html>

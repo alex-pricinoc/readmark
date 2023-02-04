@@ -14,13 +14,13 @@ defmodule Readmark.Epub do
   @spec build(list(Article.t())) :: {path :: String.t(), remove_gen_files :: fun()}
   def build(articles) when is_list(articles) and length(articles) > 0 do
     config = %{
-      label: book_title(articles),
+      title: book_title(articles),
       dir: Path.join([System.tmp_dir!(), "readmark", BUPE.Util.uuid4()])
     }
 
     articles
     |> convert_article_pages(config)
-    |> to_epub(config)
+    |> to_epub(generate_cover(config), config)
   end
 
   defp convert_article_pages(articles, config) do
@@ -30,34 +30,45 @@ defmodule Readmark.Epub do
     |> Enum.map(&Task.await(&1, :timer.seconds(30)))
   end
 
-  defp to_xhtml({%Article{article_html: html, title: title}, index}, %{dir: dest}) do
+  defp to_xhtml({%{article_html: html, title: title}, index}, %{dir: dest}) do
     unless File.exists?(dest), do: File.mkdir_p(dest)
 
-    file_path = Path.join(dest, "section#{pad_leading(index)}.xhtml")
-    title = encode(title)
+    item_path = Path.join(dest, "story#{index}.xhtml")
+    title = escape_html_text(title)
 
     html
     |> embed_images(dest)
-    |> to_page(%{label: title})
-    |> then(&File.write(file_path, &1))
+    |> to_page(%{title: title})
+    |> then(&File.write(item_path, &1))
 
-    %BUPE.Item{href: file_path, description: title}
+    %BUPE.Item{href: item_path, description: title}
   end
 
-  defp to_epub(pages, %{dir: dest, label: label}) do
-    build_cover(label, Path.join(dest, "cover.jpg"))
+  defp generate_cover(%{title: title, dir: dest}) do
+    item_path = Path.join(dest, "title.xhtml")
+
+    build_cover(title, Path.join(dest, "cover.jpg"))
+
+    ~s|<img src="cover.jpg" alt="Logo"/>|
+    |> to_page(%{title: false})
+    |> then(&File.write(item_path, &1))
+
+    %BUPE.Item{id: "cover", href: item_path}
+  end
+
+  defp to_epub(pages, cover, %{dir: dest, title: title} = _config) do
     images = Path.wildcard(Path.join(dest, "*.{jpg,png,gif,jpeg,bmp}"))
 
     config = %BUPE.Config{
-      title: "readmark: #{label}",
+      title: "readmark: #{title}",
       creator: "readmark",
-      logo: "cover.jpg",
-      cover: true,
+      cover: false,
       pages: pages,
-      images: images
+      images: [cover | images]
     }
 
     {:ok, path} = BUPE.build(config, Path.join(dest, "readmark-#{gen_reference()}.epub"))
+
     delete_gen_files = fn -> File.rm_rf!(dest) end
 
     {to_string(path), delete_gen_files}
@@ -107,16 +118,10 @@ defmodule Readmark.Epub do
     Timex.format!(Timex.now(), "{WDfull}, {Mshort}. {D}, {YYYY}")
   end
 
-  defp pad_leading(index), do: String.pad_leading(to_string(index), 4, "0")
-
-  def encode(string) do
-    String.replace(string, ["'", "\"", "&", "<", ">"], fn
-      "'" -> "&#39;"
-      "\"" -> "&quot;"
-      "&" -> "&amp;"
-      "<" -> "&lt;"
-      ">" -> "&gt;"
-    end)
+  defp escape_html_text(string) do
+    string
+    |> Phoenix.HTML.html_escape()
+    |> Phoenix.HTML.safe_to_string()
   end
 
   require EEx
