@@ -37,7 +37,7 @@ jobs:
         elixir: [1.14.3]
         otp: [25.0.4]
         include:
-          - coverage: false
+          - coverage: true
             lint: true
 
     steps:
