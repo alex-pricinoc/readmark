@@ -8,8 +8,10 @@ defmodule ReadmarkWeb.AppLive do
     quote bind_quoted: [opts: opts] do
       use ReadmarkWeb, :live_view
 
+      require Logger
+
       alias Readmark.Bookmarks
-      alias Bookmarks.Bookmark
+      alias Bookmarks.{Bookmark, Article}
       alias Readmark.Workers.ArticleFetcher
 
       @behaviour AppLive
@@ -111,7 +113,7 @@ defmodule ReadmarkWeb.AppLive do
       defp apply_action(socket, :show, %{"id" => id}) do
         bookmark = Bookmarks.get_bookmark!(id, socket.assigns.current_user.id)
 
-        maybe_fetch_article(bookmark)
+        socket = maybe_fetch_article(socket, bookmark)
 
         socket
         |> assign(:page_title, bookmark.title)
@@ -153,11 +155,17 @@ defmodule ReadmarkWeb.AppLive do
       defp get_article(%Bookmark{articles: [article | _]}), do: article
       defp get_article(_bookmark), do: nil
 
-      defp maybe_fetch_article(%Bookmark{folder: :reading, articles: []} = bookmark) do
-        ArticleFetcher.fetch_bookmark(bookmark)
+      defp maybe_fetch_article(socket, %Bookmark{folder: :reading, articles: []} = bookmark) do
+        with %Article{} = article <- ArticleFetcher.fetch_article(bookmark.url),
+             {:ok, _bookmark} = Bookmarks.update_bookmark(bookmark, %{"articles" => [article]}) do
+          socket
+        else
+          _ ->
+            put_flash(socket, :error, "Unable to retrieve article")
+        end
       end
 
-      defp maybe_fetch_article(_bookmark), do: :ok
+      defp maybe_fetch_article(socket, _bookmark), do: socket
 
       defp replace_bookmarks(socket, bookmarks) do
         socket

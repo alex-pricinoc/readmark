@@ -21,8 +21,6 @@ defmodule Readmark.Application do
       # Start a worker by calling: Readmark.Worker.start_link(arg)
       # {Readmark.Worker, arg}
       {Task.Supervisor, name: Readmark.TaskSupervisor},
-      # Start Article Fetcher
-      Readmark.Workers.ArticleFetcher,
       # Start Oban
       {Oban, Application.fetch_env!(:readmark, Oban)}
     ]

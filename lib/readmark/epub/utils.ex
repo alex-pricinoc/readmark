@@ -1,8 +1,6 @@
 defmodule Readmark.Epub.Utils do
   @moduledoc false
 
-  alias Vix.Vips.Image, as: Vimage
-
   @doc "Generates a random alphanumeric id."
   def gen_reference() do
     min = String.to_integer("100000", 36)
@@ -19,7 +17,6 @@ defmodule Readmark.Epub.Utils do
   @height 960
 
   @doc "Generates EPUB cover from text."
-  @spec build_cover(text :: String.t(), path :: String.t()) :: Vimage.t()
   def build_cover(text, path) do
     image = Image.new!(@width, @height)
     text = text!(image, text)

@@ -14,7 +14,6 @@ defmodule Readmark.Workers.ArticleSender do
   alias Readmark.{Accounts, Bookmarks, Epub, Repo}
   alias Accounts.{User, EpubSender}
   alias User.KindlePreferences
-  alias Bookmarks.Article
 
   @impl Oban.Worker
   def perform(%{args: %{"user_id" => user_id} = job}) do
@@ -60,7 +59,6 @@ defmodule Readmark.Workers.ArticleSender do
   @doc """
   Delivers articles to user kindle email immediately. Returns the number of sent articles.
   """
-  @spec deliver_kindle_compilation(User.t(), [Article.t()]) :: integer()
   def deliver_kindle_compilation(%User{} = user, articles)
       when length(articles) > 0 and user.kindle_email != nil do
     {epub, delete_gen_files} = Epub.build(articles)

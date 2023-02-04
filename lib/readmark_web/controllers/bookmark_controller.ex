@@ -26,7 +26,7 @@ defmodule ReadmarkWeb.BookmarkController do
   end
 
   def reading(conn, %{"url" => url}, current_user) do
-    if article = ArticleFetcher.get_article(url) do
+    if article = ArticleFetcher.fetch_article(url) do
       bookmark_params = %{
         "url" => url,
         "title" => article.title,
@@ -52,7 +52,7 @@ defmodule ReadmarkWeb.BookmarkController do
   end
 
   def kindle(conn, %{"url" => url}, user) do
-    if article = ArticleFetcher.get_article(url) do
+    if article = ArticleFetcher.fetch_article(url) do
       _ = ArticleSender.deliver_kindle_compilation(user, [article])
 
       redirect(conn, external: url)

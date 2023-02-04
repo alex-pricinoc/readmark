@@ -2,25 +2,28 @@ defmodule Readmark.Epub do
   @moduledoc """
   Module for creating EPUB files.
   """
-  import __MODULE__.Utils
 
   require Logger
 
-  alias Readmark.Bookmarks.Article
+  import __MODULE__.Utils
 
   @doc """
   Generate epub from articles.
   """
-  @spec build(list(Article.t())) :: {path :: String.t(), remove_gen_files :: fun()}
   def build(articles) when is_list(articles) and length(articles) > 0 do
     config = %{
       title: book_title(articles),
       dir: Path.join([System.tmp_dir!(), "readmark", BUPE.Util.uuid4()])
     }
 
-    articles
-    |> convert_article_pages(config)
-    |> to_epub(generate_cover(config), config)
+    epub =
+      articles
+      |> convert_article_pages(config)
+      |> to_epub(generate_cover(config), config)
+
+    delete_gen_files = fn -> File.rm_rf!(config.dir) end
+
+    {epub, delete_gen_files}
   end
 
   defp convert_article_pages(articles, config) do
@@ -67,11 +70,9 @@ defmodule Readmark.Epub do
       images: [cover | images]
     }
 
-    {:ok, path} = BUPE.build(config, Path.join(dest, "readmark-#{gen_reference()}.epub"))
-
-    delete_gen_files = fn -> File.rm_rf!(dest) end
-
-    {to_string(path), delete_gen_files}
+    with {:ok, path} <- BUPE.build(config, Path.join(dest, "readmark-#{gen_reference()}.epub")) do
+      to_string(path)
+    end
   end
 
   # TODO: compress images to reduce size (using Image library)

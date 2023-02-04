@@ -212,9 +212,7 @@ defmodule ReadmarkWeb.AppLiveTest do
 
       assert_patch(lv, ~p"/reading/#{bookmark}")
 
-      wait_until(fn ->
-        assert render(lv) =~ "This domain is for use in illustrative examples in documents"
-      end)
+      assert render(lv) =~ "This domain is for use in illustrative examples in documents"
     end
   end
 

@@ -42,7 +42,7 @@ defmodule ReadmarkWeb.ReadingLive.FormComponent do
   end
 
   defp fetch_article(%{"url" => url} = bookmark_params) do
-    if article = ArticleFetcher.get_article(url) do
+    if article = ArticleFetcher.fetch_article(url) do
       Map.merge(bookmark_params, %{"title" => article.title, "articles" => [article]})
     else
       bookmark_params
