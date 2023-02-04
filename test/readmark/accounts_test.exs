@@ -628,7 +628,8 @@ defmodule Readmark.AccountsTest do
 
         assert :ok = perform_job(ArticleSender, %{user_id: user.id})
 
-        assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :kindle, with_scheduled: true)
+        assert %{success: 1, failure: 0} =
+                 Oban.drain_queue(queue: :kindle, with_safety: false, with_scheduled: true)
 
         assert_email_sent(fn email ->
           assert %{attachments: [%{content_type: "application/epub+zip"}]} = email
