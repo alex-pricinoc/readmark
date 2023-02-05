@@ -20,7 +20,7 @@ defmodule Readmark.Bookmarks.Article do
     timestamps()
   end
 
-  @params ~w(url article_html article_text authors title)a
+  @params ~w(url article_html article_text authors title inserted_at)a
   @required ~w(url article_text title)a
 
   @doc false

@@ -1,4 +1,4 @@
-defmodule Readmark.Work.ArticleSenderTest do
+defmodule Readmark.Workers.ArticleSenderTest do
   use Readmark.DataCase
 
   import Swoosh.TestAssertions
