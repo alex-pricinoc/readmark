@@ -60,7 +60,7 @@ defmodule Readmark.Epub do
   end
 
   defp to_epub(pages, cover, %{dir: dest, title: title} = _config) do
-    images = Path.wildcard(Path.join(dest, "*.{jpg,png,gif,jpeg,bmp}"))
+    images = Path.wildcard(Path.join(dest, "*.jpg"))
 
     config = %BUPE.Config{
       title: "readmark: #{title}",
@@ -75,13 +75,16 @@ defmodule Readmark.Epub do
     end
   end
 
-  # TODO: compress images to reduce size (using Image library)
   defp embed_images(html, dest) do
     html
     |> Floki.parse_document!()
     |> Floki.find_and_update("img", fn
-      {"img", [{"src", src} | attrs]} ->
-        {"img", [{"src", download_image(src, dest)} | attrs]}
+      {"img", attrs} ->
+        {"img",
+         Enum.map(attrs, fn
+           {"src", src} -> {"src", download_image(src, dest)}
+           other -> other
+         end)}
 
       other ->
         other
@@ -90,24 +93,25 @@ defmodule Readmark.Epub do
   end
 
   defp download_image(src, dest) do
-    file_name = Path.basename(src)
-    file_path = Path.join(dest, file_name)
+    :get
+    |> Finch.build(src)
+    |> Finch.request(Readmark.Finch)
+    |> case do
+      {:ok, %Finch.Response{status: 200, body: body}} ->
+        case resize_image(body) do
+          {:ok, image} ->
+            file_name = Ecto.UUID.generate() <> ".jpg"
+            File.write!(Path.join(dest, file_name), image)
+            file_name
 
-    if File.exists?(file_path) do
-      file_name
-    else
-      :get
-      |> Finch.build(src)
-      |> Finch.request(Readmark.Finch)
-      |> case do
-        {:ok, %Finch.Response{status: 200, body: body}} ->
-          File.write!(file_path, body)
-          file_name
+          {:error, reason} ->
+            Logger.error("unable to resize image #{inspect(reason)}")
+            ""
+        end
 
-        {_, error} ->
-          Logger.warning("Unable to download image #{inspect(error)}")
-          ""
-      end
+      {_, error} ->
+        Logger.warning("Unable to download image #{inspect(error)}")
+        ""
     end
   end
 
