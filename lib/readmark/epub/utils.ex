@@ -1,6 +1,16 @@
 defmodule Readmark.Epub.Utils do
   @moduledoc false
 
+  @doc "Resize and compress image from binary."
+  def resize_image(binary) do
+    with {:ok, image} <- Image.from_binary(binary),
+         {:ok, image} <- Image.thumbnail(image, 500) do
+      Image.write(image, :memory, suffix: ".jpg", quality: 25)
+    else
+      error -> error
+    end
+  end
+
   @doc "Generates a random alphanumeric id."
   def gen_reference() do
     min = String.to_integer("100000", 36)
