@@ -21,6 +21,8 @@ defmodule Readmark.Bookmarks.Bookmark do
       join_keys: [bookmark_id: :id, article_id: :url],
       on_replace: :delete
 
+    field :is_archived?, :boolean, virtual: true
+
     timestamps()
   end
 

@@ -50,7 +50,7 @@
       </.link>
     </div>
 
-    <div class="relative w-fit">
+    <div class="relative w-fit inline-flex items-center gap-1">
       <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
       <.link
         patch={~p"/bookmarks/#{bookmark}/edit"}

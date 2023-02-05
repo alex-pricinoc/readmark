@@ -25,9 +25,11 @@ defmodule Readmark.Bookmarks do
 
   @doc false
   def all_query(params) when is_list(params) do
-    Bookmark
-    |> order_by(desc: :inserted_at)
-    |> where(^filter_where(params))
+    from b in Bookmark,
+      as: :bookmark,
+      order_by: [desc: :inserted_at],
+      where: ^filter_where(params),
+      select_merge: %{is_archived?: exists(archived_bookmark_query())}
   end
 
   defp filter_where(params) do
@@ -65,10 +67,14 @@ defmodule Readmark.Bookmarks do
     |> Repo.all()
   end
 
+  defp archived_bookmark_query do
+    from ba in BookmarkArticle, where: parent_as(:bookmark).id == ba.bookmark_id
+  end
+
   defp reading_articles_query do
     from b in Bookmark,
       as: :bookmark,
-      where: exists(from ba in BookmarkArticle, where: parent_as(:bookmark).id == ba.bookmark_id),
+      where: exists(archived_bookmark_query()),
       preload: :articles
   end
 

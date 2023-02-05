@@ -155,6 +155,9 @@ defmodule ReadmarkWeb.AppLive do
       defp get_article(%Bookmark{articles: [article | _]}), do: article
       defp get_article(_bookmark), do: nil
 
+      defp is_archived?(%Bookmark{} = bookmark),
+        do: bookmark.is_archived? || get_article(bookmark)
+
       defp maybe_fetch_article(socket, %Bookmark{folder: :reading, articles: []} = bookmark) do
         with %Article{} = article <- ArticleFetcher.fetch_article(bookmark.url),
              {:ok, _bookmark} = Bookmarks.update_bookmark(bookmark, %{"articles" => [article]}) do
