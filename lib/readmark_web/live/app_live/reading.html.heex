@@ -44,7 +44,8 @@
       <%= get_domain(bookmark.url) %>
     </a>
 
-    <div class="relative w-fit">
+    <div class="relative w-fit inline-flex items-center gap-1">
+      <Heroicons.check :if={is_archived?(bookmark)} mini class="h-4 w-4 inline text-gray-500" />
       <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
       <.link
         phx-click="archive-bookmark"
