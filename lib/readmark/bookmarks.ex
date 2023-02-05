@@ -4,6 +4,9 @@ defmodule Readmark.Bookmarks do
   """
 
   import Ecto.Query, warn: false
+
+  require Logger
+
   alias Readmark.Repo
 
   alias Readmark.Accounts.User
@@ -67,6 +70,48 @@ defmodule Readmark.Bookmarks do
       as: :bookmark,
       where: exists(from ba in BookmarkArticle, where: parent_as(:bookmark).id == ba.bookmark_id),
       preload: :articles
+  end
+
+  def prune_archived_bookmarks() do
+    Repo.transaction(fn ->
+      from(b in Bookmark,
+        where: b.folder == :archive,
+        where: b.updated_at < from_now(-1, "month")
+      )
+      |> Repo.stream()
+      |> Enum.reduce(0, fn bookmark, acc ->
+        case Repo.delete(bookmark) do
+          {:ok, _} ->
+            acc + 1
+
+          {:error, error} ->
+            Logger.error("Failed to prune bookmark: #{inspect(error)}")
+            acc
+        end
+      end)
+    end)
+  end
+
+  def prune_archived_articles() do
+    Repo.transaction(fn ->
+      from(a in Article,
+        as: :article,
+        where: a.inserted_at < from_now(-3, "month"),
+        where:
+          not exists(from(ba in BookmarkArticle, where: parent_as(:article).url == ba.article_id))
+      )
+      |> Repo.stream()
+      |> Enum.reduce(0, fn article, acc ->
+        case Repo.delete(article) do
+          {:ok, _} ->
+            acc + 1
+
+          {:error, error} ->
+            Logger.error("Failed to prune article: #{inspect(error)}")
+            acc
+        end
+      end)
+    end)
   end
 
   @doc """
