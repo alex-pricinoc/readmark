@@ -11,7 +11,7 @@ export default Open = {
     this.updateDOM()
   },
   updateDOM() {
-    if (this.el.scrollTop > 100 || window.scrollY > 100) {
+    if (this.el.scrollTop > 50 || window.scrollY > 50) {
       this.el.classList.add("open")
     } else {
       this.el.classList.remove("open")

@@ -1,6 +1,6 @@
 <div>
-  <.header class="mb-4g sm:mb-10"><%= @title %></.header>
-  <.form
+  <.header><%= @title %></.header>
+  <.simple_form
     :let={f}
     for={@changeset}
     id="bookmark-form"
@@ -9,39 +9,38 @@
     phx-submit="save"
   >
     <.error :if={@changeset.action == :insert}>
-      Oops, something went wrong!
+      Oops, something went wrong! Please check the errors below.
     </.error>
-    <fieldset class="mb-6 space-y-4">
-      <.input
-        field={{f, :url}}
-        type="url"
-        label="Url"
-        placeholder="www.example.com/article.html"
-        autocomplete="off"
-        disabled={@action == :edit}
-      />
-      <.input
-        :if={@folder == :bookmarks}
-        field={{f, :title}}
-        placeholder="Example title"
-        label="Title"
-      />
-      <.input
-        :if={@folder == :bookmarks}
-        field={{f, :tags}}
-        value={list_input_value(f, :tags)}
-        label="Tags"
-        placeholder="tag1 tag2..."
-      />
-      <.input
-        :if={@action == :edit}
-        field={{f, :folder}}
-        type="select"
-        options={Ecto.Enum.values(Bookmarks.Bookmark, :folder)}
-        label="Folder"
-      />
-    </fieldset>
-
-    <.button type="submit" phx-disable-with="Saving...">Save</.button>
-  </.form>
+    <.input
+      field={{f, :url}}
+      type="url"
+      label="Url"
+      placeholder="www.example.com/article.html"
+      autocomplete="off"
+      disabled={@action == :edit}
+    />
+    <.input
+      :if={@folder == :bookmarks}
+      field={{f, :title}}
+      placeholder="Example title"
+      label="Title"
+    />
+    <.input
+      :if={@folder == :bookmarks}
+      field={{f, :tags}}
+      value={list_input_value(f, :tags)}
+      label="Tags"
+      placeholder="tag1 tag2..."
+    />
+    <.input
+      :if={@action == :edit}
+      field={{f, :folder}}
+      type="select"
+      options={Ecto.Enum.values(Bookmarks.Bookmark, :folder)}
+      label="Folder"
+    />
+    <:actions>
+      <.button type="submit" phx-disable-with="Saving...">Save</.button>
+    </:actions>
+  </.simple_form>
 </div>

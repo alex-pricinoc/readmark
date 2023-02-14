@@ -29,13 +29,7 @@
     </nav>
   </aside>
 
-  <div
-    id="sidebar-overlay"
-    class="z-20 fixed inset-0 bg-zinc-50/90 hidden"
-    aria-hidden="true"
-    phx-click={hide_sidebar()}
-  >
-  </div>
+  <.overlay id="sidebar-overlay" class="z-20" phx-click={hide_sidebar()} />
 
   <main class="flex bg-graph-paper">
     <%= @inner_content %>
@@ -44,6 +38,7 @@
 
 <.flash kind={:info} title="Success!" flash={@flash} />
 <.flash kind={:error} title="Error!" flash={@flash} />
+
 <.flash
   id="disconnected"
   kind={:error}

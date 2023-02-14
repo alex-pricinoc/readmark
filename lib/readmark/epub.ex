@@ -119,7 +119,7 @@ defmodule Readmark.Epub do
     if String.length(title) > 50, do: String.slice(title, 0..47) <> "...", else: title
   end
 
-  defp book_title([_ | _]) do
+  defp book_title(_articles) do
     Timex.format!(Timex.now(), "{WDfull}, {Mshort}. {D}, {YYYY}")
   end
 

@@ -1,9 +1,9 @@
 defmodule Readmark.Bookmarks.Article do
   use Readmark.Schema
 
-  @type t :: Ecto.Schema.t()
-
   alias Readmark.Bookmarks.{Bookmark, BookmarkArticle}
+
+  @type t :: Ecto.Schema.t()
 
   @primary_key false
   schema "articles" do
