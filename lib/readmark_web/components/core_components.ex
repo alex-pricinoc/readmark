@@ -143,7 +143,11 @@ defmodule ReadmarkWeb.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
+    <header class={[
+      "mb-6 sm:mb-10",
+      @actions != [] && "flex items-center justify-between gap-6",
+      @class
+    ]}>
       <div>
         <h1 class="text-lg font-semibold leading-8 text-zinc-800">
           <%= render_slot(@inner_block) %>
@@ -152,7 +156,7 @@ defmodule ReadmarkWeb.CoreComponents do
           <%= render_slot(@subtitle) %>
         </p>
       </div>
-      <div class="flex-none"><%= render_slot(@actions) %></div>
+      <div :if={@actions != []} class="flex-none"><%= render_slot(@actions) %></div>
     </header>
     """
   end
@@ -306,6 +310,19 @@ defmodule ReadmarkWeb.CoreComponents do
     """
   end
 
+  attr :class, :string, default: nil
+  attr :rest, :global
+
+  def overlay(assigns) do
+    ~H"""
+    <div
+      {@rest}
+      class={["fixed inset-0 bg-zinc-50/90 transition-opacity hidden", @class]}
+      aria-hidden="true"
+    />
+    """
+  end
+
   ## JS Commands
 
   def show(js \\ %JS{}, selector) do
@@ -356,22 +373,6 @@ defmodule ReadmarkWeb.CoreComponents do
     |> JS.pop_focus()
   end
 
-  def hide_sidebar(js \\ %JS{}) do
-    js
-    |> JS.hide(
-      to: "#sidebar-overlay",
-      time: 200,
-      transition: {"transition-opacity ease-in duration-200", "opacity-100", "opacity-0"}
-    )
-    |> JS.hide(
-      to: "#sidebar",
-      time: 200,
-      transition:
-        {"transition-transform transform-gpu ease-in duration-200", "translate-x-0",
-         "-translate-x-full"}
-    )
-  end
-
   def show_sidebar(js \\ %JS{}) do
     js
     |> JS.show(
@@ -385,6 +386,22 @@ defmodule ReadmarkWeb.CoreComponents do
       transition:
         {"transition-all transform ease-out-cubic duration-300", "-translate-x-full",
          "translate-x-0"}
+    )
+  end
+
+  def hide_sidebar(js \\ %JS{}) do
+    js
+    |> JS.hide(
+      to: "#sidebar-overlay",
+      time: 200,
+      transition: {"transition-opacity ease-in duration-200", "opacity-100", "opacity-0"}
+    )
+    |> JS.hide(
+      to: "#sidebar",
+      time: 200,
+      transition:
+        {"transition-transform transform-gpu ease-in duration-200", "translate-x-0",
+         "-translate-x-full"}
     )
   end
 

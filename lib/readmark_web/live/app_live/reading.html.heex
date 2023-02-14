@@ -99,7 +99,7 @@
 
     <div
       :if={article = get_article(@active_bookmark)}
-      class="mt-8 prose prose-zinc prose-sm sm:prose-base"
+      class="mt-8 prose prose-zinc prose-sm sm:prose-base overflow-hidden"
     >
       <%= raw(article.article_html || article.article_text) %>
     </div>

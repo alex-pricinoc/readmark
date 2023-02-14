@@ -184,7 +184,7 @@ defmodule ReadmarkWeb.AppLiveTest do
 
       html = lv |> form("#bookmark-form", bookmark: @invalid_attrs) |> render_submit()
 
-      assert html =~ "Oops, something went wrong! Cannot save article."
+      assert html =~ "Oops, something went wrong!"
 
       lv
       |> form("#bookmark-form", bookmark: @create_attrs)

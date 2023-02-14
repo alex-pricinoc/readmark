@@ -1,6 +1,6 @@
 <div>
-  <.header class="mb-4 sm:mb-10"><%= @title %></.header>
-  <.form
+  <.header><%= @title %></.header>
+  <.simple_form
     :let={f}
     for={@changeset}
     id="bookmark-form"
@@ -9,21 +9,21 @@
     phx-submit="save"
   >
     <.error :if={@changeset.action == :insert}>
-      Oops, something went wrong! Cannot save article.
+      Oops, something went wrong! Please check the errors below.
     </.error>
-    <fieldset class="mb-6 space-y-4">
-      <.input field={{f, :folder}} type="hidden" value={:reading} />
-      <.input
-        field={{f, :url}}
-        type="url"
-        label="Url"
-        placeholder="www.example.com/article.html"
-        autocomplete="off"
-        required
-      />
-    </fieldset>
-    <.button type="submit" phx-disable-with="Saving...">
-      Save
-    </.button>
-  </.form>
+    <.input field={{f, :folder}} type="hidden" value={:reading} />
+    <.input
+      field={{f, :url}}
+      type="url"
+      label="Url"
+      placeholder="www.example.com/article.html"
+      autocomplete="off"
+      required
+    />
+    <:actions>
+      <.button type="submit" phx-disable-with="Saving...">
+        Save
+      </.button>
+    </:actions>
+  </.simple_form>
 </div>
