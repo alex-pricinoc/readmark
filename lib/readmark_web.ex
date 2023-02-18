@@ -17,9 +17,6 @@ defmodule ReadmarkWeb do
   those modules here.
   """
 
-  def static_paths,
-    do: ~w(assets fonts images favicon.ico favicon.svg robots.txt manifest.json)
-
   def router do
     quote do
       use Phoenix.Router, helpers: false
@@ -100,7 +97,7 @@ defmodule ReadmarkWeb do
       use Phoenix.VerifiedRoutes,
         endpoint: ReadmarkWeb.Endpoint,
         router: ReadmarkWeb.Router,
-        statics: ReadmarkWeb.static_paths()
+        statics: ~w(assets fonts images favicon.svg robots.txt manifest.json)
     end
   end
 

@@ -20,8 +20,9 @@ defmodule ReadmarkWeb.Endpoint do
   plug Plug.Static,
     at: "/",
     from: :readmark,
-    gzip: false,
-    only: ReadmarkWeb.static_paths()
+    gzip: true,
+    cache_control_for_etags: "public, max-age=31536000",
+    only_matching: ~w(assets fonts images favicon manifest robots)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

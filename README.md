@@ -4,7 +4,7 @@ This is the full source code for [Readmark](https://readmark.fly.dev), a bookmar
 
 ## Overview
 
-![](priv/static/images/screenshot.png)
+![](screenshot.png)
 
 ### Features
 
