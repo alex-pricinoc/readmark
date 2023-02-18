@@ -61,7 +61,7 @@ defmodule Readmark.Bookmarks do
   """
   def latest_unread_bookmarks(%User{} = user) do
     reading_articles_query()
-    |> order_by(desc: :inserted_at)
+    |> order_by(asc: :inserted_at)
     |> where(^filter_where(folder: :reading, user_id: user.id))
     |> limit(10)
     |> Repo.all()
