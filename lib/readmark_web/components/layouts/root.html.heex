@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=no" />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <meta name="referrer" content="no-referrer" />
     <.live_title><%= assigns[:page_title] || "readmark" %></.live_title>
     <link rel="icon" type="image/svg+xml" href={~p"/favicon.svg"} />
     <link rel="apple-touch-icon" href={~p"/images/apple-touch-icon.png"} />
