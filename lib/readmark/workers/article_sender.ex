@@ -38,9 +38,10 @@ defmodule Readmark.Workers.ArticleSender do
   end
 
   @impl Oban.Worker
-  def backoff(_job) do
-    :timer.minutes(5)
-  end
+  def backoff(_job), do: :timer.minutes(5)
+
+  @impl Oban.Worker
+  def timeout(_job), do: :timer.minutes(5)
 
   @doc """
   Schedule a new kindle delivery or updates an existing one based on user preferences.
