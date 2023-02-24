@@ -25,6 +25,10 @@ defmodule Readmark.Application do
       {Oban, Application.fetch_env!(:readmark, Oban)}
     ]
 
+    :ok = Oban.Telemetry.attach_default_logger()
+
+    Readmark.Workers.ObanLogger.attach()
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Readmark.Supervisor]

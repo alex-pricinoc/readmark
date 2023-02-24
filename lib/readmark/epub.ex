@@ -30,7 +30,7 @@ defmodule Readmark.Epub do
     articles
     |> Enum.with_index()
     |> Enum.map(&Task.async(fn -> to_xhtml(&1, config) end))
-    |> Enum.map(&Task.await(&1, :timer.seconds(30)))
+    |> Enum.map(&Task.await(&1, :infinity))
   end
 
   defp to_xhtml({%{article_html: html, title: title}, index}, %{dir: dest}) do
