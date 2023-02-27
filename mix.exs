@@ -70,7 +70,8 @@ defmodule Readmark.MixProject do
       {:oban, "~> 2.13"},
       {:timex, "~> 3.7"},
       {:kday, "~> 1.0"},
-      {:mox, "~> 1.0", only: :test}
+      {:mox, "~> 1.0", only: :test},
+      {:html5ever, "~> 0.14.0"}
     ]
   end
 

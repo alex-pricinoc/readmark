@@ -14,8 +14,8 @@ defmodule Readmark.Dump.HTMLParser do
   defp parse_tree([item | rest], acc) do
     {rest, acc} =
       case item do
-        {"dt", [], [{"a", _, _}]} -> {rest, [item | acc]}
-        {"dd", [], [<<_::binary>>]} -> {rest, [item | acc]}
+        {"dt", [], [{"a", _, _} | _]} -> {rest, [item | acc]}
+        {"dd", [], [<<_::binary>> | _]} -> {rest, [item | acc]}
         {_, _, items} -> {rest ++ items, acc}
         _ -> {rest, acc}
       end
@@ -32,17 +32,17 @@ defmodule Readmark.Dump.HTMLParser do
   defp remaining([]), do: {:cont, []}
   defp remaining(acc), do: {:cont, Enum.reverse(acc), []}
 
-  defp parse_bookmark([{"dt", [], [{"a", attrs, [<<title::binary>>]}]}]) do
+  defp parse_bookmark([{"dt", [], [{"a", attrs, [<<title::binary>>]} | _]}]) do
     to_link(title, "", attrs)
   end
 
-  defp parse_bookmark([{"dd", [], []}, {"dt", [], [{"a", attrs, [<<title::binary>>]}]}]) do
+  defp parse_bookmark([{"dd", [], []}, {"dt", [], [{"a", attrs, [<<title::binary>>]} | _]}]) do
     to_link(title, "", attrs)
   end
 
   defp parse_bookmark([
-         {"dd", [], [<<notes::binary>>]},
-         {"dt", [], [{"a", attrs, [<<title::binary>>]}]}
+         {"dd", [], [<<notes::binary>> | _]},
+         {"dt", [], [{"a", attrs, [<<title::binary>>]} | _]}
        ]) do
     to_link(title, notes, attrs)
   end

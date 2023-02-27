@@ -24,3 +24,5 @@ config :readmark,
 
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
+
+config :readmark, :features, embed_book_images: true

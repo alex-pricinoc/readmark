@@ -6,6 +6,7 @@ defmodule Readmark.Epub do
   require Logger
 
   import __MODULE__.Utils
+  import Readmark.Features
 
   @doc """
   Generate epub from articles.
@@ -39,8 +40,9 @@ defmodule Readmark.Epub do
     item_path = Path.join(dest, "story#{index}.xhtml")
     title = escape_html_text(title)
 
+    html = if feature_enabled?(:embed_book_images), do: embed_images(html, dest), else: html
+
     html
-    |> embed_images(dest)
     |> to_page(%{title: title})
     |> then(&File.write(item_path, &1))
 
