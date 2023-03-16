@@ -19,11 +19,11 @@ jobs:
       matrix:
         include:
           - elixir: 1.14.3
-            otp: 25.0.4
-            debian-version: bullseye-20220801-slim
+            otp: 25.2.3
+            debian-version: bullseye-20230202-slim
             aliases: |
-              ghcr.io/${{ github.repository }}-builder:1.14.3-25.0.4
-              ghcr.io/${{ github.repository }}-builder:1.14-25.0
+              ghcr.io/${{ github.repository }}-builder:1.14.3-25.2.3
+              ghcr.io/${{ github.repository }}-builder:1.14-25.2
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

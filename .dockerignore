@@ -20,13 +20,17 @@ doc
 
 # Also ignore archive artifacts (built via "mix archive.build").
 **/*.ez
-priv/go
+
+# Temporary files
+/tmp/
 
 # Ignore package tarball (built via "mix hex.build").
 **/readmark-*.tar
 
 # Ignore assets that are produced by build tools.
 priv/static/assets
+priv/go
+priv/native
 
 # Ignore digested assets cache.
 priv/static/cache_manifest.json
@@ -37,6 +41,9 @@ assets/node_modules
 
 # Elixir Language Server
 **/.elixir_ls
+
+# Rust artifacts
+target
 
 # Ignore secrets
 config/*.secret.exs

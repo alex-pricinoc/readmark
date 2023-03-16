@@ -1,26 +1,26 @@
-const colors = require("tailwindcss/colors")
-const defaultTheme = require("tailwindcss/defaultTheme")
-const plugin = require("tailwindcss/plugin")
+const colors = require("tailwindcss/colors");
+const defaultTheme = require("tailwindcss/defaultTheme");
+const plugin = require("tailwindcss/plugin");
 
 module.exports = {
   content: ["./js/**/*.js", "../lib/*_web.ex", "../lib/*_web/**/*.*ex"],
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter var", ...defaultTheme.fontFamily.sans]
+        sans: ["Inter var", ...defaultTheme.fontFamily.sans],
       },
       colors: {
         primary: colors.indigo,
-        secondary: colors.yellow
+        secondary: colors.yellow,
       },
       backgroundImage: {
-        "graph-paper": "url('/images/graph-paper.svg')"
+        "graph-paper": "url('/images/graph-paper.svg')",
       },
       height: {
-        "screen": "100dvh"
+        "screen": "100dvh",
       },
       minHeight: {
-        "screen": "100dvh"
+        "screen": "100dvh",
       },
       transitionTimingFunction: {
         // custom easing variables: https://gist.github.com/bendc/ac03faac0bf2aee25b49e5fd260a727d
@@ -43,30 +43,22 @@ module.exports = {
         "in-out-quart": "cubic-bezier(.77, 0, .175, 1)",
         "in-out-quint": "cubic-bezier(.86, 0, .07, 1)",
         "in-out-expo": "cubic-bezier(1, 0, 0, 1)",
-        "in-out-circ": "cubic-bezier(.785, .135, .15, .86)"
-      }
-    }
+        "in-out-circ": "cubic-bezier(.785, .135, .15, .86)",
+      },
+    },
   },
   plugins: [
     require("@tailwindcss/typography"),
     require("@tailwindcss/forms"),
     require("@tailwindcss/line-clamp"),
     require("@tailwindcss/aspect-ratio"),
-    plugin(({ addVariant }) =>
-      addVariant("phx-no-feedback", ["&.phx-no-feedback", ".phx-no-feedback &"])
-    ),
-    plugin(({ addVariant }) =>
-      addVariant("phx-click-loading", ["&.phx-click-loading", ".phx-click-loading &"])
-    ),
-    plugin(({ addVariant }) =>
-      addVariant("phx-submit-loading", ["&.phx-submit-loading", ".phx-submit-loading &"])
-    ),
-    plugin(({ addVariant }) =>
-      addVariant("phx-change-loading", ["&.phx-change-loading", ".phx-change-loading &"])
-    ),
-    plugin(({ addVariant }) => addVariant("open", ["&.open", ".open &"]))
+    plugin(({ addVariant }) => addVariant("phx-no-feedback", ["&.phx-no-feedback", ".phx-no-feedback &"])),
+    plugin(({ addVariant }) => addVariant("phx-click-loading", ["&.phx-click-loading", ".phx-click-loading &"])),
+    plugin(({ addVariant }) => addVariant("phx-submit-loading", ["&.phx-submit-loading", ".phx-submit-loading &"])),
+    plugin(({ addVariant }) => addVariant("phx-change-loading", ["&.phx-change-loading", ".phx-change-loading &"])),
+    plugin(({ addVariant }) => addVariant("open", ["&.open", ".open &"])),
   ],
   future: {
-    hoverOnlyWhenSupported: true
-  }
-}
+    hoverOnlyWhenSupported: true,
+  },
+};
