@@ -1,56 +1,36 @@
-defmodule Readmark.Epub.Utils do
+defmodule Epub.Cover do
   @moduledoc false
-
-  @doc "Resize and compress image from binary."
-  def resize_image(binary) do
-    with {:ok, image} <- Image.from_binary(binary),
-         {:ok, image} <- Image.thumbnail(image, 500) do
-      Image.write(image, :memory, suffix: ".jpg", quality: 25)
-    else
-      error -> error
-    end
-  end
-
-  @doc "Generates a random alphanumeric id."
-  def gen_reference() do
-    min = String.to_integer("100000", 36)
-    max = String.to_integer("ZZZZZZ", 36)
-
-    max
-    |> Kernel.-(min)
-    |> :rand.uniform()
-    |> Kernel.+(min)
-    |> Integer.to_string(36)
-  end
 
   @width 640
   @height 960
 
   @doc "Generates EPUB cover from text."
-  def build_cover(text, path) do
+  def build_cover(text, dest) do
     image = Image.new!(@width, @height)
     text = text!(image, text)
-    title = title!()
+    title = title!(image)
 
     image
     |> Image.compose!(title, title_location(image, title))
     |> Image.compose!(text, text_location(image, text))
-    |> Image.write!(path)
+    |> Image.write!(dest)
   end
 
-  defp title! do
+  defp title!(image) do
     Image.Text.simple_text!("readmark",
-      font_size: 100,
+      autofit: true,
+      font_size: 0,
       font_weight: :bold,
       font: "Inria Serif",
-      align: :center
+      height: 50,
+      width: text_box_width(image)
     )
   end
 
   defp text!(image, text) do
     Image.Text.simple_text!(text,
       autofit: true,
-      font_size: 100,
+      font_size: 0,
       font: "sans-serif",
       align: :center,
       height: 100,

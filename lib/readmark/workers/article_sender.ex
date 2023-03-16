@@ -11,23 +11,28 @@ defmodule Readmark.Workers.ArticleSender do
 
   require Logger
 
-  alias Readmark.{Accounts, Bookmarks, Epub, Repo}
+  alias Readmark.{Accounts, Bookmarks, Repo}
   alias Accounts.{User, EpubSender}
   alias User.KindlePreferences
 
   @impl Oban.Worker
   def perform(%{args: %{"user_id" => user_id} = job}) do
-    Logger.debug("Sending kindle compilation: #{inspect(job)}")
+    Logger.debug("Performing scheduled kindle delivery: #{inspect(job)}")
 
     user = Accounts.get_user!(user_id)
     bookmarks = Bookmarks.latest_unread_bookmarks(user)
     articles = Enum.flat_map(bookmarks, & &1.articles)
 
-    if length(articles) >= user.kindle_preferences.articles and user.kindle_email != nil do
-      sent = deliver_kindle_compilation(user, articles)
-      _ = Enum.map(bookmarks, &Bookmarks.update_bookmark(&1, %{folder: :archive}))
+    if should_deliver?(user, articles) do
+      case deliver_kindle_compilation(user, articles) do
+        {:ok, sent} ->
+          _ = Enum.map(bookmarks, &Bookmarks.update_bookmark(&1, %{folder: :archive}))
+          Logger.info("Kindle compilation sent for user: #{user.id}. #{sent} articles.")
 
-      Logger.info("Kindle compilation sent for user: #{user.id}. #{sent} articles.")
+        {:error, error} = err ->
+          Logger.error("An error has occured while delivering articles: #{error}")
+          err
+      end
     else
       Logger.info("Skipping sending kindle compilation for user: #{user.id}.")
     end
@@ -62,13 +67,14 @@ defmodule Readmark.Workers.ArticleSender do
   """
   def deliver_kindle_compilation(%User{} = user, articles)
       when length(articles) > 0 and user.kindle_email != nil do
-    {epub, delete_gen_files} = Epub.build(articles)
+    with {:ok, {epub, delete_gen_files}} <- Epub.build(articles),
+         {:ok, _email} = EpubSender.deliver_epub(user.kindle_email, epub) do
+      delete_gen_files.()
 
-    {:ok, _email} = EpubSender.deliver_epub(user.kindle_email, epub)
-
-    delete_gen_files.()
-
-    length(articles)
+      {:ok, length(articles)}
+    else
+      error -> error
+    end
   end
 
   @doc """
@@ -96,5 +102,9 @@ defmodule Readmark.Workers.ArticleSender do
             j.worker == ^Oban.Worker.to_string(__MODULE__)
       )
     )
+  end
+
+  defp should_deliver?(user, articles) do
+    length(articles) >= user.kindle_preferences.articles and user.kindle_email != nil
   end
 end

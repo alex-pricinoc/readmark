@@ -18,13 +18,14 @@ erl_crash.dump
 
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez
-priv/go
 
 # Ignore package tarball (built via "mix hex.build").
 readmark-*.tar
 
 # Ignore assets that are produced by build tools.
 /priv/static/assets/
+priv/go
+priv/native
 
 # Ignore digested assets cache.
 /priv/static/cache_manifest.json

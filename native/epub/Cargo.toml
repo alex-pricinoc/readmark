@@ -1,0 +1,18 @@
+[package]
+name = "epub"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+name = "epub"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+epub-builder = "0.4"
+lol_html = "0.3.2"
+rayon = "1.7.0"
+rustler = "0.27.0"
+ureq = "2.6.2"
+url = "2.3.1"
