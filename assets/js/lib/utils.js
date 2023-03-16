@@ -1,42 +1,42 @@
 export function debounce(fn) {
-  let raf
+  let raf;
 
   return (...args) => {
     if (raf) {
-      return
+      return;
     }
 
     raf = requestAnimationFrame(() => {
-      fn(...args)
-      raf = undefined
-    })
-  }
+      fn(...args);
+      raf = undefined;
+    });
+  };
 }
 
 export function findChildOrThrow(element, selector) {
-  const child = element.querySelector(selector)
+  const child = element.querySelector(selector);
 
   if (!child) {
-    throw new Error(`expected a child matching ${selector}, but none was found`)
+    throw new Error(`expected a child matching ${selector}, but none was found`);
   }
 
-  return child
+  return child;
 }
 
 export function smoothScrollTo(y, el = window, duration = 500, offset = 0) {
-  const startY = el.scrollTop || el.scrollY
-  const difference = y - startY
-  const startTime = performance.now()
+  const startY = el.scrollTop || el.scrollY;
+  const difference = y - startY;
+  const startTime = performance.now();
 
   const step = () => {
-    const progress = (performance.now() - startTime) / duration
-    const amount = EasingFunctions.easeOutQuart(progress)
-    el.scrollTo({ top: startY + amount * difference - offset })
+    const progress = (performance.now() - startTime) / duration;
+    const amount = EasingFunctions.easeOutQuart(progress);
+    el.scrollTo({ top: startY + amount * difference - offset });
     if (progress < 0.99) {
-      requestAnimationFrame(step)
+      requestAnimationFrame(step);
     }
-  }
-  step()
+  };
+  step();
 }
 
 // https://gist.github.com/gre/1650294
@@ -66,5 +66,5 @@ const EasingFunctions = {
   // decelerating to zero velocity
   easeOutQuint: t => 1 + (--t) * t * t * t * t,
   // acceleration until halfway, then deceleration
-  easeInOutQuint: t => t < .5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t
-}
+  easeInOutQuint: t => t < .5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t,
+};

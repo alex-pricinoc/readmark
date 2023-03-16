@@ -1,9 +1,5 @@
 {
-	"typescript": {
-		"lineWidth": 100,
-		"semiColons": "asi",
-		"trailingCommas": "never"
-	},
+	"typescript": {},
 	"json": {
 		"useTabs": true,
 		"indentWidth": 4
@@ -21,7 +17,8 @@
 		"deps",
 		"priv",
 		"_build",
-		".elixir_ls"
+		".elixir_ls",
+		"target"
 	],
 	"plugins": [
 		"https://plugins.dprint.dev/typescript-0.79.0.wasm",

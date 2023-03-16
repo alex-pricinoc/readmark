@@ -1,9 +1,9 @@
-import Flash from "./flash"
-import InfiniteScroll from "./infinite-scroll"
-import Open from "./open"
+import Flash from "./flash";
+import InfiniteScroll from "./infinite-scroll";
+import Open from "./open";
 
 export default {
   Flash,
   Open,
-  InfiniteScroll
-}
+  InfiniteScroll,
+};

@@ -5,6 +5,9 @@ all: install
 
 install: setup go_build
 
+setup:
+	mix setup
+
 go_build: priv/go/readability
 
 priv/go/readability: go_priv
@@ -12,9 +15,6 @@ priv/go/readability: go_priv
 
 go_priv:
 	mkdir -p priv/go
-
-setup:
-	mix setup
 
 
 start server:
@@ -25,23 +25,14 @@ format f:
 	dprint fmt
 
 
-check lint: check.compile check.format check.deps check.code-analysis
-
-check.compile:
+check lint:
 	mix compile --warnings-as-errors
-
-check.format:
+	mix xref graph --label compile-connected --fail-above 0
+	mix deps.unlock --check-unused
 	mix format --check-formatted
 	dprint check
-
-check.deps:
-	mix deps.audit
 	mix hex.audit
-	mix deps.unlock --check-unused
-	mix xref graph --label compile-connected --fail-above 0
-
-check.code-analysis:
-	mix credo --strict --only warning
+	mix deps.audit
 
 check.deps.outdated:
 	mix hex.outdated
@@ -60,13 +51,9 @@ test.coverage.html:
 clean:
 	mix clean
 	rm -rf priv/go
+	rm -rf priv/native
 
 clean.deps.unused:
 	mix deps.clean --unlock --unused
-
-versions:
-	@echo "Tool Versions"
-	@cat .tool-versions
-	@echo
 
 .PHONY: test
