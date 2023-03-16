@@ -10,5 +10,16 @@
       "shell_cmd": "psql -U postgres -h localhost -d readmark_dev -f $file -o psql_out.txt",
       "selector": "source.sql",
     }
-  ]
+  ],
+  "settings": {
+    "LSP": {
+      "rust-analyzer": {
+        "settings": {
+          "rust-analyzer.linkedProjects": [
+            "native/epub/Cargo.toml"
+          ]
+        }
+      }
+    }
+  }
 }

@@ -3,9 +3,8 @@ defmodule Readmark.EpubTest do
 
   import Readmark.BookmarksFixtures
 
-  alias Readmark.Epub
-
   @jpg_bytes <<0xFF, 0xD8, 0xFF>>
+  @epub_bytes <<0x50, 0x4B, 0x03, 0x04>>
 
   defp unzip(binary) do
     {:ok, file_bin_list} = :zip.unzip(binary, [:memory])
@@ -13,15 +12,14 @@ defmodule Readmark.EpubTest do
   end
 
   describe "build/1" do
-    # pattern match on first 8 bytes to check file type
     test "generates epub from articels" do
       article = article_fixture()
 
-      {epub, delete_gen_files} = Epub.build([article])
+      {:ok, {epub, delete_gen_files}} = Epub.build([article])
 
-      epub_info = BUPE.parse(epub)
+      epub = File.read!(epub)
 
-      assert epub_info.version == "3.0"
+      assert <<@epub_bytes, _rest::binary>> = epub
 
       delete_gen_files.()
     end
@@ -29,21 +27,13 @@ defmodule Readmark.EpubTest do
     test "cover is generated" do
       article = article_fixture()
 
-      {epub, delete_gen_files} = Epub.build([article])
+      {:ok, {epub, delete_gen_files}} = Epub.build([article])
 
       content = unzip(File.read!(epub))
 
-      {_, opf_template} =
-        Enum.find(content, fn {name, _binary} ->
-          name == 'OEBPS/content.opf'
-        end)
-
-      assert opf_template =~
-               ~s|<item id="cover" href="content/title.xhtml" media-type="application/xhtml+xml"/>|
-
       {_, cover} =
         Enum.find(content, fn {name, _binary} ->
-          name == 'OEBPS/content/cover.jpg'
+          name == 'OEBPS/cover.jpg'
         end)
 
       assert <<@jpg_bytes, _rest::binary>> = cover

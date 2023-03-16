@@ -46,7 +46,7 @@ defmodule Readmark.Workers.ArticleSenderTest do
 
       article = article_fixture()
 
-      assert 1 = ArticleSender.deliver_kindle_compilation(user, [article])
+      assert {:ok, 1} = ArticleSender.deliver_kindle_compilation(user, [article])
 
       assert_email_sent(fn email ->
         assert %{attachments: [%{content_type: "application/epub+zip"}]} = email

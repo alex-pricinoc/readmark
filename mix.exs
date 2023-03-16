@@ -61,16 +61,15 @@ defmodule Readmark.MixProject do
       {:excoveralls, "~> 0.10", only: :test},
       {:heroicons, "~> 0.5"},
       {:gen_smtp, "~> 1.2"},
-      {:earmark, "~> 1.4"},
-      {:bupe, "~> 0.6.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:quarto, "~> 1.1"},
-      {:quarto, path: "vendor/quarto"},
       {:oban, "~> 2.13"},
       {:timex, "~> 3.7"},
       {:kday, "~> 1.0"},
-      {:mox, "~> 1.0", only: :test}
+      {:mox, "~> 1.0", only: :test},
+      {:image, "~> 0.26.0"},
+      {:rustler, "~> 0.27.0"}
     ]
   end
 
