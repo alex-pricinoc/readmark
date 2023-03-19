@@ -67,12 +67,22 @@ jobs:
             ${{ runner.os }}-mix-${{ env.cache-name }}-
             ${{ runner.os }}-mix-
 
-      - name: Get dprint cache
+      - name: dprint cache
         uses: actions/cache@v3
         id: dprint-cache
         with:
           path: ~/.cache/dprint
           key: ${{ runner.os }}-node-${{ hashFiles('**/dprint.json') }}
+
+      - name: Cache rust dependencies
+        uses: actions/cache@v3
+        id: cargo-cache
+        with:
+          path: |
+            /root/.cargo
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
 
       - name: Install Hex + Rebar
         run: mix local.hex --force && mix local.rebar --force

@@ -146,7 +146,7 @@ defmodule ReadmarkWeb.SettingsLive do
     |> assign(:page_title, "Change Kindle Preferences")
   end
 
-  defp bookmarklet() do
+  defp bookmarklet do
     """
     javascript: document.location =
       "#{url(~p"/_/v1/post")}?url=" +
@@ -158,7 +158,7 @@ defmodule ReadmarkWeb.SettingsLive do
     """
   end
 
-  defp kindle() do
+  defp kindle do
     """
     javascript: document.location =
     "#{url(~p"/_/v1/kindle")}?url=" +
@@ -166,7 +166,7 @@ defmodule ReadmarkWeb.SettingsLive do
     """
   end
 
-  defp reading() do
+  defp reading do
     """
     javascript: document.location =
     "#{url(~p"/_/v1/reading")}?url=" +
