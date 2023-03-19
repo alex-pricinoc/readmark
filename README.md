@@ -35,4 +35,3 @@ Run the tests with `make test`, or with `make test.coverage` for coverage.
 ## Disclaimer
 
 _This is a toy project built for educational purposes, not intended to be used in production._
-
