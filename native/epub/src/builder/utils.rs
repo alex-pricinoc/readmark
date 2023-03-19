@@ -80,7 +80,7 @@ pub fn download_image(
     use std::io::Read;
 
     let resp = ureq::get(image.url.as_str())
-        .timeout(Duration::from_secs(1))
+        .timeout(Duration::from_secs(5))
         .call()?;
 
     let len: usize = resp
