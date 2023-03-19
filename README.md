@@ -34,4 +34,5 @@ Run the tests with `make test`, or with `make test.coverage` for coverage.
 
 ## Disclaimer
 
-Readmark is currently _beta quality_ software. Use at your own risk.
+_This is a toy project built for educational purposes, not intended to be used in production._
+

@@ -33,18 +33,34 @@ deps:elixir:
     - mix local.rebar --force
   script:
     - mix deps.get --only $MIX_ENV
-    - mix loadpaths
   artifacts:
     paths:
-      - .mix
-      - _build
       - deps
       - mix.lock
   cache:
     paths:
+      - ~/.hex
       - .mix
+      - deps
+    key:
+      files:
+        - mix.lock
+
+build:elixir:
+  stage: build
+  image: $BUILDER_IMAGE
+  dependencies: [deps:elixir]
+  script:
+    - mix loadpaths
+    - mix compile
+  artifacts:
+    paths:
+      - mix.lock
       - _build
       - deps
+  cache:
+    paths:
+      - ~/.cargo
     key:
       files:
         - mix.lock
@@ -52,7 +68,7 @@ deps:elixir:
 lint:elixir:
   stage: test
   image: $BUILDER_IMAGE
-  dependencies: [deps:elixir]
+  dependencies: [build:elixir]
   script:
     - make lint
 
@@ -60,7 +76,7 @@ test:elixir:
   stage: test
   image: $BUILDER_IMAGE
   services: [postgres:14-alpine]
-  dependencies: [deps:elixir]
+  dependencies: [build:elixir]
   variables:
     FF_NETWORK_PER_BUILD: 1
     POSTGRES_HOST: postgres
@@ -76,6 +92,6 @@ release:
     - apk add --no-cache curl
     - curl -L https://fly.io/install.sh | sh
   script:
-    - /root/.fly/bin/flyctl deploy --detach --build-arg BUILDER_IMAGE=$BUILDER_IMAGE --build-arg ELIXIR_VERSION=$ELIXIR_VERSION --build-arg OTP_VERSION=$OTP_VERSION --build-arg DEBIAN_VERSION=$DEBIAN_VERSION
+    - ~/.fly/bin/flyctl deploy --detach --build-arg BUILDER_IMAGE=$BUILDER_IMAGE --build-arg ELIXIR_VERSION=$ELIXIR_VERSION --build-arg OTP_VERSION=$OTP_VERSION --build-arg DEBIAN_VERSION=$DEBIAN_VERSION
   only:
     - develop
