@@ -1,19 +1,14 @@
 <div>
   <.header><%= @title %></.header>
   <.simple_form
-    :let={f}
-    for={@changeset}
+    for={@form}
     id="bookmark-form"
     phx-target={@myself}
     phx-change="validate"
     phx-submit="save"
   >
-    <.error :if={@changeset.action == :insert}>
-      Oops, something went wrong! Please check the errors below.
-    </.error>
-    <.input field={{f, :folder}} type="hidden" value={:reading} />
     <.input
-      field={{f, :url}}
+      field={@form[:url]}
       type="url"
       label="Url"
       placeholder="www.example.com/article.html"

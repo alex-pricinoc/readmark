@@ -1,7 +1,7 @@
 <div
   id="reading"
   class={[
-    "w-full md:w-1/3 lg:w-80 xl:w-96 border-r bg-white min-h-screen md:overflow-auto md:block md:h-screen",
+    "w-full md:w-1/3 lg:w-80 xl:w-96 border-r bg-white overflow-auto md:block h-screen",
     @active_bookmark != nil and "hidden"
   ]}
   phx-hook="Open"
@@ -15,17 +15,15 @@
       <%= @active_tab %>
     </h1>
     <.icon_button id="add-bookmark-button" label="Add link" patch={~p"/reading/new"}>
-      <Heroicons.plus class="h-5 w-5" stroke-width="2" />
+      <.icon name="hero-plus" class="h-5 w-5" />
     </.icon_button>
   </.sticky_header>
 
   <.bookmark_list
-    :let={bookmark}
+    :let={{_, bookmark}}
     id="reading-items"
-    items={@bookmarks}
-    phx_update={@phx_update}
-    item_hidden={fn b -> deleted?(b) || b.folder != :reading end}
-    item_click={&JS.patch(~p"/reading/#{&1}")}
+    items={@streams.bookmarks}
+    item_click={fn {_, bookmark} -> JS.patch(~p"/reading/#{bookmark}") end}
     class="px-1"
   >
     <.link
@@ -35,17 +33,16 @@
       <%= bookmark.title %>
     </.link>
 
-    <a
+    <.link
       href={bookmark.url}
       target="_blank"
       rel="noopener noreferrer"
       class="relative w-fit max-w-full line-clamp-1 text-gray-500 hover:text-primary-700"
     >
       <%= get_domain(bookmark.url) %>
-    </a>
+    </.link>
 
     <div class="relative w-fit inline-flex items-center gap-1">
-      <Heroicons.check :if={is_archived?(bookmark)} mini class="h-4 w-4 inline text-gray-500" />
       <time class="text-sm text-gray-600"><%= format_time(bookmark.inserted_at) %></time>
       <.link
         phx-click="archive-bookmark"
@@ -57,27 +54,25 @@
     </div>
   </.bookmark_list>
 
-  <div id="infinite-scroll-marker-body" phx-hook="InfiniteScroll"></div>
   <div id="infinite-scroll-marker-area" phx-hook="InfiniteScroll" data-scroll-area="reading">
   </div>
-
-  <p :if={@bookmarks == []} class="mt-24 text-center text-sm text-gray-600">
+  <p :if={@streams.bookmarks == []} class="mt-24 text-center text-sm text-gray-600">
     No articles saved.
   </p>
 </div>
 
 <div
   :if={@active_bookmark != nil}
-  id="reading-detail"
-  class="flex-1 min-w-0 bg-white min-h-screen md:overflow-auto md:block md:h-screen"
+  id={"reading-detail-#{@active_bookmark.id}"}
+  class="flex-1 min-w-0 bg-white overflow-auto h-screen"
   phx-hook="Open"
 >
   <.sticky_header
     class="px-4 bg-white/90 backdrop-blur transition-shadow open:shadow-md"
-    phx-click={JS.dispatch("js:scrolltop", to: "#reading-detail")}
+    phx-click={JS.dispatch("js:scrolltop", to: "#reading-detail-#{@active_bookmark.id}")}
   >
     <.icon_button patch={~p"/reading"} class="md:hidden" label="Go back">
-      <Heroicons.arrow_left class="h-5 w-5" stroke-width="2" />
+      <.icon name="hero-arrow-left" class="h-5 w-5" />
     </.icon_button>
     <h1 class="grow font-semibold capitalize leading-0 text-zinc-800 line-clamp-1 opacity-0 transition-all translate-y-2 open:opacity-100 open:translate-y-0">
       <%= @active_bookmark.title %>
@@ -99,7 +94,7 @@
 
     <div
       :if={article = get_article(@active_bookmark)}
-      class="mt-8 prose prose-zinc prose-sm sm:prose-base overflow-hidden"
+      class="mt-8 prose prose-zinc overflow-hidden"
     >
       <%= raw(article.article_html || article.article_text) %>
     </div>
@@ -110,7 +105,7 @@
   :if={@live_action == :new}
   id="boomark-modal"
   show
-  on_cancel={JS.patch(bookmark_path(@active_bookmark))}
+  on_cancel={JS.patch(~p"/reading/#{@active_bookmark || ""}")}
 >
   <.live_component
     id={:new}
@@ -119,6 +114,6 @@
     title={@page_title}
     action={@live_action}
     current_user={@current_user}
-    return_to={bookmark_path(@active_bookmark)}
+    patch={~p"/reading/#{@active_bookmark || ""}"}
   />
 </.modal>

@@ -8,8 +8,8 @@ defmodule ReadmarkWeb.UserConfirmationLive do
     <div class="max-w-sm px-2">
       <.header>Confirm Account</.header>
 
-      <.simple_form :let={f} for={:user} id="confirmation_form" phx-submit="confirm_account">
-        <.input field={{f, :token}} type="hidden" value={@token} />
+      <.simple_form for={@form} id="confirmation_form" phx-submit="confirm_account">
+        <.input field={@form[:token]} type="hidden" />
         <:actions>
           <.button phx-disable-with="Confirming..." class="w-full">Confirm my account</.button>
         </:actions>
@@ -17,15 +17,15 @@ defmodule ReadmarkWeb.UserConfirmationLive do
 
       <p class="text-center text-sm mt-4">
         <.link href={~p"/users/register"}>Register</.link>
-        |
-        <.link href={~p"/users/log_in"}>Log in</.link>
+        | <.link href={~p"/users/log_in"}>Log in</.link>
       </p>
     </div>
     """
   end
 
-  def mount(params, _session, socket) do
-    {:ok, assign(socket, token: params["token"]), temporary_assigns: [token: nil]}
+  def mount(%{"token" => token}, _session, socket) do
+    form = to_form(%{"token" => token}, as: "user")
+    {:ok, assign(socket, form: form), temporary_assigns: [form: nil]}
   end
 
   # Do not log in the user after confirmation to avoid a
@@ -47,7 +47,7 @@ defmodule ReadmarkWeb.UserConfirmationLive do
           %{current_user: %{confirmed_at: confirmed_at}} when not is_nil(confirmed_at) ->
             {:noreply, redirect(socket, to: ~p"/")}
 
-          _ ->
+          %{} ->
             {:noreply,
              socket
              |> put_flash(:error, "User confirmation link is invalid or it has expired.")

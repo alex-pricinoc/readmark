@@ -1,8 +1,6 @@
 defmodule ReadmarkWeb.SettingsLive.KindlePreferencesFormComponent do
   use ReadmarkWeb, :live_component
 
-  import Phoenix.HTML.Form
-
   alias Readmark.Accounts
   alias Readmark.Workers.ArticleSender
   alias Accounts.User.KindlePreferences
@@ -24,14 +22,16 @@ defmodule ReadmarkWeb.SettingsLive.KindlePreferencesFormComponent do
      |> assign(assigns)
      |> assign(:from_email, from_email)
      |> assign(:next_delivery, next_delivery)
-     |> assign(:changeset, changeset)}
+     |> assign_form(changeset)}
   end
 
   @impl true
   def handle_event("validate", %{"user" => user_params}, socket) do
-    changeset = Accounts.change_user_kindle_preferences(socket.assigns.current_user, user_params)
+    changeset =
+      Accounts.change_user_kindle_preferences(socket.assigns.current_user, user_params)
+      |> Map.put(:action, :validate)
 
-    {:noreply, assign(socket, :changeset, Map.put(changeset, :action, :validate))}
+    {:noreply, assign_form(socket, changeset)}
   end
 
   @impl true
@@ -44,7 +44,7 @@ defmodule ReadmarkWeb.SettingsLive.KindlePreferencesFormComponent do
          |> push_navigate(to: ~p"/settings")}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, :changeset, changeset)}
+        {:noreply, assign_form(socket, changeset)}
     end
   end
 
@@ -75,5 +75,9 @@ defmodule ReadmarkWeb.SettingsLive.KindlePreferencesFormComponent do
       "10 PM ": "22:00:00",
       "11 PM ": "23:00:00"
     ]
+  end
+
+  defp assign_form(socket, %{} = source) do
+    assign(socket, :form, to_form(source, as: "user"))
   end
 end

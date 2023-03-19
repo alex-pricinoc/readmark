@@ -10,7 +10,7 @@ defmodule ReadmarkWeb.BookmarksLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:changeset, changeset)}
+     |> assign_form(changeset)}
   end
 
   @impl true
@@ -20,7 +20,7 @@ defmodule ReadmarkWeb.BookmarksLive.FormComponent do
       |> Bookmarks.change_bookmark(bookmark_params)
       |> Map.put(:action, :validate)
 
-    {:noreply, assign(socket, :changeset, changeset)}
+    {:noreply, assign_form(socket, changeset)}
   end
 
   def handle_event("save", %{"bookmark" => bookmark_params}, socket) do
@@ -29,27 +29,37 @@ defmodule ReadmarkWeb.BookmarksLive.FormComponent do
 
   defp save_bookmark(socket, :edit, bookmark_params) do
     case Bookmarks.update_bookmark(socket.assigns.bookmark, bookmark_params) do
-      {:ok, _bookmark} ->
+      {:ok, bookmark} ->
+        notify_parent({:updated, bookmark})
+
         {:noreply,
          socket
          |> put_flash(:info, "Bookmark updated successfully!")
-         |> push_patch(to: socket.assigns.return_to)}
+         |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, :changeset, changeset)}
+        {:noreply, assign_form(socket, changeset)}
     end
   end
 
   defp save_bookmark(socket, :new, bookmark_params) do
     case Bookmarks.create_bookmark(socket.assigns.current_user, bookmark_params) do
-      {:ok, _bookmark} ->
+      {:ok, bookmark} ->
+        notify_parent({:created, bookmark})
+
         {:noreply,
          socket
          |> put_flash(:info, "Bookmark created successfully!")
-         |> push_patch(to: socket.assigns.return_to)}
+         |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, changeset: changeset)}
+        {:noreply, assign_form(socket, changeset)}
     end
   end
+
+  defp assign_form(socket, %{} = source) do
+    assign(socket, :form, to_form(source, as: "bookmark"))
+  end
+
+  defp notify_parent(msg), do: send(self(), msg)
 end

@@ -1,7 +1,8 @@
 <div class="min-w-0">
   <.form
     id="upload-bookmarks-form"
-    for={:bookmarks}
+    for={%{}}
+    as={:bookmarks}
     phx-target={@myself}
     phx-change="validate"
     phx-submit="save"

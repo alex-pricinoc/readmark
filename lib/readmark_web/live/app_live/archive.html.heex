@@ -1,6 +1,6 @@
 <div
   id="archived"
-  class="w-full md:w-1/3 lg:w-80 xl:w-96 border-r bg-white min-h-screen md:overflow-auto md:block md:h-screen"
+  class="w-full md:w-1/3 lg:w-80 xl:w-96 border-r bg-white overflow-auto md:block h-screen"
   phx-hook="Open"
 >
   <.sticky_header
@@ -14,11 +14,9 @@
   </.sticky_header>
 
   <.bookmark_list
-    :let={bookmark}
+    :let={{_id, bookmark}}
     id="archived-items"
-    items={@bookmarks}
-    phx_update={@phx_update}
-    item_hidden={fn b -> deleted?(b) || b.folder != :archive end}
+    items={@streams.bookmarks}
     class="px-1"
   >
     <a
@@ -49,11 +47,6 @@
     </div>
   </.bookmark_list>
 
-  <div id="infinite-scroll-marker-body" phx-hook="InfiniteScroll"></div>
   <div id="infinite-scroll-marker-area" phx-hook="InfiniteScroll" data-scroll-area="archived">
   </div>
-
-  <p :if={@bookmarks == []} class="mt-24 text-center text-sm text-gray-600">
-    No bookmarks archived.
-  </p>
 </div>

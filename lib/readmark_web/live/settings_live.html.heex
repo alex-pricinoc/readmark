@@ -11,7 +11,7 @@
       Settings
     </h1>
     <.icon_button label="Log out" href={~p"/users/log_out"} method="delete" class="ml-auto">
-      <Heroicons.arrow_right_on_rectangle class="h-5 w-5" />
+      <.icon name="hero-arrow-right-on-rectangle" class="h-5 w-5" />
     </.icon_button>
   </.sticky_header>
   <div class="p-4 max-w-full md:max-w-4xl overflow-hidden space-y-6 pb-8">
@@ -66,13 +66,7 @@
 
         <div class="space-y-2">
           <h2 class="font-medium">Send Articles to Kindle</h2>
-          <.button
-            class=""
-            phx-click="send-articles"
-            type="button"
-            disabled={@articles_sending?}
-            loading={@articles_sending?}
-          >
+          <.button class="" phx-click="send-articles" type="button">
             Send Now
           </.button>
         </div>
@@ -156,19 +150,16 @@
   on_cancel={JS.patch(~p"/settings")}
 >
   <.header>Change Email</.header>
+
   <.simple_form
-    :let={f}
+    for={@email_form}
     id="email_form"
-    for={@email_changeset}
     phx-submit="update_email"
     phx-change="validate_email"
   >
-    <.error :if={@email_changeset.action == :insert}>
-      Oops, something went wrong! Please check the errors below.
-    </.error>
-    <.input field={{f, :email}} type="email" label="Email" required />
+    <.input field={@email_form[:email]} type="email" label="Email" required />
     <.input
-      field={{f, :current_password}}
+      field={@email_form[:current_password]}
       name="current_password"
       id="current_password_for_email"
       type="password"
@@ -189,25 +180,24 @@
   on_cancel={JS.patch(~p"/settings")}
 >
   <.header>Change Password</.header>
-
   <.simple_form
-    :let={f}
+    for={@password_form}
     id="password_form"
-    for={@password_changeset}
     action={~p"/users/log_in?_action=password_updated"}
     method="post"
     phx-change="validate_password"
     phx-submit="update_password"
     phx-trigger-action={@trigger_submit}
   >
-    <.error :if={@password_changeset.action == :insert}>
-      Oops, something went wrong! Please check the errors below.
-    </.error>
-    <.input field={{f, :email}} type="hidden" value={@current_email} />
-    <.input field={{f, :password}} type="password" label="New password" required />
-    <.input field={{f, :password_confirmation}} type="password" label="Confirm new password" />
+    <.input field={@password_form[:email]} type="hidden" value={@current_email} />
+    <.input field={@password_form[:password]} type="password" label="New password" required />
     <.input
-      field={{f, :current_password}}
+      field={@password_form[:password_confirmation]}
+      type="password"
+      label="Confirm new password"
+    />
+    <.input
+      field={@password_form[:current_password]}
       name="current_password"
       type="password"
       label="Current password"

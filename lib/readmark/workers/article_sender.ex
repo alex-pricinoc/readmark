@@ -2,6 +2,7 @@ defmodule Readmark.Workers.ArticleSender do
   use Oban.Worker,
     max_attempts: 2,
     queue: :kindle,
+    priority: 3,
     unique: [
       fields: [:args, :worker],
       keys: [:user_id],
@@ -13,7 +14,6 @@ defmodule Readmark.Workers.ArticleSender do
 
   alias Readmark.{Accounts, Bookmarks, Repo}
   alias Accounts.{User, EpubSender}
-  alias User.KindlePreferences
 
   @impl Oban.Worker
   def perform(%{args: %{"user_id" => user_id} = job}) do
@@ -82,7 +82,7 @@ defmodule Readmark.Workers.ArticleSender do
   Schedule a new kindle delivery or updates an existing one based on user preferences.
   """
   def schedule_kindle_delivery(%User{} = user) when user.kindle_preferences.is_scheduled? do
-    scheduled_at = KindlePreferences.next_delivery_date(user.kindle_preferences)
+    scheduled_at = User.KindlePreferences.next_delivery_date(user.kindle_preferences)
 
     %{user_id: user.id}
     |> new(
