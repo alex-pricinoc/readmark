@@ -59,7 +59,6 @@ defmodule Readmark.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:excoveralls, "~> 0.10", only: :test},
-      {:heroicons, "~> 0.5"},
       {:gen_smtp, "~> 1.2"},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:quarto, "~> 1.1"},
