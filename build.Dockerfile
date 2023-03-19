@@ -20,10 +20,14 @@ RUN apt-get update -y && \
 
 ARG RUST_VERSION
 
+ENV RUSTUP_HOME=/root/.rustup \
+    CARGO_HOME=/root/.cargo \
+    PATH=$PATH:/root/.cargo/bin
+
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --profile minimal --default-toolchain ${RUST_VERSION} --no-modify-path -y
-ENV PATH=$PATH:/root/.cargo/bin
+
+ENV PATH=$PATH:/root/.dprint/bin
 
 RUN curl -fsSL https://dprint.dev/install.sh | sh
-ENV PATH=$PATH:/root/.dprint/bin
 
 CMD ["iex"]

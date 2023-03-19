@@ -27,10 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Test on Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
     container:
-      image: ghcr.io/${{ github.repository }}-builder:${{matrix.elixir}}-${{matrix.otp}}
-      credentials:
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      image: docker.io/alexpricinoc/readmark-builder:${{matrix.elixir}}-${{matrix.otp}}
 
     strategy:
       matrix:

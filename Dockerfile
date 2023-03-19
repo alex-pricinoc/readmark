@@ -17,7 +17,7 @@ ARG DEBIAN_VERSION=bullseye-20230202-slim
 
 ARG GO_VERSION=1.19.4
 
-ARG BUILDER_IMAGE="registry.gitlab.com/alex-pricinoc/bookmark-service/builder:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
+ARG BUILDER_IMAGE="docker.io/alexpricinoc/readmark-builder:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="docker.io/debian:${DEBIAN_VERSION}"
 
 # Compile Go deps
@@ -43,7 +43,6 @@ ENV MIX_ENV="prod"
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
-COPY vendor vendor
 RUN mix deps.get --only $MIX_ENV
 RUN mkdir config
 
@@ -54,9 +53,10 @@ COPY config/config.exs config/${MIX_ENV}.exs config/
 RUN mix deps.compile
 
 COPY priv priv
-COPY --from=go-builder /app/priv/go ./priv/go
+COPY --from=go-builder /app/priv/go priv/go
 
 COPY lib lib
+COPY native native
 
 COPY assets assets
 
