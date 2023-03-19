@@ -22,7 +22,7 @@ defmodule Epub.Cover do
       font_size: 0,
       font_weight: :bold,
       font: "Inria Serif",
-      height: 75,
+      height: 70,
       width: text_box_width(image)
     )
   end

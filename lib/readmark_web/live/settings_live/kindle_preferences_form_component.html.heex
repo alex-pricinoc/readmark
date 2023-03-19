@@ -89,6 +89,7 @@
           /> at around
           <.input mini type="select" field={kp[:time]} options={time_select_options()} />
           <label class="text-gray-600">
+            <.icon name="hero-globe-europe-africa-solid" class="h-4 w-4" />
             <%= @time_zone %>
             <.input field={kp[:time_zone]} value={@time_zone} type="hidden" />
           </label>
