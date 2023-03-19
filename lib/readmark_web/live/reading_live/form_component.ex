@@ -11,7 +11,7 @@ defmodule ReadmarkWeb.ReadingLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:changeset, changeset)}
+     |> assign_form(changeset)}
   end
 
   @impl true
@@ -21,7 +21,7 @@ defmodule ReadmarkWeb.ReadingLive.FormComponent do
       |> Bookmarks.change_bookmark(bookmark_params)
       |> Map.put(:action, :validate)
 
-    {:noreply, assign(socket, :changeset, changeset)}
+    {:noreply, assign_form(socket, changeset)}
   end
 
   def handle_event("save", %{"bookmark" => bookmark_params}, socket) do
@@ -30,14 +30,16 @@ defmodule ReadmarkWeb.ReadingLive.FormComponent do
 
   defp save_bookmark(socket, :new, bookmark_params) do
     case Bookmarks.create_bookmark(socket.assigns.current_user, fetch_article(bookmark_params)) do
-      {:ok, _bookmark} ->
+      {:ok, bookmark} ->
+        notify_parent({:created, bookmark})
+
         {:noreply,
          socket
          |> put_flash(:info, "Link saved successfully!")
-         |> push_patch(to: socket.assigns.return_to)}
+         |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, changeset: changeset)}
+        {:noreply, assign_form(socket, changeset)}
     end
   end
 
@@ -48,4 +50,10 @@ defmodule ReadmarkWeb.ReadingLive.FormComponent do
       bookmark_params
     end
   end
+
+  defp assign_form(socket, %{} = source) do
+    assign(socket, :form, to_form(source, as: "bookmark"))
+  end
+
+  defp notify_parent(msg), do: send(self(), msg)
 end

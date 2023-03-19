@@ -1,9 +1,9 @@
 defmodule ReadmarkWeb.SettingsLive do
   use ReadmarkWeb, :live_view
 
-  alias Readmark.{Accounts, Bookmarks}
-  alias ReadmarkWeb.SettingsLive.{UploadFormComponent, KindlePreferencesFormComponent}
+  alias Readmark.Accounts
   alias Readmark.Workers.ArticleSender
+  alias ReadmarkWeb.SettingsLive.{UploadFormComponent, KindlePreferencesFormComponent}
 
   @impl true
   def mount(%{"token" => token}, _session, socket) do
@@ -22,15 +22,16 @@ defmodule ReadmarkWeb.SettingsLive do
   @impl true
   def mount(_params, _session, socket) do
     user = socket.assigns.current_user
+    email_changeset = Accounts.change_user_email(user)
+    password_changeset = Accounts.change_user_password(user)
 
     assigns = [
       current_password: nil,
       email_form_current_password: nil,
       current_email: user.email,
-      email_changeset: Accounts.change_user_email(user),
-      password_changeset: Accounts.change_user_password(user),
+      email_form: to_form(email_changeset),
+      password_form: to_form(password_changeset),
       trigger_submit: false,
-      articles_sending?: false,
       time_zone: get_connect_params(socket)["timezone"]
     ]
 
@@ -40,15 +41,14 @@ defmodule ReadmarkWeb.SettingsLive do
   @impl true
   def handle_event("validate_email", params, socket) do
     %{"current_password" => password, "user" => user_params} = params
-    email_changeset = Accounts.change_user_email(socket.assigns.current_user, user_params)
 
-    socket =
-      assign(socket,
-        email_changeset: Map.put(email_changeset, :action, :validate),
-        email_form_current_password: password
-      )
+    email_form =
+      socket.assigns.current_user
+      |> Accounts.change_user_email(user_params)
+      |> Map.put(:action, :validate)
+      |> to_form()
 
-    {:noreply, socket}
+    {:noreply, assign(socket, email_form: email_form, email_form_current_password: password)}
   end
 
   @impl true
@@ -64,30 +64,25 @@ defmodule ReadmarkWeb.SettingsLive do
           &url(~p"/settings/confirm_email/#{&1}")
         )
 
-        socket =
-          socket
-          |> put_flash(
-            :info,
-            "A link to confirm your email change has been sent to the new address."
-          )
-          |> push_patch(to: ~p"/settings")
-
-        {:noreply, socket}
+        info = "A link to confirm your email change has been sent to the new address."
+        {:noreply, socket |> put_flash(:info, info) |> assign(email_form_current_password: nil)}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, :email_changeset, Map.put(changeset, :action, :insert))}
+        {:noreply, assign(socket, :email_form, to_form(Map.put(changeset, :action, :insert)))}
     end
   end
 
   @impl true
   def handle_event("validate_password", params, socket) do
     %{"current_password" => password, "user" => user_params} = params
-    password_changeset = Accounts.change_user_password(socket.assigns.current_user, user_params)
 
-    {:noreply,
-     socket
-     |> assign(:password_changeset, Map.put(password_changeset, :action, :validate))
-     |> assign(:current_password, password)}
+    password_form =
+      socket.assigns.current_user
+      |> Accounts.change_user_password(user_params)
+      |> Map.put(:action, :validate)
+      |> to_form()
+
+    {:noreply, assign(socket, password_form: password_form, current_password: password)}
   end
 
   @impl true
@@ -96,50 +91,34 @@ defmodule ReadmarkWeb.SettingsLive do
     user = socket.assigns.current_user
 
     case Accounts.update_user_password(user, password, user_params) do
-      {:ok, _user} ->
-        socket =
-          socket
-          |> assign(:trigger_submit, true)
+      {:ok, user} ->
+        password_form =
+          user
+          |> Accounts.change_user_password(user_params)
+          |> to_form()
 
-        {:noreply, socket}
+        {:noreply, assign(socket, trigger_submit: true, password_form: password_form)}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, :password_changeset, changeset)}
+        {:noreply, assign(socket, password_form: to_form(changeset))}
     end
   end
 
   @impl true
   def handle_event("send-articles", _params, socket) do
-    pid = self()
-
-    Task.Supervisor.start_child(Readmark.TaskSupervisor, fn ->
-      user = socket.assigns.current_user
-      bookmarks = Bookmarks.latest_unread_bookmarks(user)
-      articles = Enum.flat_map(bookmarks, & &1.articles)
-
-      if length(articles) > 0 do
-        sent = ArticleSender.deliver_kindle_compilation(user, articles)
-        # TODO: use Repo.update_all function
-        _ = Enum.map(bookmarks, &Bookmarks.update_bookmark(&1, %{folder: :archive}))
-        send(pid, {:articles_sent, sent})
-      else
-        send(pid, {:articles_sent, 0})
-      end
-    end)
-
-    {:noreply, assign(socket, :articles_sending?, true)}
-  end
-
-  @impl true
-  def handle_info({:articles_sent, sent}, socket) do
     info =
-      if sent > 0 do
-        "Your articles have been sent to your kindle. You should receive them in a few minutes."
-      else
-        "You don't have any unread articles."
+      case ArticleSender.deliver_kindle_compilation(socket.assigns.current_user) do
+        {:ok, 0} ->
+          "You don't have any unread articles."
+
+        {:ok, _sent} ->
+          "Your articles have been sent to your kindle. You should receive them in a few minutes."
+
+        {:error, _error} ->
+          "Something went wrong. "
       end
 
-    {:noreply, socket |> put_flash(:info, info) |> assign(:articles_sending?, false)}
+    {:noreply, socket |> put_flash(:info, info)}
   end
 
   @impl true

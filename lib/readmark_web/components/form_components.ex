@@ -5,22 +5,9 @@ defmodule ReadmarkWeb.FormComponents do
 
   use Phoenix.Component
 
-  alias Phoenix.HTML.Form
+  import ReadmarkWeb.CoreComponents, only: [icon: 1]
 
-  @doc """
-  Renders a simple form.
-
-  ## Examples
-
-      <.simple_form :let={f} for={:user} phx-change="validate" phx-submit="save">
-        <.input field={{f, :email}} label="Email"/>
-        <.input field={{f, :username}} label="Username" />
-        <:actions>
-          <.button>Save</.button>
-        </:actions>
-      </.simple_form>
-  """
-  attr :for, :any, default: nil, doc: "the datastructure for the form"
+  attr :for, :any, required: true, doc: "the datastructure for the form"
   attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
 
   attr :rest, :global,
@@ -43,69 +30,59 @@ defmodule ReadmarkWeb.FormComponents do
     """
   end
 
-  @doc """
-  Renders an input with label and error messages.
-
-  A `%Phoenix.HTML.Form{}` and field name may be passed to the input
-  to build input names and error messages, or all the attributes and
-  errors may be passed explicitly.
-
-  ## Examples
-
-      <.input field={{f, :email}} type="email" />
-      <.input name="my-input" errors={["oh no!"]} />
-  """
-  attr :id, :any
+  attr :id, :any, default: nil
   attr :name, :any
   attr :label, :string, default: nil
+  attr :value, :any
+  attr :mini, :boolean, default: false
 
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file hidden month number password
                range radio search select tel text textarea time url week)
 
-  attr :mini, :boolean, default: false
+  attr :field, Phoenix.HTML.FormField,
+    doc: "a form field struct retrieved from the form, for example: @form[:email]"
 
-  attr :value, :any
-  attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
-  attr :errors, :list
+  attr :errors, :list, default: []
   attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
   attr :rest, :global, include: ~w(autocomplete cols disabled form max maxlength min minlength
                                    pattern placeholder readonly required rows size step)
+  slot :inner_block
 
-  def input(%{field: {f, field}} = assigns) do
+  def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     assigns
-    |> assign(field: nil)
-    |> assign_new(:name, fn ->
-      name = Form.input_name(f, field)
-      if assigns.multiple, do: name <> "[]", else: name
-    end)
-    |> assign_new(:id, fn -> Form.input_id(f, field) end)
-    |> assign_new(:value, fn -> Form.input_value(f, field) end)
-    |> assign_new(:errors, fn -> translate_errors(f.errors || [], field) end)
+    |> assign(field: nil, id: assigns.id || field.id)
+    |> assign(:errors, Enum.map(field.errors, &translate_error(&1)))
+    |> assign_new(:name, fn -> if assigns.multiple, do: field.name <> "[]", else: field.name end)
+    |> assign_new(:value, fn -> field.value end)
     |> input()
   end
 
-  def input(%{type: "checkbox"} = assigns) do
-    assigns = assign_new(assigns, :checked, fn -> input_equals?(assigns.value, "true") end)
+  def input(%{type: "checkbox", value: value} = assigns) do
+    assigns =
+      assign_new(assigns, :checked, fn -> Phoenix.HTML.Form.normalize_value("checkbox", value) end)
 
     ~H"""
-    <label phx-feedback-for={@name} class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
-      <input type="hidden" name={@name} value="false" />
-      <input
-        type="checkbox"
-        id={@id || @name}
-        name={@name}
-        value="true"
-        checked={@checked}
-        class="rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900"
-        {@rest}
-      />
-      <%= @label %>
-    </label>
+    <div phx-feedback-for={@name}>
+      <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
+        <input type="hidden" name={@name} value="false" />
+        <input
+          type="checkbox"
+          id={@id || @name}
+          name={@name}
+          value="true"
+          checked={@checked}
+          class="rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900"
+          {@rest}
+        />
+        <%= @label %>
+      </label>
+      <.error :for={msg <- @errors}><%= msg %></.error>
+    </div>
     """
   end
 
@@ -117,7 +94,7 @@ defmodule ReadmarkWeb.FormComponents do
       {@rest}
       class="text-sm py-0 pl-2 pr-5 bg-[right_0.1rem_center] rounded"
     >
-      <%= Form.options_for_select(@options, @value) %>
+      <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
     </select>
     """
   end
@@ -134,7 +111,7 @@ defmodule ReadmarkWeb.FormComponents do
         {@rest}
       >
         <option :if={@prompt} value=""><%= @prompt %></option>
-        <%= Form.options_for_select(@options, @value) %>
+        <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
       </select>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
@@ -149,15 +126,14 @@ defmodule ReadmarkWeb.FormComponents do
         id={@id || @name}
         name={@name}
         class={[
-          input_border(@errors),
           "mt-2 block min-h-[6rem] w-full rounded-lg border-zinc-300 py-[7px] px-[11px]",
           "text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-800/5 text-sm sm:text-base sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5"
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5",
+          "border-zinc-300 focus:border-zinc-400 focus:ring-zinc-800/5",
+          @errors != [] && "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10"
         ]}
         {@rest}
-      >
-
-    <%= @value %></textarea>
+      ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -171,13 +147,13 @@ defmodule ReadmarkWeb.FormComponents do
         type={@type}
         name={@name}
         id={@id || @name}
-        value={@value}
+        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          input_border(@errors),
-          input_disabled(@rest),
           "mt-2 block w-full rounded-lg border-zinc-300 py-[7px] px-[11px]",
           "text-zinc-900 focus:outline-none focus:ring-4 text-sm sm:text-base sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5"
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5",
+          "border-zinc-300 focus:border-zinc-400 focus:ring-zinc-800/5",
+          @errors != [] && "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10"
         ]}
         {@rest}
       />
@@ -185,15 +161,6 @@ defmodule ReadmarkWeb.FormComponents do
     </div>
     """
   end
-
-  defp input_border([] = _errors),
-    do: "border-zinc-300 focus:border-zinc-400 focus:ring-zinc-800/5"
-
-  defp input_border([_ | _] = _errors),
-    do: "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10"
-
-  defp input_disabled(%{disabled: true}), do: "disabled cursor-not-allowed opacity-50"
-  defp input_disabled(_), do: nil
 
   @doc """
   Renders a label.
@@ -217,17 +184,13 @@ defmodule ReadmarkWeb.FormComponents do
   def error(assigns) do
     ~H"""
     <p class="phx-no-feedback:hidden mt-3 flex gap-3 text-sm leading-6 text-rose-600">
-      <Heroicons.exclamation_circle mini class="mt-0.5 h-5 w-5 flex-none fill-rose-500" />
+      <.icon name="hero-exclamation-circle-mini" class="mt-0.5 w-5 h-5 flex-none" />
       <%= render_slot(@inner_block) %>
     </p>
     """
   end
 
   ## Helper functions
-
-  def list_input_value(form, field) do
-    value_to_string(Form.input_value(form, field))
-  end
 
   @doc """
   Translates an error message using gettext.
@@ -264,10 +227,6 @@ defmodule ReadmarkWeb.FormComponents do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
 
-  defp input_equals?(val1, val2) do
-    Phoenix.HTML.html_escape(val1) == Phoenix.HTML.html_escape(val2)
-  end
-
-  defp value_to_string(list) when is_list(list), do: Enum.join(list, " ")
-  defp value_to_string(value), do: value
+  def list_input_value(list) when is_list(list), do: Enum.join(list, " ")
+  def list_input_value(value), do: value
 end

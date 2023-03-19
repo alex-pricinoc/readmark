@@ -603,8 +603,8 @@ defmodule Readmark.AccountsTest do
             kindle_preferences: %{is_scheduled?: true}
           })
 
-        assert :ok = perform_job(ArticleSender, %{user_id: user.id})
-        assert :ok = perform_job(ArticleSender, %{user_id: user.id})
+        assert {:ok, 0} = perform_job(ArticleSender, %{user_id: user.id})
+        assert {:ok, 0} = perform_job(ArticleSender, %{user_id: user.id})
 
         assert length(all_enqueued()) == 1
 
@@ -626,7 +626,7 @@ defmodule Readmark.AccountsTest do
             kindle_preferences: %{is_scheduled?: true, articles: 1}
           })
 
-        assert :ok = perform_job(ArticleSender, %{user_id: user.id})
+        assert {:ok, 1} = perform_job(ArticleSender, %{user_id: user.id})
 
         assert %{success: 1, failure: 0} =
                  Oban.drain_queue(queue: :kindle, with_safety: false, with_scheduled: true)

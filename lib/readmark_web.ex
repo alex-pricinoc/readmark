@@ -50,6 +50,24 @@ defmodule ReadmarkWeb do
     quote do
       use Phoenix.LiveView, layout: {ReadmarkWeb.Layouts, :live}
 
+      import Phoenix.LiveView,
+        except: [
+          stream_insert: 3,
+          stream_insert: 4
+        ]
+
+      def stream_insert(socket, name, item_or_items, opts \\ [])
+
+      def stream_insert(socket, name, items, opts) when is_list(items) do
+        Enum.reduce(items, socket, fn item, socket ->
+          stream_insert(socket, name, item, opts)
+        end)
+      end
+
+      def stream_insert(socket, name, item, opts) do
+        Phoenix.LiveView.stream_insert(socket, name, item, opts)
+      end
+
       unquote(html_helpers())
     end
   end

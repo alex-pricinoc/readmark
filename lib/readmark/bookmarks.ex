@@ -28,8 +28,7 @@ defmodule Readmark.Bookmarks do
     from b in Bookmark,
       as: :bookmark,
       order_by: [desc: :inserted_at],
-      where: ^filter_where(params),
-      select_merge: %{is_archived?: exists(archived_bookmark_query())}
+      where: ^filter_where(params)
   end
 
   defp filter_where(params) do
@@ -153,7 +152,6 @@ defmodule Readmark.Bookmarks do
     %Bookmark{user_id: user.id}
     |> Bookmark.changeset(attrs)
     |> Repo.insert()
-    |> broadcast!({:bookmark, :created})
   end
 
   @doc """
@@ -172,7 +170,6 @@ defmodule Readmark.Bookmarks do
     bookmark
     |> Bookmark.changeset(attrs)
     |> Repo.update()
-    |> broadcast!({:bookmark, :updated})
   end
 
   @doc """
@@ -190,7 +187,6 @@ defmodule Readmark.Bookmarks do
   def delete_bookmark(%Bookmark{} = bookmark) do
     bookmark
     |> Repo.delete()
-    |> broadcast!({:bookmark, :deleted})
   end
 
   @doc """
@@ -222,20 +218,5 @@ defmodule Readmark.Bookmarks do
     %Article{}
     |> Article.changeset(attrs)
     |> Repo.insert()
-  end
-
-  @pubsub Readmark.PubSub
-
-  def subscribe(user_id) do
-    Phoenix.PubSub.subscribe(@pubsub, topic(user_id))
-  end
-
-  defp topic(user_id), do: "bookmarks:#{user_id}"
-
-  def broadcast!({:error, _reason} = error, _event), do: error
-
-  def broadcast!({:ok, bookmark} = result, event) do
-    Phoenix.PubSub.broadcast!(@pubsub, topic(bookmark.user_id), {event, bookmark})
-    result
   end
 end

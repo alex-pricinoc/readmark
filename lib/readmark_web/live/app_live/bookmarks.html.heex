@@ -1,6 +1,6 @@
 <div
   id="bookmarks"
-  class="w-full md:w-1/3 lg:w-80 xl:w-96 border-r bg-white min-h-screen md:overflow-auto md:block md:h-screen"
+  class="w-full md:w-1/3 lg:w-80 xl:w-96 border-r bg-white overflow-auto md:block h-screen"
   phx-hook="Open"
 >
   <.sticky_header
@@ -12,16 +12,14 @@
       <%= @active_tab %>
     </h1>
     <.icon_button id="add-bookmark-button" label="Add bookmark" patch={~p"/bookmarks/new"}>
-      <Heroicons.plus class="h-5 w-5" stroke-width="2" />
+      <.icon name="hero-plus" class="h-5 w-5" />
     </.icon_button>
   </.sticky_header>
 
   <.bookmark_list
-    :let={bookmark}
+    :let={{_id, bookmark}}
     id="bookmarks-items"
-    items={@bookmarks}
-    phx_update={@phx_update}
-    item_hidden={fn b -> deleted?(b) || b.folder != :bookmarks end}
+    items={@streams.bookmarks}
     class="px-1"
   >
     <a
@@ -43,8 +41,7 @@
           "relative text-sm hover:text-orange-600",
           tag in @tags and "text-orange-600 hover:text-gray-900"
         ]}
-        phx-click="select-tag"
-        phx-value-name={tag}
+        navigate={~p"/bookmarks/#{if(tag in @tags, do: @tags -- [tag], else: @tags ++ [tag])}"}
       >
         <%= tag %>
       </.link>
@@ -68,11 +65,10 @@
     </div>
   </.bookmark_list>
 
-  <div id="infinite-scroll-marker-body" phx-hook="InfiniteScroll"></div>
   <div id="infinite-scroll-marker-area" phx-hook="InfiniteScroll" data-scroll-area="bookmarks">
   </div>
 
-  <p :if={@bookmarks == []} class="mt-24 text-center text-sm text-gray-600">
+  <p :if={@streams.bookmarks == []} class="mt-24 text-center text-sm text-gray-600">
     No bookmarks added.
   </p>
 </div>
@@ -81,17 +77,17 @@
   :if={@live_action in [:new, :edit]}
   id="boomark-modal"
   show
-  on_cancel={JS.patch(bookmark_path(nil))}
+  on_cancel={JS.patch(~p"/bookmarks/#{@tags}")}
 >
   <.live_component
     module={ReadmarkWeb.BookmarksLive.FormComponent}
-    bookmark={@bookmark}
-    title={@page_title}
     id={@bookmark.id || :new}
+    title={@page_title}
     action={@live_action}
+    bookmark={@bookmark}
+    patch={~p"/bookmarks/#{@tags}"}
     current_user={@current_user}
-    attrs={assigns[:bookmark_params] || %{}}
     folder={:bookmarks}
-    return_to={bookmark_path(nil)}
+    attrs={assigns[:bookmark_params] || %{}}
   />
 </.modal>

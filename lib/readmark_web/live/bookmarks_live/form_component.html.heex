@@ -1,18 +1,14 @@
 <div>
   <.header><%= @title %></.header>
   <.simple_form
-    :let={f}
-    for={@changeset}
+    for={@form}
     id="bookmark-form"
     phx-target={@myself}
     phx-change="validate"
     phx-submit="save"
   >
-    <.error :if={@changeset.action == :insert}>
-      Oops, something went wrong! Please check the errors below.
-    </.error>
     <.input
-      field={{f, :url}}
+      field={@form[:url]}
       type="url"
       label="Url"
       placeholder="www.example.com/article.html"
@@ -21,20 +17,20 @@
     />
     <.input
       :if={@folder == :bookmarks}
-      field={{f, :title}}
+      field={@form[:title]}
       placeholder="Example title"
       label="Title"
     />
     <.input
       :if={@folder == :bookmarks}
-      field={{f, :tags}}
-      value={list_input_value(f, :tags)}
+      field={@form[:tags]}
+      value={list_input_value(@form[:tags].value)}
       label="Tags"
       placeholder="tag1 tag2..."
     />
     <.input
       :if={@action == :edit}
-      field={{f, :folder}}
+      field={@form[:folder]}
       type="select"
       options={Ecto.Enum.values(Bookmarks.Bookmark, :folder)}
       label="Folder"

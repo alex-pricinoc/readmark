@@ -8,26 +8,23 @@ defmodule ReadmarkWeb.UserConfirmationInstructionsLive do
     <div class="max-w-sm px-2">
       <.header>Resend confirmation instructions</.header>
 
-      <.simple_form :let={f} for={:user} id="resend_confirmation_form" phx-submit="send_instructions">
-        <.input field={{f, :email}} type="email" label="Email" required value={@email} />
+      <.simple_form for={@form} id="resend_confirmation_form" phx-submit="send_instructions">
+        <.input field={@form[:email]} type="email" label="Email" required />
         <:actions>
-          <.button phx-disable-with="Sending..." class="w-full">
-            Resend confirmation instructions
-          </.button>
+          <.button phx-disable-with="Sending...">Resend confirmation instructions</.button>
         </:actions>
       </.simple_form>
 
       <p class="text-center text-sm mt-4">
         <.link href={~p"/users/register"}>Register</.link>
-        |
-        <.link href={~p"/users/log_in"}>Log in</.link>
+        | <.link href={~p"/users/log_in"}>Log in</.link>
       </p>
     </div>
     """
   end
 
-  def mount(params, _session, socket) do
-    {:ok, assign(socket, :email, params["email"])}
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, form: to_form(%{}, as: "user"))}
   end
 
   def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do
@@ -38,12 +35,12 @@ defmodule ReadmarkWeb.UserConfirmationInstructionsLive do
       )
     end
 
+    info =
+      "If your email is in our system and it has not been confirmed yet, you will receive an email with instructions shortly."
+
     {:noreply,
      socket
-     |> put_flash(
-       :info,
-       "If your email is in our system and it has not been confirmed yet, you will receive an email with instructions shortly."
-     )
+     |> put_flash(:info, info)
      |> redirect(to: ~p"/")}
   end
 end

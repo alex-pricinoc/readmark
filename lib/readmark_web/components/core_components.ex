@@ -1,11 +1,16 @@
 defmodule ReadmarkWeb.CoreComponents do
   @moduledoc """
   Provides core UI components.
+
+  The components in this module use Tailwind CSS, a utility-first CSS framework.
+  See the [Tailwind CSS documentation](https://tailwindcss.com) to learn how to
+  customize the generated components in this module.
+
+  Icons are provided by [heroicons](https://heroicons.com). See `icon/1` for usage.
   """
   use Phoenix.Component
   use ReadmarkWeb, :verified_routes
 
-  import Phoenix.Param
   import ReadmarkWeb.Gettext
 
   alias Phoenix.LiveView.JS
@@ -13,25 +18,29 @@ defmodule ReadmarkWeb.CoreComponents do
   embed_templates "core_components/*"
 
   @doc """
-  Renders a modal.
-
+  Renders a [Hero Icon](https://heroicons.com).
+  Hero icons come in three styles – outline, solid, and mini.
+  By default, the outline style is used, but solid an mini may
+  be applied by using the `-solid` and `-mini` suffix.
+  You can customize the size and colors of the icons by setting
+  width, height, and background color classes.
+  Icons are extracted from your `priv/hero_icons` directory and bundled
+  within your compiled app.css by the plugin in your `assets/tailwind.config.js`.
   ## Examples
-
-      <.modal id="confirm-modal">
-        Are you sure?
-        <:confirm>OK</:confirm>
-        <:cancel>Cancel</:cancel>
-      </.modal>
-
-  JS commands may be passed to the `:on_cancel` and `on_confirm` attributes
-  for the caller to react to each button press, for example:
-
-      <.modal id="confirm" on_confirm={JS.push("delete")} on_cancel={JS.navigate(~p"/posts")}>
-        Are you sure you?
-        <:confirm>OK</:confirm>
-        <:cancel>Cancel</:cancel>
-      </.modal>
+      <.icon name="hero-cake" />
+      <.icon name="hero-cake-solid" />
+      <.icon name="hero-cake-mini" />
+      <.icon name="hero-bolt" class="bg-blue-500 w-10 h-10" />
   """
+  attr :name, :string, required: true
+  attr :class, :string, default: nil
+
+  def icon(%{name: "hero-" <> _} = assigns) do
+    ~H"""
+    <span class={[@name, @class]} />
+    """
+  end
+
   attr :id, :string, required: true
   attr :show, :boolean, default: false
   attr :on_cancel, JS, default: %JS{}
@@ -45,14 +54,6 @@ defmodule ReadmarkWeb.CoreComponents do
 
   def modal(assigns)
 
-  @doc """
-  Renders flash notices.
-
-  ## Examples
-
-      <.flash kind={:info} flash={@flash} />
-      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
-  """
   attr :id, :string, default: "flash", doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
@@ -80,8 +81,8 @@ defmodule ReadmarkWeb.CoreComponents do
       {@rest}
     >
       <p :if={@title} class="flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-6">
-        <Heroicons.information_circle :if={@kind == :info} mini class="h-4 w-4" />
-        <Heroicons.exclamation_circle :if={@kind == :error} mini class="h-4 w-4" />
+        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="w-4 h-4" />
+        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="w-4 h-4" />
         <%= @title %>
       </p>
       <p class="mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
@@ -91,23 +92,34 @@ defmodule ReadmarkWeb.CoreComponents do
         class="group absolute top-2 right-1 p-2"
         aria-label={gettext("close")}
       >
-        <Heroicons.x_mark solid class="h-5 w-5 stroke-current opacity-40 group-hover:opacity-70" />
+        <.icon name="hero-x-mark-solid" class="w-5 h-5 opacity-40 group-hover:opacity-70" />
       </button>
     </div>
     """
   end
 
-  @doc """
-  Renders a button.
+  attr :flash, :map, required: true, doc: "the map of flash messages"
 
-  ## Examples
+  def flash_group(assigns) do
+    ~H"""
+    <.flash kind={:info} title="Success!" flash={@flash} />
+    <.flash kind={:error} title="Error!" flash={@flash} />
+    <.flash
+      id="disconnected"
+      kind={:error}
+      title="We can't find the internet"
+      close={false}
+      autoshow={false}
+      phx-disconnected={show("#disconnected")}
+      phx-connected={hide("#disconnected")}
+    >
+      Attempting to reconnect <.icon name="hero-arrow-path" class="ml-1 w-3 h-3 animate-spin" />
+    </.flash>
+    """
+  end
 
-      <.button>Send!</.button>
-      <.button phx-click="go" class="ml-2">Send!</.button>
-  """
   attr :type, :string, default: nil
   attr :class, :string, default: nil
-  attr :loading, :boolean, default: false
   attr :rest, :global, include: ~w(disabled form name value)
 
   slot :inner_block, required: true
@@ -123,11 +135,7 @@ defmodule ReadmarkWeb.CoreComponents do
       ]}
       {@rest}
     >
-      <%= if @loading do %>
-        <.spinner />
-      <% else %>
-        <%= render_slot(@inner_block) %>
-      <% end %>
+      <%= render_slot(@inner_block) %>
     </button>
     """
   end
@@ -178,9 +186,13 @@ defmodule ReadmarkWeb.CoreComponents do
 
   attr :id, :string, required: true
   attr :items, :list, required: true
-  attr :item_hidden, :any, default: false
-  attr :item_click, :any, default: false
-  attr :phx_update, :string, default: "replace"
+
+  attr :item_id, :any,
+    default: &__MODULE__.item_id/1,
+    doc: "the function for generating the item id"
+
+  attr :item_click, :any, default: nil, doc: "the function for handling phx-click on each item"
+
   attr :class, :string, default: nil
 
   slot :inner_block, required: true
@@ -189,13 +201,12 @@ defmodule ReadmarkWeb.CoreComponents do
     ~H"""
     <ul
       id={@id}
-      phx-update={@phx_update}
+      phx-update="stream"
       class={["relative divide-y md:divide-y-0 divide-zinc-100 text-sm leading-relaxed", @class]}
     >
       <li
         :for={item <- @items}
-        id={"#{@id}-#{to_param(item)}"}
-        style={@item_hidden && @item_hidden.(item) and "display: none;"}
+        id={@item_id.(item)}
         phx-click={@item_click && @item_click.(item)}
         class={[
           "flex flex-col px-3 py-1.5 transition-colors duration-75 md:rounded-xl",
@@ -207,28 +218,6 @@ defmodule ReadmarkWeb.CoreComponents do
     </ul>
     """
   end
-
-  @doc ~S"""
-  Renders a table with generic styling.
-
-  ## Examples
-
-      <.table id="users" rows={@users}>
-        <:col :let={user} label="id"><%= user.id %></:col>
-        <:col :let={user} label="username"><%= user.username %></:col>
-      </.table>
-  """
-  attr :id, :string, required: true
-  attr :row_click, :any, default: nil
-  attr :rows, :list, required: true
-
-  slot :col, required: true do
-    attr :label, :string
-  end
-
-  slot :action, doc: "the slot for showing user actions in the last table column"
-
-  def table(assigns)
 
   attr :class, :string, default: nil
   attr :rest, :global, include: ~w(patch phx-click method href)
@@ -253,7 +242,7 @@ defmodule ReadmarkWeb.CoreComponents do
   def show_sidebar_button(assigns) do
     ~H"""
     <.icon_button label="Open sidebar" phx-click={show_sidebar()} {@rest}>
-      <Heroicons.bars_3 class="h-5 w-5" stroke-width="2" />
+      <.icon name="hero-bars-3-solid" class="h-5 w-5" />
     </.icon_button>
     """
   end
@@ -263,17 +252,13 @@ defmodule ReadmarkWeb.CoreComponents do
   def close_sidebar_button(assigns) do
     ~H"""
     <.icon_button label="Close sidebar" phx-click={hide_sidebar()} {@rest}>
-      <Heroicons.x_mark class="h-5 w-5" stroke-width="2" />
+      <.icon name="hero-x-mark-solid" class="h-5 w-5" />
     </.icon_button>
     """
   end
 
   @doc """
   Renders a back navigation link.
-
-  ## Examples
-
-      <.back navigate={~p"/posts"}>Back to posts</.back>
   """
   attr :navigate, :any, required: true
   slot :inner_block, required: true
@@ -285,7 +270,7 @@ defmodule ReadmarkWeb.CoreComponents do
         navigate={@navigate}
         class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
       >
-        <Heroicons.arrow_left solid class="w-3 h-3 stroke-current inline" />
+        <.icon name="hero-arrow-left" class="w-3 h-3 stroke-current inline" />
         <%= render_slot(@inner_block) %>
       </.link>
     </div>
@@ -422,9 +407,8 @@ defmodule ReadmarkWeb.CoreComponents do
 
   def get_domain(url), do: URI.parse(url).host
 
-  def deleted?(%{__meta__: %{state: :deleted}}), do: true
-  def deleted?(_), do: false
-
   def format_date(%Date{} = date), do: Calendar.strftime(date, "%B %-d, %Y")
   def format_time(%DateTime{} = datetime), do: Timex.from_now(datetime)
+
+  def item_id({id, _}), do: id
 end

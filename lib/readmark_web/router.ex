@@ -68,6 +68,7 @@ defmodule ReadmarkWeb.Router do
       live "/bookmarks", AppLive.Bookmarks, :index
       live "/bookmarks/new", AppLive.Bookmarks, :new
       live "/bookmarks/:id/edit", AppLive.Bookmarks, :edit
+      live "/bookmarks/*tags", AppLive.Bookmarks, :index
 
       live "/archive", AppLive.Archive, :index
 

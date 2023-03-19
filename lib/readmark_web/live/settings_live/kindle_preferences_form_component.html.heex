@@ -1,15 +1,14 @@
 <div>
   <.header>Kindle Preferences</.header>
   <.simple_form
-    :let={f}
-    for={@changeset}
+    for={@form}
     phx-target={@myself}
     id="kindle_preferences_form"
     phx-submit="save"
     phx-change="validate"
     class="text-sm"
   >
-    <div :if={@current_user.kindle_email == nil} class="text-sm">
+    <div :if={@current_user.kindle_email == nil}>
       <h3 class="font-medium mb-4">Setup your Kindle</h3>
       <ol class="list-decimal list-inside">
         <li>
@@ -46,7 +45,7 @@
               aria-label="copy email"
               phx-click={JS.dispatch("js:clipcopy", to: "#approved-email")}
             >
-              <Heroicons.clipboard_document class="h-4 w-4" />
+              <.icon name="hero-clipboard_document" class="h-4 w-4" />
             </button>
           </div>
         </li>
@@ -58,7 +57,7 @@
 
     <div>
       <.input
-        field={{f, :kindle_email}}
+        field={@form[:kindle_email]}
         label="Your Kindle Email"
         placeholder="Send-to-Kindle Email"
       />
@@ -70,10 +69,10 @@
       </p>
     </div>
 
-    <%= for kp <- inputs_for(f, :kindle_preferences) do %>
+    <.inputs_for :let={kp} field={@form[:kindle_preferences]}>
       <h2 class="font-medium">Kindle Automatic Delivery</h2>
       <.input
-        field={{kp, :is_scheduled?}}
+        field={kp[:is_scheduled?]}
         type="checkbox"
         label="Send my Unread articles to my Kindle automatically"
       />
@@ -85,22 +84,21 @@
           <.input
             mini
             type="select"
-            field={{kp, :frequency}}
+            field={kp[:frequency]}
             options={Ecto.Enum.values(KindlePreferences, :frequency)}
           /> at around
-          <.input mini type="select" field={{kp, :time}} options={time_select_options()} />
+          <.input mini type="select" field={kp[:time]} options={time_select_options()} />
           <label class="text-gray-600">
-            <Heroicons.globe_europe_africa mini class="inline h-4 w-4" />
             <%= @time_zone %>
-            <.input field={{kp, :time_zone}} value={@time_zone} type="hidden" />
+            <.input field={kp[:time_zone]} value={@time_zone} type="hidden" />
           </label>
         </li>
         <li>
           Only if it will contain at least
-          <.input mini type="select" field={{kp, :articles}} options={[1, 3, 5, 10]} /> articles.
+          <.input mini type="select" field={kp[:articles]} options={[1, 3, 5, 10]} /> articles.
         </li>
       </ol>
-    <% end %>
+    </.inputs_for>
 
     <p :if={@next_delivery} class="text-xs text-zinc-400">
       Your next delivery is scheduled for <%= @next_delivery %>
