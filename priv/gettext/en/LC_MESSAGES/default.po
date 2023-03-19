@@ -9,20 +9,15 @@
 msgid ""
 msgstr ""
 "Language: en\n"
-"Plural-Forms: nplurals=2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/readmark_web/components/core_components/table.html.heex:6
+#: lib/readmark_web/live/settings_live.html.heex:138
 #, elixir-autogen, elixir-format
-msgid "Actions"
+msgid "Are you sure? This action is irreversible."
 msgstr ""
 
-#: lib/readmark_web/components/core_components.ex:91
+#: lib/readmark_web/components/core_components.ex:93
 #: lib/readmark_web/components/core_components/modal.html.heex:31
 #, elixir-autogen, elixir-format
 msgid "close"
-msgstr ""
-
-#: lib/readmark_web/live/settings_live.html.heex:149
-#, elixir-autogen, elixir-format
-msgid "Are you sure? This action is irreversible."
 msgstr ""

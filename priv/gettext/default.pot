@@ -1,27 +1,23 @@
 ## This file is a PO Template file.
 ##
 ## "msgid"s here are often extracted from source code.
-## Add new message manually only if they're dynamic
-## message that can't be statically extracted.
+## Add new messages manually only if they're dynamic
+## messages that can't be statically extracted.
 ##
 ## Run "mix gettext.extract" to bring this file up to
 ## date. Leave "msgstr"s empty as changing them here has no
 ## effect: edit them in PO (.po) files instead.
+#
 msgid ""
 msgstr ""
 
-#: lib/readmark_web/components/core_components/table.html.heex:6
+#: lib/readmark_web/live/settings_live.html.heex:138
 #, elixir-autogen, elixir-format
-msgid "Actions"
+msgid "Are you sure? This action is irreversible."
 msgstr ""
 
-#: lib/readmark_web/components/core_components.ex:91
+#: lib/readmark_web/components/core_components.ex:93
 #: lib/readmark_web/components/core_components/modal.html.heex:31
 #, elixir-autogen, elixir-format
 msgid "close"
-msgstr ""
-
-#: lib/readmark_web/live/settings_live.html.heex:149
-#, elixir-autogen, elixir-format
-msgid "Are you sure? This action is irreversible."
 msgstr ""
