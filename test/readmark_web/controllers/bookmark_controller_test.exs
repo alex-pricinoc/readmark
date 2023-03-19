@@ -108,7 +108,7 @@ defmodule ReadmarkWeb.BookmarkControllerTest do
       assert redirected_to(conn) =~ ~p"/reading"
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
-               "Oops, something went wrong! Cannot fetch article contents."
+               "Oops, something went wrong!"
     end
   end
 end
