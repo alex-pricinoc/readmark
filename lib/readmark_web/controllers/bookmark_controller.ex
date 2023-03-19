@@ -1,11 +1,11 @@
 defmodule ReadmarkWeb.BookmarkController do
   use ReadmarkWeb, :controller
 
-  import Phoenix.Template
+  require Logger
 
-  alias Readmark.Workers.ArticleSender
   alias Readmark.{Bookmarks, Dump}
-  alias Readmark.Workers.ArticleFetcher
+  alias Bookmarks.Article
+  alias Readmark.Workers.{ArticleFetcher, ArticleSender}
 
   def action(conn, _) do
     args = [conn, conn.params, conn.assigns.current_user]
@@ -52,20 +52,22 @@ defmodule ReadmarkWeb.BookmarkController do
   end
 
   def kindle(conn, %{"url" => url}, user) do
-    if article = ArticleFetcher.fetch_article(url) do
-      _ = ArticleSender.deliver_kindle_compilation(user, [article])
-
+    with %Article{} = article <- ArticleFetcher.fetch_article(url),
+         {:ok, 1} = ArticleSender.deliver_kindle_compilation(user, [article]) do
       redirect(conn, external: url)
     else
-      conn
-      |> put_flash(:error, "Oops, something went wrong! Cannot fetch article contents.")
-      |> redirect(to: ~p"/reading")
+      error ->
+        Logger.error("An error has occured while delivering articles: #{error}")
+
+        conn
+        |> put_flash(:error, "Oops, something went wrong!")
+        |> redirect(to: ~p"/reading")
     end
   end
 
   def export(conn, _params, current_user) do
     bookmarks =
-      render_to_string(ReadmarkWeb.BookmarkHTML, "bookmarks", "netscape",
+      Phoenix.Template.render_to_string(ReadmarkWeb.BookmarkHTML, "bookmarks", "netscape",
         bookmarks: Dump.export(current_user)
       )
 
