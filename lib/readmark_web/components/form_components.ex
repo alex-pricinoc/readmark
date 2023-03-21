@@ -30,16 +30,29 @@ defmodule ReadmarkWeb.FormComponents do
     """
   end
 
+  @doc """
+  Renders an input with label and error messages.
+
+  A `%Phoenix.HTML.Form{}` and field name may be passed to the input
+  to build input names and error messages, or all the attributes and
+  errors may be passed explicitly.
+
+  ## Examples
+
+      <.input field={@form[:email]} type="email" />
+      <.input name="my-input" errors={["oh no!"]} />
+  """
   attr :id, :any, default: nil
   attr :name, :any
   attr :label, :string, default: nil
   attr :value, :any
+
   attr :mini, :boolean, default: false
 
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file hidden month number password
-               range radio search select tel text textarea time url week)
+                range radio search select tel text textarea time url week)
 
   attr :field, Phoenix.HTML.FormField,
     doc: "a form field struct retrieved from the form, for example: @form[:email]"
@@ -49,8 +62,11 @@ defmodule ReadmarkWeb.FormComponents do
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
-  attr :rest, :global, include: ~w(autocomplete cols disabled form max maxlength min minlength
-                                   pattern placeholder readonly required rows size step)
+
+  attr :rest, :global,
+    include: ~w(autocomplete cols disabled form list max maxlength min minlength
+                 pattern placeholder readonly required rows size step)
+
   slot :inner_block
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
@@ -72,11 +88,11 @@ defmodule ReadmarkWeb.FormComponents do
         <input type="hidden" name={@name} value="false" />
         <input
           type="checkbox"
-          id={@id || @name}
+          id={@id}
           name={@name}
           value="true"
           checked={@checked}
-          class="rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900"
+          class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
           {@rest}
         />
         <%= @label %>
@@ -106,7 +122,7 @@ defmodule ReadmarkWeb.FormComponents do
       <select
         id={@id}
         name={@name}
-        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-zinc-500 focus:border-zinc-500 text-sm sm:text-base"
+        class="mt-1 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 text-sm sm:text-base"
         multiple={@multiple}
         {@rest}
       >
@@ -123,14 +139,13 @@ defmodule ReadmarkWeb.FormComponents do
     <div phx-feedback-for={@name}>
       <.label for={@id}><%= @label %></.label>
       <textarea
-        id={@id || @name}
+        id={@id}
         name={@name}
         class={[
-          "mt-2 block min-h-[6rem] w-full rounded-lg border-zinc-300 py-[7px] px-[11px]",
-          "text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-800/5 text-sm sm:text-base sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5",
-          "border-zinc-300 focus:border-zinc-400 focus:ring-zinc-800/5",
-          @errors != [] && "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10"
+          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 text-sm sm:text-base sm:leading-6",
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          "min-h-[6rem] border-zinc-300 focus:border-zinc-400",
+          @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
@@ -139,6 +154,7 @@ defmodule ReadmarkWeb.FormComponents do
     """
   end
 
+  # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
@@ -146,14 +162,14 @@ defmodule ReadmarkWeb.FormComponents do
       <input
         type={@type}
         name={@name}
-        id={@id || @name}
+        id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg border-zinc-300 py-[7px] px-[11px]",
-          "text-zinc-900 focus:outline-none focus:ring-4 text-sm sm:text-base sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5",
-          "border-zinc-300 focus:border-zinc-400 focus:ring-zinc-800/5",
-          @errors != [] && "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10"
+          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 text-sm sm:text-base sm:leading-6",
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          "border-zinc-300 focus:border-zinc-400",
+          @errors != [] && "border-rose-400 focus:border-rose-400",
+          @rest[:disabled] && "cursor-not-allowed opacity-50"
         ]}
         {@rest}
       />
@@ -183,8 +199,8 @@ defmodule ReadmarkWeb.FormComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="phx-no-feedback:hidden mt-3 flex gap-3 text-sm leading-6 text-rose-600">
-      <.icon name="hero-exclamation-circle-mini" class="mt-0.5 w-5 h-5 flex-none" />
+    <p class="mt-3 flex gap-3 text-sm leading-6 text-rose-600 phx-no-feedback:hidden">
+      <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none" />
       <%= render_slot(@inner_block) %>
     </p>
     """
@@ -199,20 +215,13 @@ defmodule ReadmarkWeb.FormComponents do
     # When using gettext, we typically pass the strings we want
     # to translate as a static argument:
     #
-    #     # Translate "is invalid" in the "errors" domain
-    #     dgettext("errors", "is invalid")
-    #
     #     # Translate the number of files with plural rules
     #     dngettext("errors", "1 file", "%{count} files", count)
     #
-    # Because the error messages we show in our forms and APIs
-    # are defined inside Ecto, we need to translate them dynamically.
-    # This requires us to call the Gettext module passing our gettext
-    # backend as first argument.
-    #
-    # Note we use the "errors" domain, which means translations
-    # should be written to the errors.po file. The :count option is
-    # set by Ecto and indicates we should also apply plural rules.
+    # However the error messages in our forms and APIs are generated
+    # dynamically, so we need to translate them by calling Gettext
+    # with our gettext backend as first argument. Translations are
+    # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
       Gettext.dngettext(ReadmarkWeb.Gettext, "errors", msg, msg, count, opts)
     else

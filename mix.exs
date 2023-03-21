@@ -39,7 +39,7 @@ defmodule Readmark.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.1"},
+      {:phoenix, "~> 1.7.2"},
       {:phoenix_live_view, "~> 0.18.18"},
       {:phoenix_html, "~> 3.3"},
       {:phoenix_ecto, "~> 4.4"},
@@ -50,9 +50,9 @@ defmodule Readmark.MixProject do
       {:ecto_sql, "~> 3.6"},
       {:floki, ">= 0.30.0"},
       {:bcrypt_elixir, "~> 3.0"},
-      {:esbuild, "~> 0.5", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.1.8", runtime: Mix.env() == :dev},
       {:swoosh, "~> 1.3"},
+      {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:finch, "~> 0.13"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
@@ -83,10 +83,10 @@ defmodule Readmark.MixProject do
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind default", "esbuild default"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       localize: ["gettext.extract", "gettext.merge priv/gettext"],
       lint: [
         "compile --warnings-as-errors",

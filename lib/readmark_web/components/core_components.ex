@@ -19,18 +19,21 @@ defmodule ReadmarkWeb.CoreComponents do
 
   @doc """
   Renders a [Hero Icon](https://heroicons.com).
+
   Hero icons come in three styles – outline, solid, and mini.
   By default, the outline style is used, but solid an mini may
   be applied by using the `-solid` and `-mini` suffix.
+
   You can customize the size and colors of the icons by setting
   width, height, and background color classes.
-  Icons are extracted from your `priv/hero_icons` directory and bundled
+
+  Icons are extracted from your `assets/vendor/heroicons` directory and bundled
   within your compiled app.css by the plugin in your `assets/tailwind.config.js`.
+
   ## Examples
-      <.icon name="hero-cake" />
-      <.icon name="hero-cake-solid" />
-      <.icon name="hero-cake-mini" />
-      <.icon name="hero-bolt" class="bg-blue-500 w-10 h-10" />
+
+      <.icon name="hero-x-mark-solid" />
+      <.icon name="hero-arrow-path" class="ml-1 w-3 h-3 animate-spin" />
   """
   attr :name, :string, required: true
   attr :class, :string, default: nil
@@ -44,22 +47,22 @@ defmodule ReadmarkWeb.CoreComponents do
   attr :id, :string, required: true
   attr :show, :boolean, default: false
   attr :on_cancel, JS, default: %JS{}
-  attr :on_confirm, JS, default: %JS{}
-
   slot :inner_block, required: true
-  slot :title
-  slot :subtitle
-  slot :confirm
-  slot :cancel
 
   def modal(assigns)
 
+  @doc """
+  Renders flash notices.
+
+  ## Examples
+
+      <.flash kind={:info} flash={@flash} />
+      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
+  """
   attr :id, :string, default: "flash", doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
   attr :kind, :atom, values: [:info, :error], doc: "used for styling and flash lookup"
-  attr :autoshow, :boolean, default: true, doc: "whether to auto show the flash on mount"
-  attr :close, :boolean, default: true, doc: "whether the flash can be closed"
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
 
   slot :inner_block, doc: "the optional inner block that renders the flash message"
@@ -69,35 +72,32 @@ defmodule ReadmarkWeb.CoreComponents do
     <div
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
       id={@id}
-      phx-mounted={@autoshow && show("##{@id}")}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
       phx-hook="Flash"
       class={[
-        "fixed hidden top-2 right-2 w-[19rem] sm:w-96 z-50 rounded-lg p-3 shadow-md shadow-zinc-900/5 ring-1",
+        "fixed top-2 right-2 w-[19rem] sm:w-96 z-50 rounded-lg p-3 ring-1",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
-        @kind == :error && "bg-rose-50 p-3 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
+        @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
       {@rest}
     >
-      <p :if={@title} class="flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-6">
-        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="w-4 h-4" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="w-4 h-4" />
+      <p :if={@title} class="flex items-center gap-1.5 text-sm font-semibold leading-6">
+        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4" />
+        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4" />
         <%= @title %>
       </p>
-      <p class="mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
-      <button
-        :if={@close}
-        type="button"
-        class="group absolute top-2 right-1 p-2"
-        aria-label={gettext("close")}
-      >
-        <.icon name="hero-x-mark-solid" class="w-5 h-5 opacity-40 group-hover:opacity-70" />
+      <p class="mt-2 text-sm leading-5"><%= msg %></p>
+      <button type="button" class="group absolute top-1 right-1 p-2" aria-label={gettext("close")}>
+        <.icon name="hero-x-mark-solid" class="h-5 w-5 opacity-40 group-hover:opacity-70" />
       </button>
     </div>
     """
   end
 
+  @doc """
+  Shows the flash group with standard titles and content.
+  """
   attr :flash, :map, required: true, doc: "the map of flash messages"
 
   def flash_group(assigns) do
@@ -108,12 +108,11 @@ defmodule ReadmarkWeb.CoreComponents do
       id="disconnected"
       kind={:error}
       title="We can't find the internet"
-      close={false}
-      autoshow={false}
       phx-disconnected={show("#disconnected")}
       phx-connected={hide("#disconnected")}
+      hidden
     >
-      Attempting to reconnect <.icon name="hero-arrow-path" class="ml-1 w-3 h-3 animate-spin" />
+      Attempting to reconnect <.icon name="hero-arrow-path" class="ml-1 h-3 w-3 animate-spin" />
     </.flash>
     """
   end

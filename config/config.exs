@@ -35,7 +35,7 @@ config :swoosh, :api_client, false
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.14.41",
+  version: "0.17.11",
   default: [
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
@@ -45,7 +45,7 @@ config :esbuild,
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "3.2.4",
+  version: "3.2.7",
   default: [
     args: ~w(
       --config=tailwind.config.js

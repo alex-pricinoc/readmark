@@ -6,12 +6,17 @@ defmodule ReadmarkWeb.UserConfirmationInstructionsLive do
   def render(assigns) do
     ~H"""
     <div class="max-w-sm px-2">
-      <.header>Resend confirmation instructions</.header>
+      <.header class="text-center">
+        No confirmation instructions received?
+        <:subtitle>We'll send a new confirmation link to your inbox</:subtitle>
+      </.header>
 
       <.simple_form for={@form} id="resend_confirmation_form" phx-submit="send_instructions">
-        <.input field={@form[:email]} type="email" label="Email" required />
+        <.input field={@form[:email]} type="email" placeholder="Email" required />
         <:actions>
-          <.button phx-disable-with="Sending...">Resend confirmation instructions</.button>
+          <.button phx-disable-with="Sending..." class="w-full">
+            Resend confirmation instructions
+          </.button>
         </:actions>
       </.simple_form>
 
