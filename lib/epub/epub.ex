@@ -8,7 +8,7 @@ defmodule Epub do
   """
   def build(articles) when is_list(articles) and length(articles) > 0 do
     options = %Epub.Native.EpubOptions{
-      title: book_title(),
+      title: book_title(articles),
       dir: Path.join([System.tmp_dir!(), "readmark", Ecto.UUID.generate()])
     }
 
@@ -29,7 +29,11 @@ defmodule Epub do
     end
   end
 
-  defp book_title do
+  defp book_title([%{title: title}]) do
+    String.slice(title, 0..50)
+  end
+
+  defp book_title(_articles) do
     Timex.format!(Timex.now(), "{WDfull}, {Mshort}. {D}, {YYYY}")
   end
 end

@@ -19,10 +19,10 @@ defmodule Epub.Cover do
   defp title!(image) do
     Image.Text.simple_text!("readmark",
       autofit: true,
-      font_size: 0,
+      font_size: 50,
       font_weight: :bold,
       font: "Inria Serif",
-      height: 70,
+      height: 60,
       width: text_box_width(image)
     )
   end
@@ -30,7 +30,7 @@ defmodule Epub.Cover do
   defp text!(image, text) do
     Image.Text.simple_text!(text,
       autofit: true,
-      font_size: 0,
+      font_size: 50,
       font: "sans-serif",
       align: :center,
       height: 100,
