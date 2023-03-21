@@ -1,12 +1,8 @@
-<div
+<.container
   id="bookmarks"
-  class="w-full md:w-1/3 lg:w-80 xl:w-96 border-r bg-white overflow-auto md:block h-screen"
-  phx-hook="Open"
+  class="absolute inset-0 w-full md:w-1/3 lg:w-80 xl:w-96 border-r md:static"
 >
-  <.sticky_header
-    class="px-4 bg-white/90 backdrop-blur transition-shadow open:shadow-md"
-    phx-click={JS.dispatch("js:scrolltop", to: "#bookmarks")}
-  >
+  <:header>
     <.show_sidebar_button class="mr-3 xl:hidden" />
     <h1 class="grow font-semibold capitalize leading-0 text-zinc-800">
       <%= @active_tab %>
@@ -14,7 +10,7 @@
     <.icon_button id="add-bookmark-button" label="Add bookmark" patch={~p"/bookmarks/new"}>
       <.icon name="hero-plus" class="h-5 w-5" />
     </.icon_button>
-  </.sticky_header>
+  </:header>
 
   <.bookmark_list
     :let={{_id, bookmark}}
@@ -71,7 +67,7 @@
   <p :if={@streams.bookmarks == []} class="mt-24 text-center text-sm text-gray-600">
     No bookmarks added.
   </p>
-</div>
+</.container>
 
 <.modal
   :if={@live_action in [:new, :edit]}

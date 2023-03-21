@@ -87,7 +87,13 @@ defmodule Readmark.MixProject do
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind default", "esbuild default"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
-      localize: ["gettext.extract", "gettext.merge priv/gettext"]
+      localize: ["gettext.extract", "gettext.merge priv/gettext"],
+      lint: [
+        "compile --warnings-as-errors",
+        "xref graph --label compile-connected --fail-above 0",
+        "deps.unlock --check-unused",
+        "format --check-formatted"
+      ]
     ]
   end
 end

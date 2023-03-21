@@ -16,6 +16,12 @@ defmodule Readmark.Workers.ArticleSender do
   alias Accounts.{User, EpubSender}
 
   @impl Oban.Worker
+  def timeout(_job), do: :timer.minutes(5)
+
+  @impl Oban.Worker
+  def backoff(_job), do: :timer.minutes(10)
+
+  @impl Oban.Worker
   def perform(%{args: %{"user_id" => user_id} = job}) do
     Logger.info("Performing scheduled kindle delivery: #{inspect(job)}")
 
@@ -37,12 +43,6 @@ defmodule Readmark.Workers.ArticleSender do
         err
     end
   end
-
-  @impl Oban.Worker
-  def backoff(_job), do: :timer.minutes(10)
-
-  @impl Oban.Worker
-  def timeout(_job), do: :timer.minutes(5)
 
   @doc """
   Delivers latest articles to user kindle email.

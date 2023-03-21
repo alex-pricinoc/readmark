@@ -26,10 +26,7 @@ format f:
 
 
 check lint:
-	mix compile --warnings-as-errors
-	mix xref graph --label compile-connected --fail-above 0
-	mix deps.unlock --check-unused
-	mix format --check-formatted
+	mix lint
 	dprint check
 	mix hex.audit
 	mix deps.audit

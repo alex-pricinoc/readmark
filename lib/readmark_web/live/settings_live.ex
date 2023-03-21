@@ -118,7 +118,7 @@ defmodule ReadmarkWeb.SettingsLive do
           "Something went wrong. "
       end
 
-    {:noreply, socket |> put_flash(:info, info)}
+    {:noreply, put_flash(socket, :info, info)}
   end
 
   @impl true
@@ -127,23 +127,19 @@ defmodule ReadmarkWeb.SettingsLive do
   end
 
   defp apply_action(socket, :index, _params) do
-    socket
-    |> assign(:page_title, "Settings")
+    assign(socket, :page_title, "Settings")
   end
 
   defp apply_action(socket, :change_email, _params) do
-    socket
-    |> assign(:page_title, "Change Email")
+    assign(socket, :page_title, "Change Email")
   end
 
   defp apply_action(socket, :change_password, _params) do
-    socket
-    |> assign(:page_title, "Change Password")
+    assign(socket, :page_title, "Change Password")
   end
 
   defp apply_action(socket, :change_kindle_preferences, _params) do
-    socket
-    |> assign(:page_title, "Change Kindle Preferences")
+    assign(socket, :page_title, "Change Kindle Preferences")
   end
 
   defp bookmarklet do

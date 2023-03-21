@@ -1,8 +1,5 @@
-<div id="settings" class="bg-white flex-1 bg-white overflow-auto md:block h-screen">
-  <.sticky_header
-    class="px-4 bg-white/90 backdrop-blur border-b"
-    phx-click={JS.dispatch("js:scrolltop", to: "#settings")}
-  >
+<.container id="settings" class="flex-1">
+  <:header>
     <.show_sidebar_button class="mr-3 xl:hidden" />
     <h1 class="font-semibold leading-0 text-zinc-800">
       Settings
@@ -10,7 +7,8 @@
     <.icon_button label="Log out" href={~p"/users/log_out"} method="delete" class="ml-auto">
       <.icon name="hero-arrow-right-on-rectangle" class="h-5 w-5" />
     </.icon_button>
-  </.sticky_header>
+  </:header>
+
   <div class="p-4 max-w-full md:max-w-4xl overflow-hidden space-y-6 pb-8">
     <!-- Account settings -->
     <section class="grid sm:grid-cols-[10rem_auto] gap-4">
@@ -138,7 +136,7 @@
       </.link>
     </section>
   </div>
-</div>
+</.container>
 
 <.modal
   :if={@live_action == :change_email}

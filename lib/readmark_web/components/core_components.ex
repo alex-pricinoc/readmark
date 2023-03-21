@@ -169,18 +169,28 @@ defmodule ReadmarkWeb.CoreComponents do
     """
   end
 
+  attr :id, :string, required: true
   attr :class, :string, default: nil
-  attr :rest, :global
 
+  slot :header, required: true
   slot :inner_block, required: true
 
-  def sticky_header(assigns) do
+  def container(assigns) do
     ~H"""
-    <header class={["z-10 sticky h-20 -top-8 flex items-center", @class]} {@rest}>
-      <div class="sticky top-0 h-12 flex flex-1 items-center">
-        <%= render_slot(@inner_block) %>
-      </div>
-    </header>
+    <div id={@id} class={[@class, "bg-white overflow-auto h-screen"]} phx-hook="Open">
+      <header
+        class={[
+          "z-10 sticky h-20 -top-8 flex items-center",
+          "px-4 bg-white/90 backdrop-blur transition-shadow open:shadow-md"
+        ]}
+        phx-click={JS.dispatch("js:scrolltop", to: "##{@id}")}
+      >
+        <div class="sticky top-0 h-12 flex flex-1 items-center">
+          <%= render_slot(@header) %>
+        </div>
+      </header>
+      <%= render_slot(@inner_block) %>
+    </div>
     """
   end
 
@@ -338,7 +348,7 @@ defmodule ReadmarkWeb.CoreComponents do
     |> JS.show(
       to: "##{id}-bg",
       time: 300,
-      transition: {"transition-all transform ease-out duration-300", "opacity-0", "opacity-100"}
+      transition: {"transition-opacity ease-out duration-300", "opacity-0", "opacity-100"}
     )
     |> show("##{id}-container")
     |> JS.add_class("overflow-hidden", to: "body")
@@ -350,7 +360,7 @@ defmodule ReadmarkWeb.CoreComponents do
     |> JS.hide(
       to: "##{id}-bg",
       time: 200,
-      transition: {"transition-all transform ease-in duration-200", "opacity-100", "opacity-0"}
+      transition: {"transition-opacity ease-in duration-200", "opacity-100", "opacity-0"}
     )
     |> hide("##{id}-container")
     |> JS.hide(to: "##{id}", time: 200, transition: {"block", "block", "hidden"})
@@ -369,8 +379,7 @@ defmodule ReadmarkWeb.CoreComponents do
       to: "#sidebar",
       time: 300,
       transition:
-        {"transition-all transform ease-out-cubic duration-300", "-translate-x-full",
-         "translate-x-0"}
+        {"transition-transform ease-out-cubic duration-300", "-translate-x-full", "translate-x-0"}
     )
   end
 
@@ -385,8 +394,7 @@ defmodule ReadmarkWeb.CoreComponents do
       to: "#sidebar",
       time: 200,
       transition:
-        {"transition-transform transform-gpu ease-in duration-200", "translate-x-0",
-         "-translate-x-full"}
+        {"transition-transform ease-in duration-200", "translate-x-0", "-translate-x-full"}
     )
   end
 

@@ -1,15 +1,8 @@
-<div
+<.container
   id="reading"
-  class={[
-    "w-full md:w-1/3 lg:w-80 xl:w-96 border-r bg-white overflow-auto md:block h-screen",
-    @active_bookmark != nil and "hidden"
-  ]}
-  phx-hook="Open"
+  class="absolute inset-0 w-full md:w-1/3 lg:w-80 xl:w-96 border-r md:static"
 >
-  <.sticky_header
-    class="px-4 bg-white/90 backdrop-blur transition-shadow open:shadow-md"
-    phx-click={JS.dispatch("js:scrolltop", to: "#reading")}
-  >
+  <:header>
     <.show_sidebar_button class="mr-3 xl:hidden" />
     <h1 class="grow font-semibold capitalize leading-0 text-zinc-800">
       <%= @active_tab %>
@@ -17,7 +10,7 @@
     <.icon_button id="add-bookmark-button" label="Add link" patch={~p"/reading/new"}>
       <.icon name="hero-plus" class="h-5 w-5" />
     </.icon_button>
-  </.sticky_header>
+  </:header>
 
   <.bookmark_list
     :let={{_, bookmark}}
@@ -59,25 +52,21 @@
   <p :if={@streams.bookmarks == []} class="mt-24 text-center text-sm text-gray-600">
     No articles saved.
   </p>
-</div>
+</.container>
 
-<div
-  :if={@active_bookmark != nil}
+<.container
+  :if={@active_bookmark}
   id={"reading-detail-#{@active_bookmark.id}"}
-  class="flex-1 min-w-0 bg-white overflow-auto h-screen"
-  phx-hook="Open"
+  class="z-20 absolute inset-0 flex-1 min-w-0 md:static"
 >
-  <.sticky_header
-    class="px-4 bg-white/90 backdrop-blur transition-shadow open:shadow-md"
-    phx-click={JS.dispatch("js:scrolltop", to: "#reading-detail-#{@active_bookmark.id}")}
-  >
+  <:header>
     <.icon_button patch={~p"/reading"} class="md:hidden" label="Go back">
       <.icon name="hero-arrow-left" class="h-5 w-5" />
     </.icon_button>
     <h1 class="grow font-semibold capitalize leading-0 text-zinc-800 line-clamp-1 opacity-0 transition-all translate-y-2 open:opacity-100 open:translate-y-0">
       <%= @active_bookmark.title %>
     </h1>
-  </.sticky_header>
+  </:header>
   <div class="px-4">
     <a
       href={@active_bookmark.url}
@@ -99,7 +88,7 @@
       <%= raw(article.article_html || article.article_text) %>
     </div>
   </div>
-</div>
+</.container>
 
 <.modal
   :if={@live_action == :new}
