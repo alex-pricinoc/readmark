@@ -1,4 +1,5 @@
 use path::Path;
+use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::time::Duration;
 use std::{error, io, path, result};
@@ -8,53 +9,55 @@ use lol_html::{element, rewrite_str, RewriteStrSettings};
 
 pub type Result<T> = result::Result<T, Box<dyn error::Error>>;
 
-const IMAGE_SIZE_LIMIT: usize = 1_024 * 1_024;
+const IMAGE_SIZE_LIMIT: usize = 1_024 * 1_024; // 1 MB
 const MEDIA_TYPES: &str = include_str!("media-types.txt");
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Image {
     pub url: Url,
+    pub path: String,
 }
 
 impl Image {
-    pub fn file_name(&self) -> Option<&str> {
-        Path::new(self.url.path())
+    fn build(img_src: &str, chapter: usize) -> Result<Image> {
+        let mut url = Url::parse(img_src)?;
+
+        url.set_query(None);
+
+        let image = Path::new(url.path())
             .file_name()
             .and_then(OsStr::to_str)
+            .ok_or("image file name is invalid")?;
+
+        let path = format!("chapter_{}/{}", chapter, image);
+
+        Ok(Image { url, path })
     }
 
     pub fn mime_type(&self) -> &str {
-        Image::file_name(self)
-            .and_then(media_type_from_path)
-            .unwrap_or("application/octet-stream")
+        media_type_from_path(&self.path).unwrap_or("application/octet-stream")
     }
 }
 
-pub fn rewrite_images(html: &str) -> Result<(String, Vec<Image>)> {
-    let mut found_images = Vec::new();
+pub fn rewrite_images(html: &str, chapter: usize) -> Result<(String, Vec<Image>)> {
+    let mut images = HashMap::new();
 
     let element_content_handlers = vec![element!("img[src]", |el| {
         let img_src = el.get_attribute("src").expect("img[src] was required");
 
-        match Url::parse(&img_src) {
-            Ok(mut url) => {
-                url.set_query(None);
+        let image: &Result<Image> = images
+            .entry(img_src)
+            .or_insert_with_key(|k| Image::build(k, chapter));
 
-                let image = Image { url };
-
+        match image {
+            Ok(image) => {
                 el.remove_attribute("loading");
                 el.remove_attribute("srcset");
-
-                el.set_attribute(
-                    "src",
-                    image.file_name().ok_or("image file name is invalid")?,
-                )?;
-
-                found_images.push(image);
+                el.set_attribute("src", &image.path)?;
             }
             Err(e) => {
                 eprintln!(
-                    "Failed to parse URL from img[src], skipping image, error={}",
+                    "Failed to build Image from img[src], skipping image, error={}",
                     e
                 );
             }
@@ -71,7 +74,9 @@ pub fn rewrite_images(html: &str) -> Result<(String, Vec<Image>)> {
         },
     )?;
 
-    Ok((output, found_images))
+    let images = images.into_values().flatten().collect();
+
+    Ok((output, images))
 }
 
 pub fn download_image(

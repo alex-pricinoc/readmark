@@ -41,7 +41,7 @@ impl<W: io::Write> Builder<W> {
         let mut all_images: Vec<Image> = vec![];
 
         for (index, mut item) in items.enumerate() {
-            let (content, mut images) = utils::rewrite_images(&item.content)?;
+            let (content, mut images) = utils::rewrite_images(&item.content, index)?;
 
             item.content = content;
             all_images.append(&mut images);
@@ -75,7 +75,7 @@ impl<W: io::Write> Builder<W> {
     }
 
     fn embed_images(&mut self, images: Vec<Image>) -> Result<()> {
-        let pool = ThreadPoolBuilder::new().num_threads(3).build()?;
+        let pool = ThreadPoolBuilder::new().num_threads(4).build()?;
 
         let (sender, receiver) = mpsc::channel();
 
@@ -94,11 +94,8 @@ impl<W: io::Write> Builder<W> {
         for (image, result) in receiver {
             match result {
                 Ok(content) => {
-                    self.epub.add_resource(
-                        image.file_name().unwrap(),
-                        content.as_slice(),
-                        image.mime_type(),
-                    )?;
+                    self.epub
+                        .add_resource(&image.path, content.as_slice(), image.mime_type())?;
                 }
                 Err(e) => {
                     eprintln!("Error fetching url: {}", e);
