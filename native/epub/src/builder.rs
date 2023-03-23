@@ -33,7 +33,7 @@ impl<W: io::Write> Builder<W> {
         }
     }
 
-    pub fn run(&mut self, cover: Vec<u8>, items: impl Iterator<Item = Item>) -> Result<()> {
+    pub fn run(&mut self, cover: &[u8], items: impl Iterator<Item = Item>) -> Result<()> {
         self.make_book()?;
 
         self.add_cover(cover)?;
@@ -67,9 +67,9 @@ impl<W: io::Write> Builder<W> {
         Ok(())
     }
 
-    fn add_cover(&mut self, cover: Vec<u8>) -> Result<()> {
+    fn add_cover(&mut self, cover: &[u8]) -> Result<()> {
         self.epub
-            .add_cover_image("cover.jpg", cover.as_slice(), "image/jpeg")?;
+            .add_cover_image("cover.jpg", cover, "image/jpeg")?;
 
         Ok(())
     }
@@ -95,7 +95,7 @@ impl<W: io::Write> Builder<W> {
             match result {
                 Ok(content) => {
                     self.epub
-                        .add_resource(&image.path, content.as_slice(), image.mime_type())?;
+                        .add_resource(&image.path, content.as_slice(), &image.mime)?;
                 }
                 Err(e) => {
                     eprintln!("Error fetching url: {}", e);
@@ -141,7 +141,7 @@ mod tests {
             content: r#"<p>Test content</p>"#.into(),
         };
 
-        let res = builder().run(DUMMY_COVER.to_vec(), [item].into_iter());
+        let res = builder().run(DUMMY_COVER.to_vec().as_slice(), [item].into_iter());
 
         assert!(res.is_ok());
     }

@@ -24,6 +24,8 @@ format f:
 	mix format
 	dprint fmt
 
+precommit: check test native
+
 
 check lint:
 	mix lint
@@ -44,6 +46,9 @@ test.coverage:
 test.coverage.html:
 	mix coveralls.html
 
+native:
+	make --directory native/epub
+
 
 clean:
 	mix clean
@@ -53,4 +58,4 @@ clean:
 clean.deps.unused:
 	mix deps.clean --unlock --unused
 
-.PHONY: test
+.PHONY: test native

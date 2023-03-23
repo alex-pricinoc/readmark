@@ -7,15 +7,17 @@ use url::Url;
 
 use lol_html::{element, rewrite_str, RewriteStrSettings};
 
+use crate::mime_guess::MimeGuess;
+
 pub type Result<T> = result::Result<T, Box<dyn error::Error>>;
 
 const IMAGE_SIZE_LIMIT: usize = 1_024 * 1_024; // 1 MB
-const MEDIA_TYPES: &str = include_str!("media-types.txt");
 
 #[derive(Debug)]
 pub struct Image {
     pub url: Url,
     pub path: String,
+    pub mime: String,
 }
 
 impl Image {
@@ -31,11 +33,9 @@ impl Image {
 
         let path = format!("chapter_{}/{}", chapter, image);
 
-        Ok(Image { url, path })
-    }
+        let mime = MimeGuess::from_path(&path).get_or_default().to_string();
 
-    pub fn mime_type(&self) -> &str {
-        media_type_from_path(&self.path).unwrap_or("application/octet-stream")
+        Ok(Image { url, path, mime })
     }
 }
 
@@ -45,7 +45,7 @@ pub fn rewrite_images(html: &str, chapter: usize) -> Result<(String, Vec<Image>)
     let element_content_handlers = vec![element!("img[src]", |el| {
         let img_src = el.get_attribute("src").expect("img[src] was required");
 
-        let image: &Result<Image> = images
+        let image = images
             .entry(img_src)
             .or_insert_with_key(|k| Image::build(k, chapter));
 
@@ -124,28 +124,4 @@ pub fn gen_xhtml(title: &str, content: String) -> String {
       </html>
       "#
     )
-}
-
-fn media_type_from_path(path: &str) -> Option<&str> {
-    let extension = Path::new(path).extension().and_then(OsStr::to_str)?;
-
-    MEDIA_TYPES.lines().find_map(|l| {
-        let (ext, mime) = l.split_once(',').unwrap();
-
-        (extension == ext).then_some(mime)
-    })
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn media_types() {
-        let mime_type = media_type_from_path("hello.png");
-        assert_eq!(mime_type, Some("image/png"));
-
-        let mime_type = media_type_from_path("hello.jpg");
-        assert_eq!(mime_type, Some("image/jpeg"));
-    }
 }

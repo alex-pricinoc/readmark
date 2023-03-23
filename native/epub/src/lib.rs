@@ -2,6 +2,7 @@ use std::fs;
 use std::{fs::File, path::Path};
 
 mod builder;
+mod mime_guess;
 
 use builder::{Builder, Item};
 
@@ -48,7 +49,7 @@ fn build(iter: ListIterator, options: EpubOptions) -> NifResult<String> {
     let articles = iter.map(|a| a.decode::<Article>().unwrap().into());
 
     Builder::new("readmark", epub)
-        .run(cover, articles)
+        .run(cover.as_slice(), articles)
         .map_err(|e| Error::Term(Box::new(e.to_string())))?;
 
     Ok(epub_path)
