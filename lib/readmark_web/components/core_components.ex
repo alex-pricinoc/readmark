@@ -76,7 +76,7 @@ defmodule ReadmarkWeb.CoreComponents do
       role="alert"
       phx-hook="Flash"
       class={[
-        "fixed top-2 right-2 w-[19rem] sm:w-96 z-50 rounded-lg p-3 ring-1",
+        "fixed top-2 right-2 w-[19rem] sm:w-96 z-50 rounded-lg p-3 ring-1 shadow shadow-zinc-900/5",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
         @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
