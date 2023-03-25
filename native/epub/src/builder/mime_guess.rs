@@ -41,9 +41,6 @@ where
 
 #[cfg(test)]
 mod tests {
-
-    include!("mime_types.rs");
-
     use super::*;
 
     #[test]

@@ -2,7 +2,6 @@ use std::fs;
 use std::{fs::File, path::Path};
 
 mod builder;
-mod mime_guess;
 
 use builder::{Builder, Item};
 
@@ -24,8 +23,8 @@ pub struct EpubOptions {
 }
 
 impl From<Article> for Item {
-    fn from(article: Article) -> Self {
-        Self {
+    fn from(article: Article) -> Item {
+        Item {
             title: article.title,
             content: article.article_html,
         }

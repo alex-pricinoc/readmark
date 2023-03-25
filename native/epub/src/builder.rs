@@ -1,3 +1,4 @@
+mod mime_guess;
 mod utils;
 
 use std::{io, sync::mpsc};
@@ -41,10 +42,10 @@ impl<W: io::Write> Builder<W> {
         let mut all_images: Vec<Image> = vec![];
 
         for (index, mut item) in items.enumerate() {
-            let (content, mut images) = utils::rewrite_images(&item.content, index)?;
-
+            let (content, mut images) = utils::rewrite_images(index, &item.content)?;
             item.content = content;
             all_images.append(&mut images);
+
             self.add_content(index, item)?;
         }
 

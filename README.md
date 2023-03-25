@@ -15,8 +15,6 @@ This is the full source code for [Readmark](https://readmark.fly.dev), a bookmar
 
 ## Installation
 
-[Elixir 1.13+](https://elixir-lang.org/install.html) and [Go 1.19+](https://go.dev/doc/install) is required.
-
 - Build the application with `make`
 - Start Phoenix endpoint with `make server`
 

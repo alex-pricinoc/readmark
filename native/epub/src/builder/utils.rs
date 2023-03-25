@@ -7,7 +7,7 @@ use url::Url;
 
 use lol_html::{element, rewrite_str, RewriteStrSettings};
 
-use crate::mime_guess::MimeGuess;
+use super::mime_guess::MimeGuess;
 
 pub type Result<T> = result::Result<T, Box<dyn error::Error>>;
 
@@ -39,7 +39,7 @@ impl Image {
     }
 }
 
-pub fn rewrite_images(html: &str, chapter: usize) -> Result<(String, Vec<Image>)> {
+pub fn rewrite_images(chapter: usize, html: &str) -> Result<(String, Vec<Image>)> {
     let mut images = HashMap::new();
 
     let element_content_handlers = vec![element!("img[src]", |el| {
@@ -107,7 +107,6 @@ pub fn download_image(
     Ok(buf)
 }
 
-// TODO: maybe use a templating library
 pub fn gen_xhtml(title: &str, content: String) -> String {
     format!(
         r#"<!DOCTYPE html>
