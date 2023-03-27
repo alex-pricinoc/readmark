@@ -368,9 +368,7 @@ defmodule ReadmarkWeb.SettingsLiveTest do
 
       lv |> element("button", "Send Now") |> render_click()
 
-      wait_until(fn ->
-        assert render(lv) =~ "You don&#39;t have any unread articles"
-      end)
+      assert render(lv) =~ "You don&#39;t have any unread articles"
     end
 
     test "articles can be sent immediately (unread articles)", %{conn: conn, user: user} do
@@ -386,9 +384,7 @@ defmodule ReadmarkWeb.SettingsLiveTest do
 
       lv |> element("button", "Send Now") |> render_click()
 
-      wait_until(fn ->
-        assert render(lv) =~ "Your articles have been sent to your kindle"
-      end)
+      assert render(lv) =~ "Your articles have been sent to your kindle"
 
       assert_email_sent(fn email ->
         assert %{attachments: [%{content_type: "application/epub+zip"}]} = email
