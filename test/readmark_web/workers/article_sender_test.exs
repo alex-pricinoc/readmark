@@ -17,21 +17,22 @@ defmodule Readmark.Workers.ArticleSenderTest do
       prefs = %Preferences{frequency: :week, time: ~T[12:00:00], time_zone: "Etc/UTC"}
 
       assert Preferences.next_delivery_date(prefs) ==
-               Timex.now()
-               |> then(&Timex.set(&1, date: Kday.kday_after(&1, 5), time: ~T[12:00:00]))
+               DateTime.new!(Kday.kday_after(Date.utc_today(), 5), ~T[12:00:00])
 
       prefs = %{prefs | frequency: :day}
 
       assert Preferences.next_delivery_date(prefs) ==
-               Timex.now() |> Timex.set(time: ~T[12:00:00]) |> Timex.shift(days: 1)
+               Date.utc_today() |> Date.add(1) |> DateTime.new!(~T[12:00:00])
 
       prefs = %{prefs | time_zone: "Europe/Amsterdam"}
 
       assert Preferences.next_delivery_date(prefs) ==
-               Timex.now("Europe/Amsterdam")
-               |> Timex.shift(days: 1)
-               |> Timex.set(time: ~T[12:00:00])
-               |> Timex.Timezone.convert("Etc/UTC")
+               DateTime.now!("Europe/Amsterdam")
+               |> DateTime.add(60 * 60 * 24)
+               |> then(fn date_time ->
+                 %{date_time | hour: 12, minute: 0, second: 0, microsecond: {0, 0}}
+               end)
+               |> DateTime.shift_zone!("Etc/UTC")
     end
   end
 

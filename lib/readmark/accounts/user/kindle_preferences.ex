@@ -45,22 +45,22 @@ defmodule Readmark.Accounts.User.KindlePreferences do
   end
 
   def next_delivery_date(%Preferences{} = preferences) do
-    now = DateTime.now!(preferences.time_zone)
+    %{time: time, time_zone: time_zone, frequency: frequency} = preferences
 
-    now
-    |> set(preferences)
-    |> Timex.Timezone.convert("Etc/UTC")
+    today = DateTime.now!(time_zone) |> DateTime.to_date()
+
+    today
+    |> shift(frequency)
+    |> DateTime.new!(time, time_zone)
+    |> DateTime.shift_zone!("Etc/UTC")
   end
 
-  defp set(date, %{frequency: :day, time: time}) do
-    date
-    |> Timex.set(time: time)
-    |> Timex.shift(days: 1)
+  defp shift(date, :day) do
+    Date.add(date, 1)
   end
 
-  defp set(date, %{frequency: :week, time: time}) do
+  defp shift(date, :week) do
     # weekly deliveries are always sent on friday
-    friday = Kday.kday_after(date, 5)
-    Timex.set(date, date: friday, time: time)
+    Kday.kday_after(date, 5)
   end
 end

@@ -7,6 +7,8 @@ defmodule Readmark.Workers.PrunerTest do
   alias Readmark.{Repo, Bookmarks}
   alias Bookmarks.Article
 
+  @month 60 * 60 * 24 * 30
+
   describe "pruner tests" do
     setup do
       user = user_fixture()
@@ -18,7 +20,9 @@ defmodule Readmark.Workers.PrunerTest do
 
       {:ok, %{articles: 0, bookmarks: 0}} = perform_job(Pruner, %{})
 
-      Article.changeset(article, %{inserted_at: Timex.shift(Timex.now(), months: -6)})
+      Article.changeset(article, %{
+        inserted_at: DateTime.add(DateTime.now!("Etc/UTC"), -6 * @month)
+      })
       |> Repo.update()
 
       {:ok, %{articles: 1, bookmarks: 0}} = perform_job(Pruner, %{})
@@ -31,7 +35,9 @@ defmodule Readmark.Workers.PrunerTest do
 
       %{articles: [article]} = bookmark
 
-      Article.changeset(article, %{inserted_at: Timex.shift(Timex.now(), months: -6)})
+      Article.changeset(article, %{
+        inserted_at: DateTime.add(DateTime.now!("Etc/UTC"), -6 * @month)
+      })
       |> Repo.update()
 
       {:ok, %{articles: 0, bookmarks: 0}} = perform_job(Pruner, %{})
@@ -51,7 +57,9 @@ defmodule Readmark.Workers.PrunerTest do
       {:ok, %{articles: 0, bookmarks: 0}} = perform_job(Pruner, %{})
 
       {:ok, _bookmark} =
-        Bookmarks.update_bookmark(bookmark, %{updated_at: Timex.shift(Timex.now(), months: -2)})
+        Bookmarks.update_bookmark(bookmark, %{
+          updated_at: DateTime.add(DateTime.now!("Etc/UTC"), -2 * @month)
+        })
 
       {:ok, %{articles: 0, bookmarks: 1}} = perform_job(Pruner, %{})
     end

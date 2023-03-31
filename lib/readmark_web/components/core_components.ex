@@ -414,8 +414,29 @@ defmodule ReadmarkWeb.CoreComponents do
 
   def get_domain(url), do: URI.parse(url).host
 
+  @minute 60
+  @hour @minute * 60
+  @day @hour * 24
+  @week @day * 7
+  @month @day * 30
+  @year @day * 365
+
+  def format_time(%DateTime{} = time, now \\ DateTime.utc_now()) do
+    diff = DateTime.diff(now, time)
+
+    cond do
+      diff <= 5 -> "just now"
+      diff <= @hour -> "#{diff}m ago"
+      diff <= @day -> "#{div(diff, @hour)}h ago"
+      diff <= @day * 2 -> "yesterday"
+      diff <= @week -> "#{div(diff, @day)}d ago"
+      diff <= @month -> "#{div(diff, @week)}w ago"
+      diff <= @year -> "#{div(diff, @month)}mo ago"
+      true -> "#{div(diff, @year)}y ago"
+    end
+  end
+
   def format_date(%Date{} = date), do: Calendar.strftime(date, "%B %-d, %Y")
-  def format_time(%DateTime{} = datetime), do: Timex.from_now(datetime)
 
   def item_id({id, _}), do: id
 end

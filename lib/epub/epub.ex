@@ -34,6 +34,6 @@ defmodule Epub do
   end
 
   defp book_title(_articles) do
-    Timex.format!(Timex.now(), "{WDfull}, {Mshort}. {D}, {YYYY}")
+    Calendar.strftime(DateTime.utc_now(), "%A, %b. %-d, %Y")
   end
 end

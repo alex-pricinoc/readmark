@@ -14,8 +14,8 @@ defmodule ReadmarkWeb.SettingsLive.KindlePreferencesFormComponent do
     next_delivery =
       job &&
         job.scheduled_at
-        |> Timex.Timezone.convert(time_zone || user.kindle_preferences.time_zone)
-        |> Timex.format!("{RFC1123}")
+        |> DateTime.shift_zone!(time_zone || user.kindle_preferences.time_zone)
+        |> DateTime.to_string()
 
     {:ok,
      socket
