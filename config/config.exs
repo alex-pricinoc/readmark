@@ -81,6 +81,8 @@ config :readmark, Oban,
 config :readmark, :readability, Readability
 
 config :elixir, :time_zone_database, Tz.TimeZoneDatabase
+config :tz, reject_periods_before_year: NaiveDateTime.utc_now().year - 1
+config :tz, build_dst_periods_until_year: NaiveDateTime.utc_now().year + 2
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

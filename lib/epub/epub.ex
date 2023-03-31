@@ -16,8 +16,6 @@ defmodule Epub do
 
     File.mkdir_p(options.dir)
 
-    Epub.Cover.build_cover(options.title, Path.join(options.dir, "cover.jpg"))
-
     case Epub.Native.build(articles, options) do
       {:error, error} ->
         delete_gen_files.()
@@ -30,7 +28,7 @@ defmodule Epub do
   end
 
   defp book_title([%{title: title}]) do
-    String.slice(title, 0..50)
+    title
   end
 
   defp book_title(_articles) do

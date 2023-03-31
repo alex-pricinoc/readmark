@@ -34,10 +34,8 @@ impl<W: io::Write> Builder<W> {
         }
     }
 
-    pub fn run(&mut self, cover: &[u8], items: impl Iterator<Item = Item>) -> Result<()> {
+    pub fn run(&mut self, items: impl Iterator<Item = Item>) -> Result<()> {
         self.make_book()?;
-
-        self.add_cover(cover)?;
 
         let mut all_images: Vec<Image> = vec![];
 
@@ -64,13 +62,6 @@ impl<W: io::Write> Builder<W> {
             // TODO: each chapter is shown twice when using inline_toc and EpubVersion::V30
             // .inline_toc()
             .stylesheet(STYLE.as_bytes())?;
-
-        Ok(())
-    }
-
-    fn add_cover(&mut self, cover: &[u8]) -> Result<()> {
-        self.epub
-            .add_cover_image("cover.jpg", cover, "image/jpeg")?;
 
         Ok(())
     }
@@ -110,7 +101,7 @@ impl<W: io::Write> Builder<W> {
     }
 
     fn add_content(&mut self, index: usize, Item { title, content, .. }: Item) -> Result<()> {
-        let content = utils::gen_xhtml(title.as_str(), content);
+        let content = utils::gen_xhtml(&title, content);
 
         let mut chapter =
             EpubContent::new(format!("chapter_{}.xhtml", index), content.as_bytes()).title(title);
@@ -129,8 +120,6 @@ impl<W: io::Write> Builder<W> {
 mod tests {
     use super::*;
 
-    const DUMMY_COVER: &[u8] = include_bytes!("builder/cover.jpg");
-
     fn builder() -> Builder<Vec<u8>> {
         Builder::new("test", vec![])
     }
@@ -142,7 +131,7 @@ mod tests {
             content: r#"<p>Test content</p>"#.into(),
         };
 
-        let res = builder().run(DUMMY_COVER.to_vec().as_slice(), [item].into_iter());
+        let res = builder().run([item].into_iter());
 
         assert!(res.is_ok());
     }

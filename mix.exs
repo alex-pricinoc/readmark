@@ -67,7 +67,6 @@ defmodule Readmark.MixProject do
       {:tz, "~> 0.25.1"},
       {:kday, "~> 1.0"},
       {:mox, "~> 1.0", only: :test},
-      {:image, "~> 0.26.0"},
       {:rustler, "~> 0.27.0"}
     ]
   end
