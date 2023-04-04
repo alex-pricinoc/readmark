@@ -414,15 +414,14 @@ defmodule ReadmarkWeb.CoreComponents do
 
   def get_domain(url), do: URI.parse(url).host
 
-  @minute 60
-  @hour @minute * 60
+  @hour 60
   @day @hour * 24
   @week @day * 7
   @month @day * 30
   @year @day * 365
 
   def format_time(%DateTime{} = time, now \\ DateTime.utc_now()) do
-    diff = DateTime.diff(now, time)
+    diff = DateTime.diff(now, time, :minute)
 
     cond do
       diff <= 5 -> "just now"

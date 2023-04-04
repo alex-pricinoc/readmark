@@ -11,8 +11,11 @@ crate-type = ["cdylib"]
 
 [dependencies]
 epub-builder = "0.4"
+image = { version = "0.24.6", default-features = false, features = ["gif", "jpeg", "png", "webp"] }
 lol_html = "0.3.2"
+mime = "0.3.17"
+mime_guess = "2.0.4"
+minreq = { version = "2.7.0", features = ["https"] }
 rayon = "1.7.0"
 rustler = "0.27.0"
-ureq = "2.6.2"
 url = "2.3.1"

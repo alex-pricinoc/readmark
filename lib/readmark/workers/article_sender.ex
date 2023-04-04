@@ -64,10 +64,8 @@ defmodule Readmark.Workers.ArticleSender do
 
   def deliver_kindle_compilation(%User{} = user, articles)
       when length(articles) > 0 and user.kindle_email != nil do
-    with {:ok, {epub, delete_gen_files}} <- Epub.build(articles),
+    with {:ok, epub} <- Epub.build(articles),
          {:ok, _email} = EpubSender.deliver_epub(user.kindle_email, epub) do
-      delete_gen_files.()
-
       {:ok, length(articles)}
     else
       error -> error

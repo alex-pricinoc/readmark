@@ -46,6 +46,7 @@ test.coverage:
 test.coverage.html:
 	mix coveralls.html
 
+
 native:
 	make --directory native/epub
 
@@ -54,6 +55,7 @@ clean:
 	mix clean
 	rm -rf priv/go
 	rm -rf priv/native
+	make clean --directory native/epub
 
 clean.deps.unused:
 	mix deps.clean --unlock --unused

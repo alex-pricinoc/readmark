@@ -1,5 +1,3 @@
-use std::{fs::File, path::Path};
-
 mod builder;
 
 use builder::{Builder, Item};
@@ -14,13 +12,6 @@ pub struct Article {
     article_html: String,
 }
 
-#[derive(Debug, NifStruct)]
-#[module = "Epub.Native.EpubOptions"]
-pub struct EpubOptions {
-    title: String,
-    dir: String,
-}
-
 impl From<Article> for Item {
     fn from(article: Article) -> Item {
         Item {
@@ -31,24 +22,18 @@ impl From<Article> for Item {
 }
 
 #[rustler::nif(schedule = "DirtyIo")]
-fn build(iter: ListIterator, options: EpubOptions) -> NifResult<String> {
-    let path = Path::new(&options.dir);
-
-    let epub_path = path
-        .join(format!("{}.epub", options.title))
-        .into_os_string()
-        .into_string()
-        .expect("must be a valid path");
-
-    let epub = File::create(&epub_path).unwrap();
-
+fn build(title: String, iter: ListIterator) -> NifResult<Vec<u8>> {
     let articles = iter.map(|a| a.decode::<Article>().unwrap().into());
 
-    Builder::new("readmark", epub)
+    let mut epub = vec![];
+
+    Builder::new(title, &mut epub)
         .run(articles)
         .map_err(|e| Error::Term(Box::new(e.to_string())))?;
 
-    Ok(epub_path)
+    println!("Generated epub with size: {}K", epub.len() as f64 / 1024.0);
+
+    Ok(epub)
 }
 
 rustler::init!("Elixir.Epub.Native", [build]);

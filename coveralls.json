@@ -8,6 +8,6 @@
 		"lib/readmark_web/telemetry.ex",
 		"lib/readability",
 		"lib/readmark_web/components",
-		"lib/readmark_web/live/notes_live.ex"
+		"test/support"
 	]
 }

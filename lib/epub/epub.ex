@@ -7,23 +7,14 @@ defmodule Epub do
   Builds an EPUB document and returns the path.
   """
   def build(articles) when is_list(articles) and length(articles) > 0 do
-    options = %Epub.Native.EpubOptions{
-      title: book_title(articles),
-      dir: Path.join([System.tmp_dir!(), "readmark", Ecto.UUID.generate()])
-    }
+    title = book_title(articles)
 
-    delete_gen_files = fn -> File.rm_rf!(options.dir) end
-
-    File.mkdir_p(options.dir)
-
-    case Epub.Native.build(articles, options) do
+    case Epub.Native.build(title, articles) do
       {:error, error} ->
-        delete_gen_files.()
-
         {:error, error}
 
       epub ->
-        {:ok, {epub, delete_gen_files}}
+        {:ok, {epub, title}}
     end
   end
 

@@ -105,8 +105,6 @@ ENV MIX_ENV="prod"
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/readmark ./
 COPY --from=go-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-COPY priv/static/fonts ../usr/local/share/fonts/
-
 USER nobody
 
 CMD ["/app/bin/server"]
