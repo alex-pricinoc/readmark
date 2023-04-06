@@ -4,9 +4,9 @@
 >
   <:header>
     <.show_sidebar_button class="mr-3 xl:hidden" />
-    <h1 class="grow font-semibold capitalize leading-0 text-zinc-800">
+    <.link navigate={~p"/reading"} class="grow font-semibold capitalize leading-0 text-zinc-800">
       <%= @active_tab %>
-    </h1>
+    </.link>
     <.icon_button id="add-bookmark-button" label="Add link" patch={~p"/reading/new"}>
       <.icon name="hero-plus" class="h-5 w-5" />
     </.icon_button>
