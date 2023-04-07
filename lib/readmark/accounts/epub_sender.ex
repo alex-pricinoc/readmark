@@ -6,7 +6,7 @@ defmodule Readmark.Accounts.EpubSender do
   @doc """
   Deliver epub to kindle email.
   """
-  def deliver_epub(kindle_email, {epub, title}) do
+  def deliver_epub({epub, title}, kindle_email) do
     from_email = Application.get_env(:readmark, :from_email, "contact@example.com")
 
     email =

@@ -45,10 +45,10 @@ impl Image {
             }
             // TODO: handle redirects
             Ok(res) => {
-                let err = format!(
-                    "Error downloading image, status code: {}, error: {}",
-                    res.status_code, res.reason_phrase
-                );
+                let status = res.status_code;
+                let reason = res.reason_phrase;
+
+                let err = format!("{} ({})", status, reason);
 
                 Err(err.into())
             }

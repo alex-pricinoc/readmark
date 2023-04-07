@@ -4,10 +4,15 @@
 >
   <:header>
     <.show_sidebar_button class="mr-3 xl:hidden" />
-    <.link navigate={~p"/bookmarks"} class="grow font-semibold capitalize leading-0 text-zinc-800">
+    <.link navigate={~p"/bookmarks"} class="font-semibold capitalize leading-0 text-zinc-800">
       <%= @active_tab %>
     </.link>
-    <.icon_button id="add-bookmark-button" label="Add bookmark" patch={~p"/bookmarks/new"}>
+    <.icon_button
+      id="add-bookmark-button"
+      label="Add bookmark"
+      patch={~p"/bookmarks/new"}
+      class="ml-auto"
+    >
       <.icon name="hero-plus" class="h-5 w-5" />
     </.icon_button>
   </:header>

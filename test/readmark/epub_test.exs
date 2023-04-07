@@ -7,7 +7,7 @@ defmodule Readmark.EpubTest do
     test "generates epub from articels" do
       article = article_fixture()
 
-      {:ok, {epub, _title}} = Epub.build([article])
+      {:ok, {epub, _title}} = Epub.build([article], "Etc/UTC")
 
       assert [0x50, 0x4B, 0x03, 0x04 | _rest] = epub
     end

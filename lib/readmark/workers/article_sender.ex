@@ -30,12 +30,12 @@ defmodule Readmark.Workers.ArticleSender do
     case deliver_kindle_compilation(user) do
       {:ok, 0} = res ->
         schedule_kindle_delivery(user)
-        Logger.info("Skipping sending kindle compilation for user: #{user.id}.")
+        Logger.info("Skipping sending kindle compilation for user #{user.id}.")
         res
 
       {:ok, sent} = res ->
         schedule_kindle_delivery(user)
-        Logger.info("Kindle compilation sent for user: #{user.id}. #{sent} articles.")
+        Logger.info("Kindle compilation sent for user #{user.id}, #{sent} articles.")
         res
 
       {:error, error} = err ->
@@ -64,8 +64,8 @@ defmodule Readmark.Workers.ArticleSender do
 
   def deliver_kindle_compilation(%User{} = user, articles)
       when length(articles) > 0 and user.kindle_email != nil do
-    with {:ok, epub} <- Epub.build(articles),
-         {:ok, _email} = EpubSender.deliver_epub(user.kindle_email, epub) do
+    with {:ok, epub} <- Epub.build(articles, user.kindle_preferences.time_zone),
+         {:ok, _email} = EpubSender.deliver_epub(epub, user.kindle_email) do
       {:ok, length(articles)}
     else
       error -> error

@@ -2,7 +2,7 @@ mod builder;
 
 use builder::{Builder, Item};
 
-use rustler::{Error, ListIterator, NifResult, NifStruct};
+use rustler::{Error, ListIterator, NifResult as Result, NifStruct};
 
 #[derive(Debug, NifStruct)]
 #[module = "Readmark.Bookmarks.Article"]
@@ -22,7 +22,7 @@ impl From<Article> for Item {
 }
 
 #[rustler::nif(schedule = "DirtyIo")]
-fn build(title: String, iter: ListIterator) -> NifResult<Vec<u8>> {
+fn build(title: String, iter: ListIterator) -> Result<Vec<u8>> {
     let articles = iter.map(|a| a.decode::<Article>().unwrap().into());
 
     let mut epub = vec![];
@@ -31,7 +31,7 @@ fn build(title: String, iter: ListIterator) -> NifResult<Vec<u8>> {
         .run(articles)
         .map_err(|e| Error::Term(Box::new(e.to_string())))?;
 
-    println!("Generated epub with size: {}K", epub.len() as f64 / 1024.0);
+    println!("Generated epub with size: {}K", epub.len() / 1000);
 
     Ok(epub)
 }
