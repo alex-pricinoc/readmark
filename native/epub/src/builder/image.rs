@@ -102,13 +102,13 @@ pub fn rewrite_images(chapter: usize, html: &str) -> Result<(String, Vec<Image>)
             .or_insert_with_key(|k| Image::build(k, format!("ch_{chapter}/img-{index}.jpg")));
 
         match image {
-            Ok(image) => {
+            Ok(img) => {
                 el.remove_attribute("loading");
                 el.remove_attribute("srcset");
-                el.set_attribute("src", &image.path)?;
+                el.set_attribute("src", &img.path)?;
             }
-            Err(e) => {
-                eprintln!("Failed to parse Image, skipping image: {}", e);
+            Err(err) => {
+                eprintln!("Failed to parse Image, skipping image: {}", err);
             }
         }
 

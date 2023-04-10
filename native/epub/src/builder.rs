@@ -17,9 +17,6 @@ pub struct Item {
     pub content: String,
 }
 
-const STYLE: &str =
-    "body { margin: 0; padding: 0; line-height: 1.2; } img { width: 100%; height: auto; }";
-
 impl<W: io::Write> Builder<W> {
     pub fn new(title: String, out: W) -> Self {
         Self {
@@ -140,6 +137,8 @@ impl<W: io::Write> Builder<W> {
         )
     }
 }
+
+const STYLE: &str = "body { margin: 0; padding: 0; } img { width: 100%; height: auto; }";
 
 #[cfg(test)]
 mod tests {

@@ -1,9 +1,9 @@
 <.container id="settings" class="flex-1">
   <:header>
-    <.show_sidebar_button class="mr-3 xl:hidden" />
-    <h1 class="font-semibold leading-0 text-zinc-800">
+    <.show_sidebar_button class="mr-3 lg:hidden" />
+    <.link navigate={~p"/settings"} class="font-semibold leading-0 text-zinc-800">
       Settings
-    </h1>
+    </.link>
     <.icon_button label="Log out" href={~p"/users/log_out"} method="delete" class="ml-auto">
       <.icon name="hero-arrow-right-on-rectangle" class="h-5 w-5" />
     </.icon_button>
@@ -24,12 +24,10 @@
         >
           Change Email
         </.link>
-
         <label class="hidden md:block col-start-1 row-start-2 font-medium">Password</label>
         <span class="col-start-1 row-start-2 md:col-start-2">
           <%= for _ <- 1..12, do: raw("&bull;") %>
         </span>
-
         <.link
           class="col-start-2 md:col-start-3 row-start-2 text-primary-500 text-xs font-medium text-end"
           patch={~p"/settings/change_password"}
@@ -46,10 +44,8 @@
           <h3 class="font-medium">
             Your Kindle Email
           </h3>
-
           <div class="flex justify-between flex-wrap items-center gap-2">
             <span><%= @current_user.kindle_email %></span>
-
             <.link
               class="text-end text-primary-500 text-xs font-medium"
               patch={~p"/settings/change_kindle_preferences"}

@@ -58,13 +58,13 @@ COPY --from=go-builder /app/priv/go priv/go
 COPY lib lib
 COPY native native
 
+# Compile the release
+RUN mix compile
+
 COPY assets assets
 
 # compile assets
 RUN mix assets.deploy
-
-# Compile the release
-RUN mix compile
 
 # Changes to config/runtime.exs don't require recompiling the code
 COPY config/runtime.exs config/

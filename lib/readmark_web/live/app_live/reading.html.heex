@@ -3,7 +3,7 @@
   class="absolute inset-0 w-full md:w-1/3 lg:w-80 xl:w-96 border-r md:static"
 >
   <:header>
-    <.show_sidebar_button class="mr-3 xl:hidden" />
+    <.show_sidebar_button class="mr-3 lg:hidden" />
     <.link navigate={~p"/reading"} class="font-semibold capitalize leading-0 text-zinc-800">
       <%= @active_tab %>
     </.link>
@@ -26,7 +26,7 @@
   >
     <.link
       patch={~p"/reading/#{bookmark}"}
-      class="relative w-fit max-w-full font-medium line-clamp-3 hover:text-primary-700"
+      class="relative w-fit max-w-full font-medium line-clamp-2 hover:text-primary-700"
     >
       <%= bookmark.title %>
     </.link>
