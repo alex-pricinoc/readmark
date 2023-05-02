@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+if [ $(id -u) -eq 0 ]; then
+  # allocate swap space
+  fallocate -l 512M /swapfile
+  chmod 0600 /swapfile
+  mkswap /swapfile
+  echo 10 > /proc/sys/vm/swappiness
+  swapon /swapfile
+  echo 1 > /proc/sys/vm/overcommit_memory
+  exec su nobody -s /bin/sh -c "$0 $@"
+fi
+
+exec /app/bin/server

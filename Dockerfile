@@ -105,6 +105,4 @@ ENV MIX_ENV="prod"
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/readmark ./
 COPY --from=go-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-USER nobody
-
-CMD ["/app/bin/server"]
+CMD ["/app/bin/docker-entrypoint"]
