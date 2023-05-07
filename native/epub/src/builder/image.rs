@@ -69,13 +69,13 @@ impl Image {
             None => image::load_from_memory(buffer)?,
         };
 
-        let image = image.grayscale().thumbnail(500, 500);
+        let image = image.grayscale().thumbnail(600, 600);
 
         let mut bytes: Vec<u8> = vec![];
 
         image.write_to(
             &mut Cursor::new(&mut bytes),
-            image::ImageOutputFormat::Jpeg(80),
+            image::ImageOutputFormat::Jpeg(90),
         )?;
 
         self.bytes.replace(bytes);

@@ -65,7 +65,7 @@ impl<W: io::Write> Builder<W> {
     }
 
     fn embed_images(&mut self, images: Vec<Image>) -> Result<()> {
-        let pool = ThreadPoolBuilder::new().num_threads(4).build().unwrap();
+        let pool = ThreadPoolBuilder::new().num_threads(5).build().unwrap();
 
         let (sender, receiver) = mpsc::channel();
 
