@@ -51,7 +51,7 @@ defmodule Readmark.Workers.ArticleSender do
     bookmarks = Bookmarks.latest_unread_bookmarks(user)
     articles = Enum.flat_map(bookmarks, & &1.articles)
 
-    if articles >= user.kindle_preferences.articles do
+    if length(articles) >= user.kindle_preferences.articles do
       case deliver_kindle_compilation(user, articles) do
         {:ok, sent} = res when sent > 0 ->
           Enum.map(bookmarks, &Bookmarks.update_bookmark(&1, %{folder: :archive}))

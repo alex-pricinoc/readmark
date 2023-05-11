@@ -30,7 +30,7 @@ func main() {
 		log.Fatal("must provide a url")
 	}
 
-	article, err := readability.FromURL(args[0], 5*time.Second)
+	article, err := readability.FromURL(args[0], 10*time.Second)
 
 	if err != nil {
 		log.Fatal(err)
