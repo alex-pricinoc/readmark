@@ -52,7 +52,7 @@ defmodule ReadmarkWeb.FormComponents do
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file hidden month number password
-                range radio search select tel text textarea time url week)
+               range radio search select tel text textarea time url week)
 
   attr :field, Phoenix.HTML.FormField,
     doc: "a form field struct retrieved from the form, for example: @form[:email]"
@@ -65,7 +65,7 @@ defmodule ReadmarkWeb.FormComponents do
 
   attr :rest, :global,
     include: ~w(autocomplete cols disabled form list max maxlength min minlength
-                 pattern placeholder readonly required rows size step)
+                pattern placeholder readonly required rows size step)
 
   slot :inner_block
 
