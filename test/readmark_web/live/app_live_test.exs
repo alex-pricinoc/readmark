@@ -180,6 +180,7 @@ defmodule ReadmarkWeb.AppLiveTest do
       html = lv |> form("#bookmark-form", bookmark: @invalid_attrs) |> render_submit()
 
       assert html =~ "can&#39;t be blank"
+      assert html =~ "something went wrong"
 
       lv
       |> form("#bookmark-form", bookmark: @create_attrs)

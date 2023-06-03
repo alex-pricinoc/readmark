@@ -7,6 +7,9 @@
     phx-change="validate"
     phx-submit="save"
   >
+    <.error :if={@form.source.action == :insert}>
+      Oops, something went wrong! Cannot fetch article contents.
+    </.error>
     <.input field={@form[:folder]} type="hidden" value={:reading} />
     <.input
       field={@form[:url]}
