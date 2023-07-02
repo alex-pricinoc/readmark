@@ -27,7 +27,7 @@ defmodule Readmark.Workers.ArticleSender do
 
     user = Accounts.get_user!(user_id)
 
-    case deliver_kindle_compilation(user) do
+    case deliver_kindle_compilation(user, user.kindle_preferences.articles) do
       {:ok, 0} = res ->
         schedule_kindle_delivery(user)
         Logger.info("Skipping sending kindle compilation for user #{user.id}.")
@@ -47,15 +47,17 @@ defmodule Readmark.Workers.ArticleSender do
   @doc """
   Delivers latest articles to user kindle email.
   """
-  def deliver_kindle_compilation(%User{} = user) do
-    bookmarks = Bookmarks.latest_unread_bookmarks(user)
-    articles = Enum.flat_map(bookmarks, & &1.articles)
+  def deliver_kindle_compilation(user, articles \\ 1)
 
-    if length(articles) >= user.kindle_preferences.articles do
-      case deliver_kindle_compilation(user, articles) do
+  def deliver_kindle_compilation(%User{} = user, articles)
+      when is_integer(articles) do
+    bookmarks = Bookmarks.latest_unread_bookmarks(user)
+    unread_articles = Enum.flat_map(bookmarks, & &1.articles)
+
+    if length(unread_articles) >= articles do
+      case deliver_kindle_compilation(user, unread_articles) do
         {:ok, sent} = res when sent > 0 ->
           Enum.map(bookmarks, &Bookmarks.update_bookmark(&1, %{folder: :archive}))
-
           res
 
         err ->
@@ -66,18 +68,13 @@ defmodule Readmark.Workers.ArticleSender do
     end
   end
 
-  def deliver_kindle_compilation(%User{} = user, articles)
-      when length(articles) > 0 and user.kindle_email != nil do
-    with {:ok, epub} <- Epub.build(articles, user.kindle_preferences.time_zone),
-         {:ok, _email} = EpubSender.deliver_epub(epub, user.kindle_email) do
+  def deliver_kindle_compilation(%User{} = user, articles) when is_list(articles) do
+    with {:ok, epub} <- Epub.build(articles, user.kindle_preferences),
+         {:ok, _email} <- EpubSender.deliver_epub(epub, user.kindle_email) do
       {:ok, length(articles)}
     else
-      error -> error
+      err -> err
     end
-  end
-
-  def deliver_kindle_compilation(_user, _articles) do
-    {:ok, 0}
   end
 
   @doc """

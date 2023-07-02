@@ -6,7 +6,7 @@ defmodule Epub do
   @doc """
   Builds an EPUB document and returns the path.
   """
-  def build(articles, time_zone) when is_list(articles) and length(articles) > 0 do
+  def build(articles, %{time_zone: time_zone}) when is_list(articles) and length(articles) > 0 do
     title = book_title(articles, time_zone)
 
     case Epub.Native.build(title, articles) do

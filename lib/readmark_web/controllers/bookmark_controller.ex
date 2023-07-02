@@ -1,8 +1,6 @@
 defmodule ReadmarkWeb.BookmarkController do
   use ReadmarkWeb, :controller
 
-  require Logger
-
   alias Readmark.{Bookmarks, Dump}
   alias Bookmarks.Article
   alias Readmark.Workers.{ArticleFetcher, ArticleSender}
@@ -53,12 +51,10 @@ defmodule ReadmarkWeb.BookmarkController do
 
   def kindle(conn, %{"url" => url}, user) do
     with %Article{} = article <- ArticleFetcher.fetch_article(url),
-         {:ok, 1} = ArticleSender.deliver_kindle_compilation(user, [article]) do
+         {:ok, 1} <- ArticleSender.deliver_kindle_compilation(user, [article]) do
       redirect(conn, external: url)
     else
-      error ->
-        Logger.error("An error has occured while delivering articles: #{error}")
-
+      _ ->
         conn
         |> put_flash(:error, "Oops, something went wrong!")
         |> redirect(to: ~p"/reading")
