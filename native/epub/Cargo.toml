@@ -10,7 +10,7 @@ path = "src/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-epub-builder = "0.4"
+epub-builder = "0.7"
 image = { version = "0.24.6", default-features = false, features = ["gif", "jpeg", "png", "webp"] }
 lol_html = "0.3.2"
 mime = "0.3.17"
