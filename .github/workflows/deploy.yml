@@ -1,6 +1,7 @@
 name: Fly Deploy
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - "*"
@@ -16,6 +17,6 @@ jobs:
       - uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
         with:
-          version: 0.0.497
+          version: 0.1.84
       - run: flyctl deploy --remote-only
 
