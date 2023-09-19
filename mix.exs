@@ -1,7 +1,7 @@
 defmodule Readmark.MixProject do
   use Mix.Project
 
-  @version "0.4.6"
+  @version "0.4.8"
 
   def project do
     [

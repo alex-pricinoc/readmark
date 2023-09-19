@@ -31,7 +31,7 @@ fn build(title: String, iter: ListIterator) -> Result<Vec<u8>> {
         .run(articles)
         .map_err(|e| Error::Term(Box::new(e.to_string())))?;
 
-    println!("Generated epub with size: {}K", epub.len() / 1000);
+    println!("Generated epub with size: {}Ki", epub.len() / 1024);
 
     Ok(epub)
 }
