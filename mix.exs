@@ -64,7 +64,7 @@ defmodule Readmark.MixProject do
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:quarto, "~> 1.1"},
       {:oban, "~> 2.13"},
-      {:tz, "~> 0.26.1"},
+      {:tz, "~> 0.26.2"},
       {:kday, "~> 1.0"},
       {:mox, "~> 1.0", only: :test},
       {:rustler, "~> 0.27.0"}

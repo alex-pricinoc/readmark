@@ -36,7 +36,7 @@ impl Image {
         let len = res
             .header("Content-Length")
             .and_then(|s| s.parse().ok())
-            .unwrap_or(0);
+            .unwrap_or_default();
 
         let mut bytes = Vec::with_capacity(len);
 

@@ -224,6 +224,9 @@ defmodule ReadmarkWeb.CoreComponents do
       >
         <%= render_slot(@inner_block, item) %>
       </li>
+      <p id="empty-message" class="hidden only:block mt-24 text-center text-sm text-gray-600">
+        No items yet.
+      </p>
     </ul>
     """
   end

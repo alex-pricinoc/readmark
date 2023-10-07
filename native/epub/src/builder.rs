@@ -39,8 +39,6 @@ impl fmt::Display for Item {
     }
 }
 
-const STYLE: &str = "body { margin: 0; padding: 0; } img { width: 100%; height: auto; }";
-
 impl<W: io::Write> Builder<W> {
     pub fn new(title: String, out: W) -> Self {
         Self {
@@ -83,7 +81,9 @@ impl<W: io::Write> Builder<W> {
             .epub_version(EpubVersion::V30)
             // TODO: each chapter is shown twice when using inline_toc and EpubVersion::V30
             // .inline_toc()
-            .stylesheet(STYLE.as_bytes())?;
+            .stylesheet(
+                "body { margin: 0; padding: 0; } img { width: 100%; height: auto; }".as_bytes(),
+            )?;
 
         Ok(())
     }
