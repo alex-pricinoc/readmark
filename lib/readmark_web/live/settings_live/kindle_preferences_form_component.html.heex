@@ -13,14 +13,9 @@
       <ol class="list-decimal list-inside">
         <li>
           Go to
-          <.link
-            class="text-primary-500 font-medium"
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://www.amazon.com/mycd"
-          >
+          <.a external accent href="https://www.amazon.com/mycd">
             Manage Your Content and Devices
-          </.link>
+          </.a>
         </li>
         <li>
           From <strong>Preferences</strong>
@@ -35,17 +30,17 @@
               value={@from_email}
               readonly
               class={[
-                "ml-5 block rounded-md font-semibold bg-primary-50 py-[1px] px-[8px] text-primary-500 w-fit text-sm border-primary-300",
-                "sm:leading-6 focus:border-primary-400 focus:outline-none"
+                "ml-5 block rounded-md font-semibold bg-accent/10 py-[1px] px-[8px] text-accent w-fit text-sm border-accent",
+                "sm:leading-6 focus:outline-none"
               ]}
             />
             <button
-              class="absolute top-1/2 -translate-y-1/2 right-[1em] text-primary-300 hover:text-primary-700 invisible group-hover:visible"
+              class="absolute top-1/2 -translate-y-1/2 right-[1em] text-accent hover:text-accent invisible group-hover:visible"
               type="button"
               aria-label="copy email"
               phx-click={JS.dispatch("js:clipcopy", to: "#approved-email")}
             >
-              <.icon name="hero-clipboard_document" class="h-4 w-4" />
+              <.icon name="hero-clipboard-document" class="h-4 w-4" />
             </button>
           </div>
         </li>
@@ -61,12 +56,14 @@
         label="Your Kindle Email"
         placeholder="Send-to-Kindle Email"
       />
-      <p :if={@current_user.kindle_email == nil} class="prose prose-zinc prose-sm mt-2">
-        <strong>Important:</strong>
-        Some Kindle devices can receive documents over the mobile network (3G/4G) as well as Wi-Fi. On these devices, Amazon may charge you a fee after delivering the document over the mobile network.
-        <br />
-        To avoid such charges and only deliver documents over Wi-Fi, enter your kindle email ending with <code>@free.kindle.com</code>.
-      </p>
+      <.prose :if={@current_user.kindle_email == nil} class="mt-2 prose-sm">
+        <p>
+          <strong>Important:</strong>
+          Some Kindle devices can receive documents over the mobile network (3G/4G) as well as Wi-Fi. On these devices, Amazon may charge you a fee after delivering the document over the mobile network.
+          <br />
+          To avoid such charges and only deliver documents over Wi-Fi, enter your kindle email ending with <code>@free.kindle.com</code>.
+        </p>
+      </.prose>
     </div>
 
     <.inputs_for :let={kp} field={@form[:kindle_preferences]}>
@@ -88,7 +85,7 @@
             options={Ecto.Enum.values(KindlePreferences, :frequency)}
           /> at around
           <.input mini type="select" field={kp[:time]} options={time_select_options()} />
-          <label class="text-gray-600">
+          <label class="text-gray-500">
             <.icon name="hero-globe-europe-africa-solid" class="h-4 w-4" />
             <%= @time_zone %>
             <.input field={kp[:time_zone]} value={@time_zone} type="hidden" />

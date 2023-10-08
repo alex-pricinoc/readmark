@@ -20,7 +20,7 @@ defmodule ReadmarkWeb.FormComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="space-y-3 sm:space-y-6 bg-white">
+      <div class="space-y-3 sm:space-y-6">
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
@@ -84,7 +84,7 @@ defmodule ReadmarkWeb.FormComponents do
 
     ~H"""
     <div phx-feedback-for={@name}>
-      <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
+      <label class="flex items-center gap-4 text-sm leading-6">
         <input type="hidden" name={@name} value="false" />
         <input
           type="checkbox"
@@ -108,7 +108,7 @@ defmodule ReadmarkWeb.FormComponents do
       id={@id}
       name={@name}
       {@rest}
-      class="text-sm py-0 pl-2 pr-5 bg-[right_0.1rem_center] rounded"
+      class="text-sm py-0 pl-2 pr-5 bg-[right_0.1rem_center] bg-zinc-50 dark:bg-zinc-900 rounded"
     >
       <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
     </select>
@@ -122,7 +122,12 @@ defmodule ReadmarkWeb.FormComponents do
       <select
         id={@id}
         name={@name}
-        class="mt-1 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 text-sm sm:text-base"
+        class={[
+          "mt-2 block w-full rounded-lg text-sm sm:text-base sm:leading-6",
+          "appearance-none bg-white border border-transparent focus:border-transparent dark:bg-slate-700/20 dark:text-white focus:outline-none focus:ring-2 ring-1 shadow",
+          "text-zinc-900 ring-slate-900/5 focus:ring-accent",
+          "phx-no-feedback:ring-slate-900/5 phx-no-feedback:focus:ring-accent dark:phx-no-feedback:ring-slate-200/20 dark:phx-no-feedback:focus:ring-accent"
+        ]}
         multiple={@multiple}
         {@rest}
       >
@@ -165,10 +170,11 @@ defmodule ReadmarkWeb.FormComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 text-sm sm:text-base sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
-          "border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400",
+          "mt-2 block w-full rounded-lg text-sm sm:text-base sm:leading-6",
+          "appearance-none bg-white border border-transparent focus:border-transparent dark:bg-slate-700/20 dark:text-white focus:outline-none focus:ring-2 ring-1 shadow",
+          "text-zinc-900 ring-slate-900/5 focus:ring-accent",
+          "phx-no-feedback:ring-slate-900/5 phx-no-feedback:focus:ring-accent dark:phx-no-feedback:ring-slate-200/20 dark:phx-no-feedback:focus:ring-accent",
+          @errors != [] && "ring-danger-400 focus:ring-danger-400",
           @rest[:disabled] && "cursor-not-allowed opacity-50"
         ]}
         {@rest}
@@ -186,7 +192,7 @@ defmodule ReadmarkWeb.FormComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
+    <label for={@for} class="block text-sm font-semibold leading-6">
       <%= render_slot(@inner_block) %>
     </label>
     """
@@ -199,7 +205,7 @@ defmodule ReadmarkWeb.FormComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="mt-3 flex gap-3 text-sm leading-6 text-rose-600 phx-no-feedback:hidden">
+    <p class="mt-3 flex gap-3 text-sm leading-6 text-danger-600 phx-no-feedback:hidden">
       <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none" />
       <%= render_slot(@inner_block) %>
     </p>

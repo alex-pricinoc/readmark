@@ -1,12 +1,12 @@
 <div class="lg:ml-60">
   <aside
     id="sidebar"
-    class="fixed inset-y-0 left-0 z-40 w-60 border-r border-zinc-900/10 px-4 py-4 bg-white hidden lg:block"
+    class="fixed inset-y-0 left-0 z-40 w-60 border-r border-zinc-900/10 px-4 py-4 bg-white dark:bg-gray-900 hidden lg:block"
   >
     <div class="px-2 py-2">
-      <.link navigate={~p"/reading"} aria-label="Home" class="text-lg font-bold">
+      <.a primary navigate={~p"/reading"} aria-label="Home" class="text-lg font-bold">
         readmark
-      </.link>
+      </.a>
     </div>
 
     <nav class="mt-10">
@@ -17,8 +17,8 @@
           class={[
             "flex items-center space-x-3 px-2 py-1.5 font-medium text-sm rounded-lg transition-colors duration-75",
             if(@active_tab == link.name,
-              do: "bg-gray-900 text-white",
-              else: "text-gray-700 hover:bg-zinc-50"
+              do: "bg-gray-900 text-white dark:bg-white dark:text-gray-900",
+              else: "text-gray-700 dark:text-gray-300 hover:bg-zinc-100 dark:hover:bg-slate-800"
             )
           ]}
         >
@@ -31,7 +31,7 @@
 
   <.overlay id="sidebar-overlay" class="z-20" phx-click={hide_sidebar()} />
 
-  <main class="flex bg-graph-paper relative">
+  <main class="flex after:bg-graph-paper after:absolute after:h-full after:w-full after:z-[-1] dark:after:backdrop-invert-[.9]">
     <%= @inner_content %>
   </main>
 </div>

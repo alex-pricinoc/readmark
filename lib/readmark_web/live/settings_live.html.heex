@@ -1,9 +1,9 @@
 <.container id="settings" class="flex-1">
   <:header>
     <.show_sidebar_button class="mr-3 lg:hidden" />
-    <.link navigate={~p"/settings"} class="font-semibold leading-0 text-zinc-800">
+    <.a primary navigate={~p"/settings"} class="font-semibold leading-0">
       Settings
-    </.link>
+    </.a>
     <.icon_button label="Log out" href={~p"/users/log_out"} method="delete" class="ml-auto">
       <.icon name="hero-arrow-right-on-rectangle" class="h-5 w-5" />
     </.icon_button>
@@ -18,22 +18,24 @@
         <span class="col-start-1 row-start-1 md:col-start-2 overflow-hidden text-ellipsis">
           <%= @current_user.email %>
         </span>
-        <.link
-          class="col-start-2 md:col-start-3 row-start-1 text-primary-500 text-xs font-medium text-end"
+        <.a
+          accent
+          class="col-start-2 md:col-start-3 row-start-1 text-end"
           patch={~p"/settings/change_email"}
         >
           Change Email
-        </.link>
+        </.a>
         <label class="hidden md:block col-start-1 row-start-2 font-medium">Password</label>
         <span class="col-start-1 row-start-2 md:col-start-2">
           <%= for _ <- 1..12, do: raw("&bull;") %>
         </span>
-        <.link
-          class="col-start-2 md:col-start-3 row-start-2 text-primary-500 text-xs font-medium text-end"
+        <.a
+          accent
+          class="col-start-2 md:col-start-3 row-start-2 text-end"
           patch={~p"/settings/change_password"}
         >
           Change Password
-        </.link>
+        </.a>
       </div>
     </section>
     <!-- Kindle preferences -->
@@ -46,12 +48,9 @@
           </h3>
           <div class="flex justify-between flex-wrap items-center gap-2">
             <span><%= @current_user.kindle_email %></span>
-            <.link
-              class="text-end text-primary-500 text-xs font-medium"
-              patch={~p"/settings/change_kindle_preferences"}
-            >
+            <.a accent class="text-end" patch={~p"/settings/change_kindle_preferences"}>
               Change Kindle Preferences
-            </.link>
+            </.a>
           </div>
         </div>
 
@@ -62,13 +61,13 @@
           </.button>
         </div>
       </div>
-      <.link
+      <.a
         :if={@current_user.kindle_email == nil}
-        class="text-primary-500 text-sm font-medium"
+        accent
         patch={~p"/settings/change_kindle_preferences"}
       >
         Setup your Kindle
-      </.link>
+      </.a>
     </section>
     <!-- Import component -->
     <section class="grid sm:grid-cols-[10rem_auto] gap-4">
@@ -79,13 +78,14 @@
       <h2 class="font-medium">Export</h2>
       <div class="text-sm">
         <p class="mb-4">Generate a list of your saved articles.</p>
-        <.link
-          class="text-primary-500 font-medium"
+        <.a
+          accent
+          class="text-accent-400 font-medium"
           href={~p"/settings/export"}
           download="bookmarks.html"
         >
           Download .HTML file
-        </.link>
+        </.a>
       </div>
     </section>
     <!-- Bookmarklets -->
@@ -123,7 +123,7 @@
     <section class="grid sm:grid-cols-[10rem_auto] gap-4">
       <h2 class="font-medium">Delete Account</h2>
       <.link
-        class="text-red-600 text-sm"
+        class="text-danger-500 text-sm"
         href={~p"/users/delete_account"}
         method="delete"
         data-confirm={gettext("Are you sure? This action is irreversible.")}

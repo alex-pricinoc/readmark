@@ -13,7 +13,8 @@ module.exports = {
         sans: ["Inter var", ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        primary: colors.indigo,
+        accent: "#00C2FE",
+        danger: colors.rose,
         secondary: colors.yellow,
       },
       backgroundImage: {

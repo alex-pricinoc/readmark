@@ -128,7 +128,7 @@ defmodule ReadmarkWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 phx-click-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
+        "phx-submit-loading:opacity-75 phx-click-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 dark:bg-accent dark:hover:bg-accent/90 py-2 px-3",
         "text-sm font-semibold leading-6 text-white active:text-white/80",
         @class
       ]}
@@ -156,10 +156,10 @@ defmodule ReadmarkWeb.CoreComponents do
       @class
     ]}>
       <div>
-        <h1 class="text-lg font-semibold leading-8 text-zinc-800">
+        <h1 class="text-lg font-semibold leading-8">
           <%= render_slot(@inner_block) %>
         </h1>
-        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
+        <p :if={@subtitle != []} class="mt-2 text-sm leading-6">
           <%= render_slot(@subtitle) %>
         </p>
       </div>
@@ -176,11 +176,11 @@ defmodule ReadmarkWeb.CoreComponents do
 
   def container(assigns) do
     ~H"""
-    <div id={@id} class={[@class, "bg-white overflow-auto h-screen"]} phx-hook="Open">
+    <div id={@id} class={[@class, "bg-white dark:bg-gray-900 overflow-auto h-screen"]} phx-hook="Open">
       <header
         class={[
           "z-10 sticky h-20 -top-8 flex items-center",
-          "px-4 bg-white/90 backdrop-blur transition-shadow open:shadow-md"
+          "px-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur transition-shadow open:shadow-md"
         ]}
         phx-click={JS.dispatch("js:scrolltop", to: "##{@id}")}
       >
@@ -218,14 +218,17 @@ defmodule ReadmarkWeb.CoreComponents do
         id={@item_id.(item)}
         phx-click={@item_click && @item_click.(item)}
         class={[
-          "flex flex-col px-3 py-1.5 transition-colors duration-75 md:rounded-xl",
-          @item_click && "hover:cursor-pointer hover:bg-zinc-50"
+          "flex flex-col px-3 py-1.5 transition-colors duration-75 md:rounded-lg",
+          @item_click && "hover:cursor-pointer hover:bg-zinc-50 dark:hover:bg-slate-800"
         ]}
       >
         <%= render_slot(@inner_block, item) %>
       </li>
-      <p id="empty-message" class="hidden only:block mt-24 text-center text-sm text-gray-600">
-        No items yet.
+      <p
+        id="empty-message"
+        class="hidden only:block mt-24 text-center text-base font-medium text-zinc-400"
+      >
+        No Items
       </p>
     </ul>
     """
@@ -241,7 +244,7 @@ defmodule ReadmarkWeb.CoreComponents do
     ~H"""
     <.link
       aria-label={@label}
-      class={["p-2 rounded-lg transition-colors hover:bg-zinc-50", @class]}
+      class={["p-2 rounded-lg transition-colors hover:bg-zinc-50 dark:hover:bg-slate-800", @class]}
       {@rest}
     >
       <%= render_slot(@inner_block) %>
@@ -278,10 +281,7 @@ defmodule ReadmarkWeb.CoreComponents do
   def back(assigns) do
     ~H"""
     <div class="mt-16">
-      <.link
-        navigate={@navigate}
-        class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
-      >
+      <.link navigate={@navigate} class="text-sm font-semibold leading-6">
         <.icon name="hero-arrow-left" class="w-3 h-3 stroke-current inline" />
         <%= render_slot(@inner_block) %>
       </.link>
@@ -314,9 +314,66 @@ defmodule ReadmarkWeb.CoreComponents do
     ~H"""
     <div
       {@rest}
-      class={["fixed inset-0 bg-zinc-50/90 transition-opacity hidden", @class]}
+      class={["fixed inset-0 bg-zinc-50/90 dark:bg-slate-800/90 transition-opacity hidden", @class]}
       aria-hidden="true"
     />
+    """
+  end
+
+  attr :class, :any, default: nil
+  attr :rest, :global, include: ~w(patch phx-click navigate method href download)
+
+  attr :external, :boolean, default: false
+
+  attr :primary, :boolean, default: false
+  attr :accent, :boolean, default: false
+
+  slot :inner_block, required: true
+
+  def a(%{external: true} = assigns) do
+    assigns
+    |> assign(external: nil)
+    |> update_in([:rest], &Map.merge(&1, %{target: "_blank", rel: "noopener noreferrer"}))
+    |> a
+  end
+
+  def a(%{primary: true} = assigns) do
+    ~H"""
+    <.link
+      class={["text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white", @class]}
+      {@rest}
+    >
+      <%= render_slot(@inner_block) %>
+    </.link>
+    """
+  end
+
+  def a(%{accent: true} = assigns) do
+    ~H"""
+    <.link class={["text-accent text-sm font-medium", @class]} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </.link>
+    """
+  end
+
+  def a(assigns) do
+    ~H"""
+    <.link class={["text-slate-500 hover:text-slate-900 dark:hover:text-slate-400", @class]} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </.link>
+    """
+  end
+
+  attr :class, :string, default: nil
+  attr :rest, :global
+
+  slot :inner_block, required: true
+
+  def prose(assigns) do
+    ~H"""
+    <div class={["prose dark:prose-invert", @class]} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </div>
     """
   end
 

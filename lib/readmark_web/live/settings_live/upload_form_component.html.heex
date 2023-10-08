@@ -14,12 +14,12 @@
     >
       <.live_file_input
         upload={@uploads.bookmarks}
-        class="w-full cursor-pointer rounded-md text-sm font-medium text-primary-600 hover:text-primary-500"
+        class="w-full cursor-pointer rounded-md text-sm font-medium"
       />
     </div>
 
     <%= for entry <- @uploads.bookmarks.entries do %>
-      <p :for={err <- upload_errors(@uploads.bookmarks, entry)} class="text-red-700 text-sm">
+      <p :for={err <- upload_errors(@uploads.bookmarks, entry)} class="text-danger-700 text-sm">
         <%= error_to_string(err) %>
       </p>
     <% end %>
@@ -35,7 +35,7 @@
     <% end %>
     <%= if (count = Enum.count(@imported, fn {key, _} -> key == :error end)) > 0 do %>
       <details>
-        <summary class="text-red-600"><%= "Failed to import #{count} links" %></summary>
+        <summary class="text-danger-600"><%= "Failed to import #{count} links" %></summary>
         <dl class="overflow-x-auto">
           <%= for {:error, item} <- @imported do %>
             <%= case item do %>
