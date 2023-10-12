@@ -1,20 +1,43 @@
 mod image;
 
 use self::image::Image;
-use std::{io, sync::mpsc};
+
+use std::{fmt, io, sync::mpsc, thread};
 
 use epub_builder::{EpubBuilder, EpubContent, EpubVersion, ReferenceType, Result, ZipLibrary};
-use rayon::ThreadPoolBuilder;
+use rayon::prelude::*;
 
 pub struct Builder<W> {
-    title: String,
     out: W,
+    title: String,
     epub: EpubBuilder<ZipLibrary>,
 }
 
 pub struct Item {
     pub title: String,
     pub content: String,
+}
+
+impl fmt::Display for Item {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            r#"<!DOCTYPE html>
+        <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+        <head>
+          <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"/>
+          <title>{0}</title>
+          <link rel="stylesheet" type="text/css" href="stylesheet.css" />
+        </head>
+        <body>
+          <h1>{0}</h1>
+          {1}
+        </body>
+        </html>
+        "#,
+            self.title, self.content
+        )
+    }
 }
 
 impl<W: io::Write> Builder<W> {
@@ -29,10 +52,10 @@ impl<W: io::Write> Builder<W> {
     pub fn run(&mut self, items: impl Iterator<Item = Item>) -> Result<()> {
         self.make_book()?;
 
-        let mut all_images = vec![];
+        let mut all_images = Vec::new();
 
         for (index, mut item) in items.enumerate() {
-            match image::rewrite_images(index, &item.content) {
+            match image::rewrite_images(&item.content, index) {
                 Ok((content, mut images)) => {
                     item.content = content;
                     all_images.append(&mut images);
@@ -59,44 +82,29 @@ impl<W: io::Write> Builder<W> {
             .epub_version(EpubVersion::V30)
             // TODO: each chapter is shown twice when using inline_toc and EpubVersion::V30
             // .inline_toc()
-            .stylesheet(STYLE.as_bytes())?;
+            .stylesheet(
+                "body { margin: 0; padding: 0; } img { width: 100%; height: auto; }".as_bytes(),
+            )?;
 
         Ok(())
     }
 
     fn embed_images(&mut self, images: Vec<Image>) -> Result<()> {
-        let pool = ThreadPoolBuilder::new().num_threads(5).build().unwrap();
-
         let (sender, receiver) = mpsc::channel();
 
-        for mut image in images {
-            let sender = sender.clone();
-
-            pool.spawn(move || {
-                if let Err(err) = image.download() {
-                    eprintln!("Error downloading image: {}", err);
-                } else {
-                    if let Err(err) = image.compress() {
-                        eprintln!("Error compressing image: {}", err);
+        thread::spawn(move || {
+            images
+                .into_par_iter()
+                .for_each_with(sender, |sender, image| match image.download() {
+                    Ok(bytes) => sender.send((image.path, bytes)).unwrap(),
+                    Err(err) => {
+                        eprintln!("Error downloading image: {}", err);
                     }
+                });
+        });
 
-                    let mime_type = image
-                        .mime
-                        .take()
-                        .unwrap_or(mime::APPLICATION_OCTET_STREAM)
-                        .to_string();
-
-                    sender.send((image, mime_type)).unwrap();
-                }
-            });
-        }
-
-        drop(sender);
-
-        for (image, mime_type) in receiver {
-            let content = image.content().expect("image content is empty");
-
-            if let Err(err) = self.epub.add_resource(&image.path, content, mime_type) {
+        for (path, bytes) in receiver {
+            if let Err(err) = self.epub.add_resource(path, bytes.as_slice(), "image/jpeg") {
                 eprintln!("Error embedding image: {}", err);
             }
         }
@@ -104,11 +112,11 @@ impl<W: io::Write> Builder<W> {
         Ok(())
     }
 
-    fn add_content(&mut self, index: usize, Item { title, content }: Item) -> Result<()> {
-        let content = Self::gen_xhtml(&title, content);
+    fn add_content(&mut self, index: usize, item: Item) -> Result<()> {
+        let content = item.to_string();
+        let content = content.as_bytes();
 
-        let mut chapter =
-            EpubContent::new(format!("chapter_{}.xhtml", index), content.as_bytes()).title(title);
+        let mut chapter = EpubContent::new(format!("ch_{index}.xhtml"), content).title(item.title);
 
         if index == 0 {
             chapter = chapter.reftype(ReferenceType::Text);
@@ -118,27 +126,7 @@ impl<W: io::Write> Builder<W> {
 
         Ok(())
     }
-
-    fn gen_xhtml(title: &str, content: String) -> String {
-        format!(
-            r#"<!DOCTYPE html>
-          <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
-          <head>
-            <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"/>
-            <title>{title}</title>
-            <link rel="stylesheet" type="text/css" href="stylesheet.css" />
-          </head>
-          <body>
-            <h1>{title}</h1>
-            {content}
-          </body>
-          </html>
-          "#
-        )
-    }
 }
-
-const STYLE: &str = "body { margin: 0; padding: 0; } img { width: 100%; height: auto; }";
 
 #[cfg(test)]
 mod tests {

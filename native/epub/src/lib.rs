@@ -25,13 +25,13 @@ impl From<Article> for Item {
 fn build(title: String, iter: ListIterator) -> Result<Vec<u8>> {
     let articles = iter.map(|a| a.decode::<Article>().unwrap().into());
 
-    let mut epub = vec![];
+    let mut epub = Vec::new();
 
     Builder::new(title, &mut epub)
         .run(articles)
         .map_err(|e| Error::Term(Box::new(e.to_string())))?;
 
-    println!("Generated epub with size: {}K", epub.len() / 1000);
+    println!("Generated epub with size: {}Ki", epub.len() / 1024);
 
     Ok(epub)
 }

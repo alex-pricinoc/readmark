@@ -1,19 +1,20 @@
-use std::collections::HashMap;
+use std::fmt::Display;
 use std::io::Cursor;
-use std::{error, result};
+use std::{collections::HashMap, fmt::Debug};
 
+use image::ImageOutputFormat;
 use lol_html::{element, rewrite_str, RewriteStrSettings};
-use mime::Mime;
+use once_cell::sync::Lazy;
 use url::Url;
 
-pub type Result<T> = result::Result<T, Box<dyn error::Error>>;
+pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+static AGENT: Lazy<ureq::Agent> = Lazy::new(|| ureq::builder().build());
 
 #[derive(Debug)]
 pub struct Image {
-    pub url: Url,
+    url: Url,
     pub path: String,
-    pub mime: Option<Mime>,
-    bytes: Option<Vec<u8>>,
 }
 
 impl Image {
@@ -21,74 +22,38 @@ impl Image {
         let mut url = Url::parse(img_src)?;
         url.set_query(None);
 
-        Ok(Image {
-            url,
-            path,
-            mime: None,
-            bytes: None,
-        })
+        Ok(Image { url, path })
     }
 
-    pub fn download(&mut self) -> Result<()> {
-        match minreq::get(self.url.as_str()).send() {
-            Ok(mut res) if res.status_code == 200 => {
-                let mime = res
-                    .headers
-                    .remove("content-type")
-                    .and_then(|m| m.parse::<Mime>().ok())
-                    .or_else(|| mime_guess::from_path(self.url.path()).first());
+    pub fn download(&self) -> Result<Vec<u8>> {
+        let res = AGENT.get(self.url.as_str()).call()?;
 
-                self.mime = mime;
-                self.bytes = Some(res.into_bytes());
-
-                Ok(())
-            }
-            // TODO: handle redirects
-            Ok(res) => {
-                let status = res.status_code;
-                let reason = res.reason_phrase;
-
-                let err = format!("{} ({})", status, reason);
-
-                Err(err.into())
-            }
-            Err(err) => Err(err.into()),
+        if res.status() != 200 {
+            return Err(format!("{} {}", res.status(), res.status_text()).into());
         }
-    }
 
-    pub fn compress(&mut self) -> Result<()> {
-        let buffer = self.bytes.as_ref().ok_or("empty image")?.as_slice();
+        let len = res
+            .header("Content-Length")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or_default();
 
-        let image_format = self
-            .mime
-            .as_ref()
-            .and_then(image::ImageFormat::from_mime_type);
+        let mut bytes = Vec::with_capacity(len);
 
-        let image = match image_format {
-            Some(format) => image::load_from_memory_with_format(buffer, format)?,
-            None => image::load_from_memory(buffer)?,
-        };
+        res.into_reader().read_to_end(&mut bytes)?;
 
-        let image = image.grayscale().thumbnail(600, 600);
+        let image = image::load_from_memory(&bytes)?
+            .grayscale()
+            .thumbnail(700, 700);
 
-        let mut bytes: Vec<u8> = vec![];
+        let mut bytes = Vec::new();
 
-        image.write_to(
-            &mut Cursor::new(&mut bytes),
-            image::ImageOutputFormat::Jpeg(90),
-        )?;
+        image.write_to(&mut Cursor::new(&mut bytes), ImageOutputFormat::Jpeg(80))?;
 
-        self.bytes.replace(bytes);
-
-        Ok(())
-    }
-
-    pub fn content(&self) -> Option<&[u8]> {
-        self.bytes.as_deref()
+        Ok(bytes)
     }
 }
 
-pub fn rewrite_images(chapter: usize, html: &str) -> Result<(String, Vec<Image>)> {
+pub fn rewrite_images(html: &str, chapter: impl Display + Copy) -> Result<(String, Vec<Image>)> {
     let mut images = HashMap::new();
     let mut index = 0;
 
@@ -108,7 +73,7 @@ pub fn rewrite_images(chapter: usize, html: &str) -> Result<(String, Vec<Image>)
                 el.set_attribute("src", &img.path)?;
             }
             Err(err) => {
-                eprintln!("Failed to parse Image, skipping image: {}", err);
+                eprintln!("Failed to parse Image, skipping: {}", err);
             }
         }
 
