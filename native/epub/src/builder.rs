@@ -26,16 +26,17 @@ impl fmt::Display for Item {
         <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
         <head>
           <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"/>
-          <title>{0}</title>
+          <title>{title}</title>
           <link rel="stylesheet" type="text/css" href="stylesheet.css" />
         </head>
         <body>
-          <h1>{0}</h1>
-          {1}
+          <h1>{title}</h1>
+          {content}
         </body>
         </html>
         "#,
-            self.title, self.content
+            title = self.title,
+            content = self.content
         )
     }
 }
@@ -52,23 +53,27 @@ impl<W: io::Write> Builder<W> {
     pub fn run(&mut self, items: impl Iterator<Item = Item>) -> Result<()> {
         self.make_book()?;
 
-        let mut all_images = Vec::new();
+        let mut images = Vec::new();
 
         for (index, mut item) in items.enumerate() {
-            match image::rewrite_images(&item.content, index) {
-                Ok((content, mut images)) => {
-                    item.content = content;
-                    all_images.append(&mut images);
-                }
-                Err(err) => {
-                    eprintln!("Error rewriting images: {}", err);
-                }
+            match image::rewrite_images(&mut item.content, index) {
+                Ok(imgs) => images.extend(imgs),
+                Err(err) => eprintln!("error rewriting images: {:?}", err),
             }
 
             self.add_content(index, item)?;
         }
 
-        self.embed_images(all_images)?;
+        let (images, errors): (Vec<_>, Vec<_>) = images.into_iter().partition(Result::is_ok);
+
+        let images: Vec<_> = images.into_iter().map(Result::unwrap).collect();
+        let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
+
+        if !errors.is_empty() {
+            eprintln!("errors while collecting images: {:?}", errors);
+        }
+
+        self.embed_images(images)?;
 
         self.epub.generate(self.out.by_ref())?;
 
@@ -95,17 +100,26 @@ impl<W: io::Write> Builder<W> {
         thread::spawn(move || {
             images
                 .into_par_iter()
-                .for_each_with(sender, |sender, image| match image.download() {
-                    Ok(bytes) => sender.send((image.path, bytes)).unwrap(),
-                    Err(err) => {
-                        eprintln!("Error downloading image: {}", err);
-                    }
+                .for_each_with(sender, |sender, image| {
+                    let res = image.download();
+                    let path = image.path;
+
+                    sender.send((path, res)).unwrap()
                 });
         });
 
-        for (path, bytes) in receiver {
+        for (path, result) in receiver {
+            let bytes = match result {
+                Ok(bytes) => bytes,
+                Err(err) => {
+                    eprintln!("error downloading image: {:?}", err);
+
+                    continue;
+                }
+            };
+
             if let Err(err) = self.epub.add_resource(path, bytes.as_slice(), "image/jpeg") {
-                eprintln!("Error embedding image: {}", err);
+                eprintln!("error embedding image: {:?}", err);
             }
         }
 
