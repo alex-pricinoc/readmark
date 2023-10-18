@@ -2,7 +2,10 @@ mod builder;
 
 use builder::{Builder, Item};
 
-use rustler::{Error, ListIterator, NifResult as Result, NifStruct};
+use rustler::{Env, Error, ListIterator, NifResult as Result, NifStruct, Term};
+
+use env_logger::Builder as LoggerBuilder;
+use log::LevelFilter;
 
 #[derive(Debug, NifStruct)]
 #[module = "Readmark.Bookmarks.Article"]
@@ -21,6 +24,12 @@ impl From<Article> for Item {
     }
 }
 
+fn load(_: Env, _: Term) -> bool {
+    LoggerBuilder::new().filter_level(LevelFilter::Info).init();
+
+    true
+}
+
 #[rustler::nif(schedule = "DirtyIo")]
 fn build(title: String, iter: ListIterator) -> Result<Vec<u8>> {
     let articles = iter.map(|a| a.decode::<Article>().unwrap().into());
@@ -31,9 +40,9 @@ fn build(title: String, iter: ListIterator) -> Result<Vec<u8>> {
         .run(articles)
         .map_err(|e| Error::Term(Box::new(e.to_string())))?;
 
-    println!("Generated epub with size: {}Ki", epub.len() / 1024);
+    log::info!("Generated epub with size: {}Ki", epub.len() / 1024);
 
     Ok(epub)
 }
 
-rustler::init!("Elixir.Epub.Native", [build]);
+rustler::init!("Elixir.Epub.Native", [build], load = load);

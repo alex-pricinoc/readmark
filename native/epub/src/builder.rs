@@ -58,7 +58,7 @@ impl<W: io::Write> Builder<W> {
         for (index, mut item) in items.enumerate() {
             match image::rewrite_images(&mut item.content, index) {
                 Ok(imgs) => images.extend(imgs),
-                Err(err) => eprintln!("error rewriting images: {:?}", err),
+                Err(err) => log::error!("error rewriting images: {:?}", err),
             }
 
             self.add_content(index, item)?;
@@ -70,7 +70,7 @@ impl<W: io::Write> Builder<W> {
         let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
 
         if !errors.is_empty() {
-            eprintln!("errors while collecting images: {:?}", errors);
+            log::error!("errors while collecting images: {:?}", errors);
         }
 
         self.embed_images(images)?;
@@ -100,26 +100,15 @@ impl<W: io::Write> Builder<W> {
         thread::spawn(move || {
             images
                 .into_par_iter()
-                .for_each_with(sender, |sender, image| {
-                    let res = image.download();
-                    let path = image.path;
-
-                    sender.send((path, res)).unwrap()
+                .for_each_with(sender, |sender, image| match image.download() {
+                    Ok(bytes) => sender.send((image.path, bytes)).unwrap(),
+                    Err(err) => log::warn!("error downloading image: {:?}", err),
                 });
         });
 
-        for (path, result) in receiver {
-            let bytes = match result {
-                Ok(bytes) => bytes,
-                Err(err) => {
-                    eprintln!("error downloading image: {:?}", err);
-
-                    continue;
-                }
-            };
-
+        for (path, bytes) in receiver {
             if let Err(err) = self.epub.add_resource(path, bytes.as_slice(), "image/jpeg") {
-                eprintln!("error embedding image: {:?}", err);
+                log::error!("error embedding image: {:?}", err);
             }
         }
 
@@ -128,9 +117,9 @@ impl<W: io::Write> Builder<W> {
 
     fn add_content(&mut self, index: usize, item: Item) -> Result<()> {
         let content = item.to_string();
-        let content = content.as_bytes();
 
-        let mut chapter = EpubContent::new(format!("ch_{index}.xhtml"), content).title(item.title);
+        let mut chapter =
+            EpubContent::new(format!("ch_{index}.xhtml"), content.as_bytes()).title(item.title);
 
         if index == 0 {
             chapter = chapter.reftype(ReferenceType::Text);

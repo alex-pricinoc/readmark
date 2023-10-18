@@ -22,7 +22,7 @@ pub struct Image {
 
 impl Image {
     fn build(img_src: &str, path: String) -> Result<Image> {
-        let mut url = Url::parse(img_src)?;
+        let mut url = Url::parse(img_src).map_err(|e| format!("{}: {}", e, img_src))?;
 
         if !url.has_host() {
             Err(format!("URL has no host: {}", img_src))?;
@@ -39,7 +39,7 @@ impl Image {
         let res = AGENT.get(self.url.as_str()).call()?;
 
         if res.status() != 200 {
-            Err(format!("{} {}", res.status(), res.status_text()))?;
+            Err(format!("{}: {}", res.status(), res.status_text()))?;
         }
 
         let len = res
@@ -74,7 +74,7 @@ pub fn rewrite_images(
 
     let element_content_handlers = vec![element!("img", |el| {
         let Some(img_src) = el.get_attribute("src").or(el.get_attribute("data-src")) else {
-            eprintln!("could not get img[src] of: {el:?}");
+            log::warn!("could not get img[src] of: {el:?}");
 
             return Ok(());
         };
