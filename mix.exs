@@ -1,7 +1,7 @@
 defmodule Readmark.MixProject do
   use Mix.Project
 
-  @version "0.4.8"
+  @version "0.5.0"
 
   def project do
     [
@@ -39,16 +39,15 @@ defmodule Readmark.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.2"},
-      {:phoenix_live_view, "~> 0.18.18"},
-      {:phoenix_html, "~> 3.3"},
+      {:phoenix, "~> 1.7.10"},
       {:phoenix_ecto, "~> 4.4"},
+      {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
+      {:phoenix_html, "~> 4.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_dashboard, "~> 0.7.2"},
-      {:file_system, "~> 0.2.10", only: :dev},
-      {:ecto_sql, "~> 3.6"},
+      {:phoenix_live_view, "~> 0.20.1"},
       {:floki, ">= 0.30.0"},
+      {:phoenix_live_dashboard, "~> 0.8.2"},
       {:bcrypt_elixir, "~> 3.0"},
       {:swoosh, "~> 1.3"},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
@@ -67,7 +66,7 @@ defmodule Readmark.MixProject do
       {:tz, "~> 0.26.2"},
       {:kday, "~> 1.0"},
       {:mox, "~> 1.0", only: :test},
-      {:rustler, "~> 0.27.0"}
+      {:rustler, "~> 0.30.0"}
     ]
   end
 

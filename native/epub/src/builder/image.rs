@@ -1,12 +1,11 @@
-use std::cmp::min;
-use std::fmt::Display;
-use std::io::{Cursor, Read};
-use std::time::Duration;
-use std::{collections::HashMap, fmt::Debug};
-
 use image::ImageOutputFormat;
+use lol_html::errors::RewritingError;
 use lol_html::{element, rewrite_str, RewriteStrSettings};
 use once_cell::sync::Lazy;
+use std::collections::HashMap;
+use std::fmt::Display;
+use std::result;
+use std::time::Duration;
 use url::Url;
 
 static AGENT: Lazy<ureq::Agent> =
@@ -16,30 +15,40 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync 
 
 #[derive(Debug)]
 pub struct Image {
-    url: Url,
+    pub url: Url,
     pub path: String,
+    pub bytes: Option<Vec<u8>>,
 }
 
 impl Image {
     fn build(img_src: &str, path: String) -> Result<Image> {
-        let mut url = Url::parse(img_src).map_err(|e| format!("{}: {}", e, img_src))?;
+        let mut url = Url::parse(img_src).map_err(|e| format!("{e}: {img_src}"))?;
 
         if !url.has_host() {
-            Err(format!("URL has no host: {}", img_src))?;
+            Err(format!("URL has no host: {img_src}"))?;
         }
 
         url.set_query(None);
 
-        Ok(Image { url, path })
+        Ok(Image {
+            url,
+            path,
+            bytes: None,
+        })
     }
 
-    pub fn download(&self) -> Result<Vec<u8>> {
-        const MAX_SIZE: usize = 10e6 as _;
+    pub fn download(&mut self) -> Result<()> {
+        use std::io::prelude::*;
+        use std::io::Cursor;
 
         let res = AGENT.get(self.url.as_str()).call()?;
 
         if res.status() != 200 {
-            Err(format!("{}: {}", res.status(), res.status_text()))?;
+            Err(format!(
+                "{code}: {text}",
+                code = res.status(),
+                text = res.status_text()
+            ))?;
         }
 
         let len = res
@@ -47,34 +56,36 @@ impl Image {
             .and_then(|s| s.parse().ok())
             .unwrap_or_default();
 
-        let mut bytes = Vec::with_capacity(min(len, MAX_SIZE));
+        let mut bytes = Vec::with_capacity(len);
 
         res.into_reader()
-            .take(MAX_SIZE as _)
+            .take(10 * 1024 * 1024)
             .read_to_end(&mut bytes)?;
 
         let image = image::load_from_memory(&bytes)?
             .grayscale()
             .thumbnail(700, 700);
 
-        let mut bytes = Vec::new();
+        bytes.clear();
 
         image.write_to(&mut Cursor::new(&mut bytes), ImageOutputFormat::Jpeg(80))?;
 
-        Ok(bytes)
+        self.bytes = Some(bytes);
+
+        Ok(())
     }
 }
 
 pub fn rewrite_images(
     html: &mut String,
     chapter: impl Display + Copy,
-) -> Result<impl IntoIterator<Item = Result<Image>>> {
+) -> result::Result<impl IntoIterator<Item = Image>, RewritingError> {
     let mut images = HashMap::new();
     let mut index = 0;
 
     let element_content_handlers = vec![element!("img", |el| {
         let Some(img_src) = el.get_attribute("src").or(el.get_attribute("data-src")) else {
-            log::warn!("could not get img[src] of: {el:?}");
+            log::debug!("could not get img[src] of: {el:?}");
 
             return Ok(());
         };
@@ -85,10 +96,13 @@ pub fn rewrite_images(
             .entry(img_src)
             .or_insert_with_key(|k| Image::build(k, format!("ch_{chapter}/img-{index}.jpg")));
 
-        if let Ok(img) = image {
-            el.remove_attribute("loading");
-            el.remove_attribute("srcset");
-            el.set_attribute("src", &img.path)?;
+        match image {
+            Ok(img) => {
+                el.remove_attribute("loading");
+                el.remove_attribute("srcset");
+                el.set_attribute("src", &img.path)?;
+            }
+            Err(err) => log::debug!("{err}"),
         }
 
         Ok(())
@@ -102,7 +116,7 @@ pub fn rewrite_images(
         },
     )?;
 
-    let images = images.into_values();
+    let images = images.into_values().flatten();
 
     Ok(images)
 }

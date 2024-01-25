@@ -23,13 +23,13 @@ defmodule Readmark.Workers.ArticleFetcher do
         article
 
       {:error, error} ->
-        Logger.error("Unable to insert article: #{inspect(error)}")
+        Logger.debug("Unable to insert article: #{inspect(error)}")
         Repo.get(Article, url)
     end
   end
 
   defp maybe_insert_article(_url, {:error, error}) do
-    Logger.error("Unable to summarize article: #{inspect(error)}")
+    Logger.warning("Unable to summarize article: #{inspect(error)}")
     nil
   end
 end

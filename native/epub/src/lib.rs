@@ -1,11 +1,9 @@
 mod builder;
 
 use builder::{Builder, Item};
-
-use rustler::{Env, Error, ListIterator, NifResult as Result, NifStruct, Term};
-
 use env_logger::Builder as LoggerBuilder;
 use log::LevelFilter;
+use rustler::{Env, Error, ListIterator, NifResult as Result, NifStruct, Term};
 
 #[derive(Debug, NifStruct)]
 #[module = "Readmark.Bookmarks.Article"]
@@ -16,8 +14,8 @@ pub struct Article {
 }
 
 impl From<Article> for Item {
-    fn from(article: Article) -> Item {
-        Item {
+    fn from(article: Article) -> Self {
+        Self {
             title: article.title,
             content: article.article_html,
         }
@@ -34,7 +32,7 @@ fn load(_: Env, _: Term) -> bool {
 fn build(title: String, iter: ListIterator) -> Result<Vec<u8>> {
     let articles = iter.map(|a| a.decode::<Article>().unwrap().into());
 
-    let mut epub = Vec::new();
+    let mut epub = vec![];
 
     Builder::new(title, &mut epub)
         .run(articles)

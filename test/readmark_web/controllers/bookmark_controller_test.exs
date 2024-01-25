@@ -100,7 +100,7 @@ defmodule ReadmarkWeb.BookmarkControllerTest do
     test "redirects is feching article fails", %{conn: conn, bookmark_attrs: bookmark} do
       ReadabilityMock
       |> expect(:summarize, 1, fn _ ->
-        {:error, "something went frong"}
+        {:error, "some error"}
       end)
 
       conn = get(conn, ~p"/_/v1/kindle", bookmark)

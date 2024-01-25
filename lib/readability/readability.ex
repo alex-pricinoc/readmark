@@ -30,6 +30,6 @@ defmodule Readability do
   end
 
   defp bin_path do
-    (:code.priv_dir(:readmark) ++ '/go/readability') |> to_string
+    (:code.priv_dir(:readmark) ++ ~c"/go/readability") |> to_string
   end
 end

@@ -24,11 +24,11 @@ format f:
 	mix format
 	dprint fmt
 
-precommit: check test native
+precommit: check test
 
 
 check lint:
-	mix lint
+	MIX_ENV=test mix lint
 	dprint check
 	mix hex.audit
 	mix deps.audit
@@ -36,7 +36,7 @@ check lint:
 check.deps.outdated:
 	mix hex.outdated
 
-
+.PHONY: test
 test:
 	mix test
 
@@ -47,17 +47,10 @@ test.coverage.html:
 	mix coveralls.html
 
 
-native:
-	make --directory native/epub
-
-
 clean:
 	mix clean
 	rm -rf priv/go
-	rm -rf priv/native
-	make clean --directory native/epub
+	rm -rf priv/static/assets
 
 clean.deps.unused:
 	mix deps.clean --unlock --unused
-
-.PHONY: test native

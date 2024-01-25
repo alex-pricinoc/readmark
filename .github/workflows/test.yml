@@ -92,7 +92,7 @@ jobs:
           mix clean
 
       - name: Install dependencies
-        run: mix deps.get --only $MIX_ENV
+        run: mix deps.get
 
       # Normally we'd use `mix deps.compile` here, however that incurs a large
       # performance penalty when the dependencies are already fully compiled:

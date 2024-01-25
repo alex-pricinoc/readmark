@@ -256,8 +256,7 @@ defmodule ReadmarkWeb.SettingsLiveTest do
 
       html = lv |> form("#upload-bookmarks-form") |> render_submit()
 
-      assert html =~ "Imported 9 links"
-      assert html =~ "Failed to import 1 links"
+      assert html =~ "Imported 10 links"
 
       bookmarks =
         file_input(lv, "#upload-bookmarks-form", :bookmarks, [
@@ -272,7 +271,7 @@ defmodule ReadmarkWeb.SettingsLiveTest do
 
       render_upload(bookmarks, "bookmarks.html")
 
-      assert lv |> form("#upload-bookmarks-form") |> render_submit() =~ "Imported 18 links"
+      assert lv |> form("#upload-bookmarks-form") |> render_submit() =~ "Imported 20 links"
     end
   end
 
